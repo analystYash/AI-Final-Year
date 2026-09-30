@@ -364,15 +364,19 @@ def get_patient_by_contact(contact):
 
 @app.route("/api/prescribe", methods=["POST"])
 def prescribe():
-    """Commits an AI-analyzed prescription with doctor notes and AI second opinion, tied to phone number."""
+    """Commits an AI-analyzed prescription with doctor notes and AI second opinion, tied to phone number.
+    Supports either a single medicine (drug_name) or multiple medicines (medicines list)."""
     try:
         data = request.get_json() or {}
         patient_id = data.get("patient_id")
         contact_number = str(data.get("contact_number", "")).strip()
+        medicines = data.get("medicines", [])
         drug_name = data.get("drug_name")
 
-        if not drug_name or (not patient_id and not contact_number):
-            return jsonify({"error": "Drug Name and either Patient ID or Contact Number are required."}), 400
+        if not drug_name and not medicines:
+            return jsonify({"error": "Drug Name or medicines list is required."}), 400
+        if not patient_id and not contact_number:
+            return jsonify({"error": "Patient ID or Contact Number is required."}), 400
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -390,68 +394,94 @@ def prescribe():
         patient = dict(patient_row)
         patient_id = patient["id"]
 
-        # Run AI prediction if not already computed
-        prediction = data.get("prediction")
-        if not prediction:
-            prediction = ml_engine.predict(patient, drug_name)
-            prediction["multilingual_recommendation"] = generate_multilingual_recommendation(prediction, patient["name"])
-
         # Check if columns exist in current table (gracefully handle migration)
         cursor.execute("PRAGMA table_info(prescriptions)")
         cols = [c["name"] for c in cursor.fetchall()]
         has_new_cols = "xai_factors" in cols
 
-        if has_new_cols:
-            cursor.execute("""
-            INSERT INTO prescriptions (
-                patient_id, patient_name, patient_contact, drug_name, dosage,
-                effectiveness_pct, side_effect_pct, ddi_pct, overall_risk,
-                target_organs, multilingual_notes, clinical_alerts, xai_factors,
-                dietary_warnings, full_prediction_json, doctor_notes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                patient_id,
-                patient["name"],
-                patient["contact_number"],
-                drug_name,
-                data.get("dosage", prediction.get("standard_dose", "As prescribed")),
-                prediction.get("effectiveness_pct", 75),
-                prediction.get("side_effect_pct", 20),
-                prediction.get("ddi_pct", 10),
-                prediction.get("overall_risk_level", "LOW"),
-                json.dumps(prediction.get("target_organs", [])),
-                json.dumps(prediction.get("multilingual_recommendation", {})),
-                json.dumps(prediction.get("clinical_alerts", [])),
-                json.dumps(prediction.get("xai_factors", [])),
-                prediction.get("dietary_warnings", ""),
-                json.dumps(prediction),
-                data.get("doctor_notes", "Standard clinical monitoring recommended.")
-            ))
-        else:
-            cursor.execute("""
-            INSERT INTO prescriptions (
-                patient_id, patient_name, patient_contact, drug_name, dosage,
-                effectiveness_pct, side_effect_pct, ddi_pct, overall_risk,
-                target_organs, multilingual_notes, clinical_alerts, doctor_notes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                patient_id,
-                patient["name"],
-                patient["contact_number"],
-                drug_name,
-                data.get("dosage", prediction.get("standard_dose", "As prescribed")),
-                prediction.get("effectiveness_pct", 75),
-                prediction.get("side_effect_pct", 20),
-                prediction.get("ddi_pct", 10),
-                prediction.get("overall_risk_level", "LOW"),
-                json.dumps(prediction.get("target_organs", [])),
-                json.dumps(prediction.get("multilingual_recommendation", {})),
-                json.dumps(prediction.get("clinical_alerts", [])),
-                data.get("doctor_notes", "Standard clinical monitoring recommended.")
-            ))
+        # Standardize into a list of medicines to save
+        meds_to_save = []
+        if medicines and isinstance(medicines, list) and len(medicines) > 0:
+            for m in medicines:
+                m_drug = m.get("drug") or m.get("drug_name")
+                if m_drug:
+                    meds_to_save.append({
+                        "drug_name": m_drug,
+                        "dosage": m.get("dosage") or f"{m.get('dosage', 'Standard')} ({m.get('timing', '')}, {m.get('duration', '')})",
+                        "doctor_notes": m.get("doctor_notes") or data.get("doctor_notes", "Standard clinical monitoring recommended."),
+                        "prediction": m.get("prediction")
+                    })
+        elif drug_name:
+            meds_to_save.append({
+                "drug_name": drug_name,
+                "dosage": data.get("dosage", "Standard dose"),
+                "doctor_notes": data.get("doctor_notes", "Standard clinical monitoring recommended."),
+                "prediction": data.get("prediction")
+            })
+
+        saved_ids = []
+        for item in meds_to_save:
+            cur_drug = item["drug_name"]
+            cur_dosage = item["dosage"]
+            cur_notes = item["doctor_notes"]
+            prediction = item["prediction"]
+
+            if not prediction:
+                prediction = ml_engine.predict(patient, cur_drug)
+                prediction["multilingual_recommendation"] = generate_multilingual_recommendation(prediction, patient["name"])
+
+            if has_new_cols:
+                cursor.execute("""
+                INSERT INTO prescriptions (
+                    patient_id, patient_name, patient_contact, drug_name, dosage,
+                    effectiveness_pct, side_effect_pct, ddi_pct, overall_risk,
+                    target_organs, multilingual_notes, clinical_alerts, xai_factors,
+                    dietary_warnings, full_prediction_json, doctor_notes
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    patient_id,
+                    patient["name"],
+                    patient["contact_number"],
+                    cur_drug,
+                    cur_dosage,
+                    prediction.get("effectiveness_pct", 75),
+                    prediction.get("side_effect_pct", 20),
+                    prediction.get("ddi_pct", 10),
+                    prediction.get("overall_risk_level", "LOW"),
+                    json.dumps(prediction.get("target_organs", [])),
+                    json.dumps(prediction.get("multilingual_recommendation", {})),
+                    json.dumps(prediction.get("clinical_alerts", [])),
+                    json.dumps(prediction.get("xai_factors", [])),
+                    prediction.get("dietary_warnings", ""),
+                    json.dumps(prediction),
+                    cur_notes
+                ))
+            else:
+                cursor.execute("""
+                INSERT INTO prescriptions (
+                    patient_id, patient_name, patient_contact, drug_name, dosage,
+                    effectiveness_pct, side_effect_pct, ddi_pct, overall_risk,
+                    target_organs, multilingual_notes, clinical_alerts, doctor_notes
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    patient_id,
+                    patient["name"],
+                    patient["contact_number"],
+                    cur_drug,
+                    cur_dosage,
+                    prediction.get("effectiveness_pct", 75),
+                    prediction.get("side_effect_pct", 20),
+                    prediction.get("ddi_pct", 10),
+                    prediction.get("overall_risk_level", "LOW"),
+                    json.dumps(prediction.get("target_organs", [])),
+                    json.dumps(prediction.get("multilingual_recommendation", {})),
+                    json.dumps(prediction.get("clinical_alerts", [])),
+                    cur_notes
+                ))
+            saved_ids.append(cursor.lastrowid)
 
         conn.commit()
-        prescription_id = cursor.lastrowid
+        prescription_id = saved_ids[0] if saved_ids else None
         conn.close()
 
         return jsonify({

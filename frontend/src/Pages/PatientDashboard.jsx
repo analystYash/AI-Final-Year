@@ -10,6 +10,7 @@ import EffectCharts from '../components/EffectCharts';
 import MedicalReport from '../components/MedicalReport';
 import DrugComparison from '../components/DrugComparison';
 import { useLanguage } from '../context/LanguageContext';
+import { getGeminiDrugAnalysis, getGeminiMedicineRecommendation } from '../services/api';
 
 export default function PatientDashboard() {
   const navigate = useNavigate();
@@ -29,6 +30,9 @@ export default function PatientDashboard() {
   const [prescriptions, setPrescriptions] = useState([]);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | '3d-view' | 'comparison' | 'advice' | 'report'
   const [selectedPrescription, setSelectedPrescription] = useState(null);
+  const [geminiAnalysis, setGeminiAnalysis] = useState(null);
+  const [geminiRecommendation, setGeminiRecommendation] = useState(null);
+  const [loadingAi, setLoadingAi] = useState(false);
 
   useEffect(() => {
     const storedPatient = localStorage.getItem('drugai_patient');
@@ -55,14 +59,39 @@ export default function PatientDashboard() {
     }
   }, []);
 
+  const activeDrugName = selectedPrescription?.drug_name || (prescriptions[0]?.drug_name) || 'Pantoprazole 40mg';
+  const activeDosage = selectedPrescription?.dosage || (prescriptions[0]?.dosage) || '40 mg (Once Daily, 10 Days, Before Breakfast)';
+
+  // Auto-fetch personalized Gemini AI analysis & recommendation for patient
+  useEffect(() => {
+    let isMounted = true;
+    async function loadPatientAiData() {
+      if (!patient || !activeDrugName) return;
+      setLoadingAi(true);
+      try {
+        const [analysis, rec] = await Promise.all([
+          getGeminiDrugAnalysis({ drugNames: [activeDrugName], patient, lang }).catch(() => null),
+          getGeminiMedicineRecommendation({ patient, currentDrug: activeDrugName, lang }).catch(() => null)
+        ]);
+        if (isMounted) {
+          if (analysis) setGeminiAnalysis(analysis);
+          if (rec) setGeminiRecommendation(rec);
+        }
+      } catch (err) {
+        console.warn('Patient AI fetch error:', err);
+      } finally {
+        if (isMounted) setLoadingAi(false);
+      }
+    }
+    loadPatientAiData();
+    return () => { isMounted = false; };
+  }, [activeDrugName, patient?.contact_number, patient?.current_health_issue, lang]);
+
   const handleLogout = () => {
     localStorage.removeItem('drugai_patient');
     localStorage.removeItem('drugai_prescriptions');
     navigate('/login');
   };
-
-  const activeDrugName = selectedPrescription?.drug_name || 'Pantoprazole 40mg';
-  const activeDosage = selectedPrescription?.dosage || '40 mg (Once Daily, 10 Days, Before Breakfast)';
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">

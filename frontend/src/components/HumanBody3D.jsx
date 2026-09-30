@@ -37,13 +37,61 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
   const humanModelGroupRef = useRef(null);
   const organFocusGroupRef = useRef(null);
 
-  // Normalized active target organ keys
+  // Comprehensive Drug to Target Organ Fallback Mapping
+  const DRUG_TARGET_MAP = useMemo(() => ({
+    pantoprazole: ['stomach'],
+    omeprazole: ['stomach'],
+    rabeprazole: ['stomach'],
+    esomeprazole: ['stomach'],
+    amlodipine: ['heart'],
+    lisinopril: ['heart', 'kidneys'],
+    losartan: ['heart', 'kidneys'],
+    metoprolol: ['heart'],
+    atorvastatin: ['liver', 'heart'],
+    warfarin: ['heart', 'liver'],
+    aspirin: ['heart', 'stomach'],
+    clopidogrel: ['heart'],
+    furosemide: ['kidneys', 'heart'],
+    spironolactone: ['kidneys', 'heart'],
+    metformin: ['liver', 'kidneys', 'stomach'],
+    glimepiride: ['liver', 'kidneys'],
+    empagliflozin: ['kidneys', 'heart'],
+    insulin: ['liver', 'kidneys'],
+    levothyroxine: ['heart', 'liver'],
+    paracetamol: ['liver', 'brain'],
+    ibuprofen: ['stomach', 'kidneys'],
+    tramadol: ['brain'],
+    celecoxib: ['heart', 'stomach'],
+    salbutamol: ['lungs'],
+    montelukast: ['lungs'],
+    budesonide: ['lungs'],
+    amoxicillin: ['kidneys', 'stomach'],
+    azithromycin: ['lungs', 'liver'],
+    ciprofloxacin: ['kidneys', 'stomach'],
+    sertraline: ['brain'],
+    alprazolam: ['brain']
+  }), []);
+
+  // Normalized active target organ keys (checks props and drugName)
   const activeKeys = useMemo(() => {
-    return (targetOrgans || []).map(o => {
+    const fromProps = (targetOrgans || []).map(o => {
       if (typeof o === 'string') return o.toLowerCase();
       return (o?.key || o?.name || '').toLowerCase();
-    });
-  }, [targetOrgans]);
+    }).filter(Boolean);
+
+    if (fromProps.length > 0 && !fromProps.every(k => k === 'unknown' || k === 'other')) {
+      return fromProps;
+    }
+
+    // Deduce from drugName
+    const dLower = (drugName || '').toLowerCase();
+    for (const [key, organs] of Object.entries(DRUG_TARGET_MAP)) {
+      if (dLower.includes(key)) {
+        return organs;
+      }
+    }
+    return ['stomach'];
+  }, [targetOrgans, drugName, DRUG_TARGET_MAP]);
 
   // Comprehensive Anatomical Organ Definitions & Clinical Metadata
   const ORGAN_DEFINITIONS = useMemo(() => ({
@@ -635,11 +683,12 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
       // Target Organ Risk Aura Glow
       activeKeys.forEach((k) => {
         const mesh = organMeshes[k] ||
-          (k.includes('heart') ? organMeshes.heart :
-           k.includes('brain') ? organMeshes.brain :
-           k.includes('kidney') ? organMeshes.kidneys :
-           k.includes('liver') ? organMeshes.liver :
-           k.includes('stomach') ? organMeshes.stomach : null);
+          (k.includes('heart') || k.includes('cardio') ? organMeshes.heart :
+           k.includes('brain') || k.includes('nervous') || k.includes('cns') ? organMeshes.brain :
+           k.includes('kidney') || k.includes('renal') ? organMeshes.kidneys :
+           k.includes('liver') || k.includes('hepatic') ? organMeshes.liver :
+           k.includes('lung') || k.includes('respirat') || k.includes('bronch') ? organMeshes.lungs :
+           k.includes('stomach') || k.includes('gi') || k.includes('acid') || k.includes('gastro') ? organMeshes.stomach : null);
 
         if (mesh && mesh !== organMeshes.heart && mesh !== organMeshes.lungs) {
           const pulse = 1 + Math.sin(elapsedTime * 4.5) * 0.055;
@@ -653,12 +702,21 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
         const currentProgress = simProgressRef.current;
         const positions = particles.geometry.attributes.position.array;
 
-        // Determine destination target organ coordinate
-        let targetCoords = ORGAN_DEFINITIONS.heart.position;
-        if (activeKeys.some(k => k.includes('brain') || k.includes('nervous'))) targetCoords = ORGAN_DEFINITIONS.brain.position;
-        else if (activeKeys.some(k => k.includes('stomach') || k.includes('gi') || k.includes('acid'))) targetCoords = ORGAN_DEFINITIONS.stomach.position;
-        else if (activeKeys.some(k => k.includes('liver') || k.includes('hepatic'))) targetCoords = ORGAN_DEFINITIONS.liver.position;
-        else if (activeKeys.some(k => k.includes('kidney') || k.includes('renal'))) targetCoords = ORGAN_DEFINITIONS.kidneys.position;
+        // Determine destination target organ coordinate based on activeKeys
+        let targetCoords = ORGAN_DEFINITIONS.stomach.position;
+        if (activeKeys.some(k => k.includes('brain') || k.includes('nervous') || k.includes('cns'))) {
+          targetCoords = ORGAN_DEFINITIONS.brain.position;
+        } else if (activeKeys.some(k => k.includes('heart') || k.includes('cardio') || k.includes('vascular'))) {
+          targetCoords = ORGAN_DEFINITIONS.heart.position;
+        } else if (activeKeys.some(k => k.includes('lung') || k.includes('respirat') || k.includes('bronch'))) {
+          targetCoords = ORGAN_DEFINITIONS.lungs.position;
+        } else if (activeKeys.some(k => k.includes('liver') || k.includes('hepatic'))) {
+          targetCoords = ORGAN_DEFINITIONS.liver.position;
+        } else if (activeKeys.some(k => k.includes('kidney') || k.includes('renal'))) {
+          targetCoords = ORGAN_DEFINITIONS.kidneys.position;
+        } else if (activeKeys.some(k => k.includes('stomach') || k.includes('gi') || k.includes('acid') || k.includes('gastro'))) {
+          targetCoords = ORGAN_DEFINITIONS.stomach.position;
+        }
 
         for (let i = 0; i < particleCount; i++) {
           const offset = (i / particleCount) * 0.85;
@@ -878,15 +936,18 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
       {/* TOP FLOATING HUD: DRUG BADGE & CAMERA CONTROLS */}
       <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none z-10 gap-2">
         {/* Left: Active Drug & View Indicator */}
-        <div className="bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800 flex items-center gap-2 pointer-events-auto shadow-lg max-w-[65%]">
+        <div className="bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800 flex items-center gap-2 pointer-events-auto shadow-lg max-w-[70%]">
           <span className={`w-2.5 h-2.5 rounded-full ${riskTheme.dot} animate-ping shrink-0`}></span>
           <div className="flex flex-col min-w-0">
-            <span className="text-xs font-bold text-white truncate">
-              {drugName || 'Personalized Pharmacokinetics'}
+            <span className="text-xs font-bold text-white truncate flex items-center gap-1.5">
+              <span>{drugName || 'Pharmacokinetics'}</span>
+              <span className="text-[10px] text-amber-300 font-mono font-semibold">
+                → {activeKeys.map(k => ORGAN_DEFINITIONS[k]?.shortName || k).join(', ')}
+              </span>
             </span>
             <span className="text-[10px] text-cyan-400 font-mono flex items-center gap-1 truncate">
               <Scan size={10} />
-              {focusedOrgan ? `3D Deep Scan: ${ORGAN_DEFINITIONS[focusedOrgan]?.shortName}` : 'Real 3D Human Anatomy'}
+              {focusedOrgan ? `3D Deep Scan: ${ORGAN_DEFINITIONS[focusedOrgan]?.shortName}` : `Target: ${activeKeys.map(k => ORGAN_DEFINITIONS[k]?.shortName || k).join(', ')}`}
             </span>
           </div>
           <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0 hidden sm:inline-block ${riskTheme.badgeBg}`}>

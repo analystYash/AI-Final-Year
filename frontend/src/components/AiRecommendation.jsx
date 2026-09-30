@@ -68,6 +68,7 @@ export default function AiRecommendation({
     { id: 'advisory', label: 'AI Advisory', icon: <Sparkles size={13} /> },
     { id: 'body',     label: 'Body Effects', icon: <Activity size={13} /> },
     { id: 'side',     label: 'Side Effects', icon: <AlertTriangle size={13} /> },
+    { id: 'diet',     label: 'Personalized Food', icon: <Utensils size={13} /> },
     { id: 'allergy',  label: 'Allergy Check', icon: <ShieldAlert size={13} /> },
   ];
 
@@ -275,6 +276,74 @@ export default function AiRecommendation({
               ) : (
                 <div className="p-4 text-center text-slate-500 text-xs">
                   {!geminiData ? 'Run analysis to see side effects.' : 'No side effect data available.'}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── TAB: PERSONALIZED DIET & FOOD (MULTILINGUAL) ── */}
+          {activeTab === 'diet' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs pb-1 border-b border-slate-800">
+                <span className="text-slate-300 font-semibold flex items-center gap-1.5">
+                  <Utensils size={13} className="text-emerald-400" />
+                  Personalized Nutrition for <span className="text-white font-bold">{patient?.current_health_issue || 'Health Condition'}</span>
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono font-bold">
+                  {ageGroup}
+                </span>
+              </div>
+
+              {/* Foods To Eat */}
+              <div className="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 space-y-2">
+                <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                  <Check size={14} className="text-emerald-400" />
+                  {activeLang === 'marathi' ? 'खाण्यासाठी शिफारस केलेले अन्न (Foods to Eat):' :
+                   activeLang === 'hinglish' ? 'Yeh Khana Chahiye (Recommended Foods):' :
+                   'Recommended Foods to Eat:'}
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">
+                  {(geminiData?.personalizedDiet?.foodsToEat?.[activeLang] ||
+                    geminiData?.personalizedDiet?.foodsToEat?.english ||
+                    ['Coconut water & light khichdi', 'Boiled vegetables & oats', 'Adequate water & buttermilk', 'Non-citrus fresh fruits']
+                  ).map((food, fi) => (
+                    <div key={fi} className="flex items-start gap-1.5 text-xs text-slate-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
+                      <span>{food}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Foods To Avoid */}
+              <div className="p-3.5 rounded-xl bg-rose-950/20 border border-rose-500/30 space-y-2">
+                <span className="text-xs font-bold text-rose-400 flex items-center gap-1.5">
+                  <AlertTriangle size={14} className="text-rose-400" />
+                  {activeLang === 'marathi' ? 'काटेकोरपणे टाळायचे पदार्थ (Foods to Avoid):' :
+                   activeLang === 'hinglish' ? 'Yeh Bilkul Na Khayein (Strictly Avoid):' :
+                   'Strictly Harmful Foods to Avoid:'}
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">
+                  {(geminiData?.personalizedDiet?.foodsToAvoid?.[activeLang] ||
+                    geminiData?.personalizedDiet?.foodsToAvoid?.english ||
+                    ['Deep fried & oily spicy foods', 'Excess coffee & tea on empty stomach', 'Sour citrus & carbonated drinks', 'Late night heavy meals']
+                  ).map((avoid, ai) => (
+                    <div key={ai} className="flex items-start gap-1.5 text-xs text-rose-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
+                      <span>{avoid}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Clinical Dietary Reason */}
+              {(geminiData?.personalizedDiet?.clinicalReason?.[activeLang] || geminiData?.personalizedDiet?.clinicalReason?.english) && (
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 flex items-start gap-2">
+                  <Info size={13} className="text-cyan-400 shrink-0 mt-0.5" />
+                  <span>
+                    <strong>{activeLang === 'marathi' ? 'वैद्यकीय कारण:' : activeLang === 'hinglish' ? 'Doctor ki Salah:' : 'Clinical Rationale:'}</strong>{' '}
+                    {geminiData.personalizedDiet.clinicalReason[activeLang] || geminiData.personalizedDiet.clinicalReason.english}
+                  </span>
                 </div>
               )}
             </div>
