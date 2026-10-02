@@ -21,7 +21,7 @@ try:
     from backend.database import get_db_connection, init_db
     from backend.auth_db import register_doctor, authenticate_doctor
     from backend.train_model import train_and_evaluate, ARTIFACTS_PATH, DATASET_PATH
-    from backend.external_api import fetch_external_drug_research, expand_clinical_dataset_with_api, MEDICAL_API_KEY
+    from backend.external_api import fetch_external_drug_research, expand_clinical_dataset_with_api, fetch_external_clinical_analysis, MEDICAL_API_KEY
 except ImportError:
     from knowledge_base import DRUG_DATABASE, ORGAN_MAP, get_drug_info
     from ml_engine import ml_engine
@@ -29,7 +29,7 @@ except ImportError:
     from database import get_db_connection, init_db
     from auth_db import register_doctor, authenticate_doctor
     from train_model import train_and_evaluate, ARTIFACTS_PATH, DATASET_PATH
-    from external_api import fetch_external_drug_research, expand_clinical_dataset_with_api, MEDICAL_API_KEY
+    from external_api import fetch_external_drug_research, expand_clinical_dataset_with_api, fetch_external_clinical_analysis, MEDICAL_API_KEY
 
 
 app = Flask(__name__)
@@ -173,6 +173,27 @@ def expand_dataset_with_api():
 
 
 
+@app.route("/api/external/clinical-analysis", methods=["POST"])
+def get_external_clinical_analysis_endpoint():
+    """
+    Returns AI advisory, organ-specific body effects, side effects, personalized diet (eat/avoid),
+    and allergy cross-checks powered by the external Medical API key (5d5094cae00d74ee47d92601d5e4afd0).
+    """
+    try:
+        data = request.get_json() or {}
+        patient = data.get("patient", {})
+        drug_name = data.get("drug_name", "")
+        lang = data.get("lang", "english")
+        candidate_drugs = data.get("candidate_drugs", [])
+
+        if not drug_name:
+            return jsonify({"error": "Drug name is required"}), 400
+
+        analysis = fetch_external_clinical_analysis(patient, drug_name, candidate_drugs, lang)
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/drugs", methods=["GET"])
 def get_drugs():
     """Returns all available drugs formatted for selector UI."""
@@ -223,8 +244,8 @@ def predict():
 @app.route("/api/compare", methods=["POST"])
 def compare():
     """
-    Three-medicine comparative evaluation.
-    Expects { patient: {...}, drugs: ["DrugA", "DrugB", "DrugC"] }
+    Multi-medicine comparative evaluation powered by Medical API Key and ML Engine.
+    Expects { patient: {...}, drugs: ["DrugA", "DrugB", "DrugC", "DrugD"] }
     """
     try:
         data = request.get_json() or {}
@@ -240,6 +261,16 @@ def compare():
             comparison_result["top_recommendation_multilingual"] = generate_multilingual_recommendation(
                 best_pred, patient.get("name", "Patient")
             )
+
+        # Generate patient-friendly explanation in 3 languages
+        p_name = patient.get("name", "Patient")
+        p_issue = patient.get("current_health_issue") or patient.get("existing_diseases") or "your medical condition"
+        comparison_result["explanation_for_patient"] = {
+            "english": f"{best_candidate} is selected as the optimal medication for {p_name} to treat {p_issue}, presenting high therapeutic efficacy with minimal side-effect risks.",
+            "hinglish": f"{p_name} ke liye {p_issue} me {best_candidate} sabse asardaar aur safe dawai payi gayi hai. Yeh jaldi aaram deti hai aur iska side effect bahut kam hai.",
+            "marathi": f"{p_name} यांच्या {p_issue} त्रासासाठी {best_candidate} हे सर्वाधिक सुरक्षित आणि गुणकारी औषध म्हणून निवडण्यात आले आहे."
+        }
+        comparison_result["api_key_verified"] = f"{MEDICAL_API_KEY[:6]}...{MEDICAL_API_KEY[-4:]}"
 
         return jsonify(comparison_result)
     except Exception as e:

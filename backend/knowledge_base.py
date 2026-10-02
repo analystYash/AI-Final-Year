@@ -489,6 +489,36 @@ DRUG_DATABASE = {
         "pregnancy_notes": "Widely studied and frequently used in pregnant patients with severe acid reflux.",
         "dietary_warnings": "Take 30 to 60 minutes before breakfast."
     },
+    "Rabeprazole": {
+        "class": "Proton Pump Inhibitor (PPI)",
+        "category": "Gastrointestinal",
+        "standard_dose": "20 mg once daily before breakfast",
+        "indications": ["GERD", "Heartburn", "Gastric Ulcers", "Hypersecretory Conditions"],
+        "target_organs": ["stomach", "liver"],
+        "clearance": "Hepatic",
+        "common_side_effects": ["Abdominal pain", "Diarrhea", "Headache", "Dry mouth"],
+        "severe_adverse_reactions": ["C. difficile associated diarrhea", "Hypomagnesemia"],
+        "contraindications": ["Hypersensitivity to rabeprazole or substituted benzimidazoles"],
+        "pregnancy_category": "B",
+        "pregnancy_risk_trimesters": [],
+        "pregnancy_notes": "Use only if clinically necessary during pregnancy under medical guidance.",
+        "dietary_warnings": "Take 30 minutes before morning meal with a full glass of water."
+    },
+    "Esomeprazole": {
+        "class": "Proton Pump Inhibitor (S-Isomer of Omeprazole)",
+        "category": "Gastrointestinal",
+        "standard_dose": "40 mg once daily before breakfast",
+        "indications": ["Erosive Esophagitis", "GERD Maintenance", "H. Pylori Eradication", "Gastric Ulcer Prevention"],
+        "target_organs": ["stomach", "liver"],
+        "clearance": "Hepatic",
+        "common_side_effects": ["Headache", "Flatulence", "Nausea", "Abdominal pain"],
+        "severe_adverse_reactions": ["Acute interstitial nephritis", "Clostridioides difficile colitis"],
+        "contraindications": ["Hypersensitivity to PPIs", "Concurrent atazanavir or nelfinavir"],
+        "pregnancy_category": "C",
+        "pregnancy_risk_trimesters": [],
+        "pregnancy_notes": "Generally safe when maternal benefit outweighs theoretical risk.",
+        "dietary_warnings": "Take 1 hour before morning meal. Avoid citrus juices and caffeine."
+    },
 
     # ---------------- Central Nervous System / Psychiatry ----------------
     "Sertraline": {

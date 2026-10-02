@@ -616,62 +616,8 @@ export default function DoctorDashboard() {
           )}
         </aside>
 
-        {/* MAIN VIEWPORT WITH LOCKED STICKY TABS HEADER */}
+        {/* MAIN VIEWPORT */}
         <div className="flex-1 flex flex-col overflow-hidden bg-slate-900">
-          {/* LOCKED / STICKY DASHBOARD TABS BAR */}
-          <div className="sticky top-0 z-30 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 overflow-x-auto shrink-0 shadow-md">
-            <div className="flex items-center gap-1.5 min-w-max">
-              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mr-1 hidden sm:inline-flex items-center gap-1">
-                <Layers size={11} className="text-cyan-400" /> Tabs:
-              </span>
-              {[
-                { id: 'dashboard', label: 'Dashboard', icon: <BarChart3 size={13} />, count: null },
-                { id: 'patients', label: 'Patients', icon: <Users size={13} />, count: patients.length },
-                { id: 'new-patient', label: '+ New Patient', icon: <UserPlus size={13} />, count: null },
-                { id: 'prescriptions', label: 'Prescriptions', icon: <Pill size={13} />, count: prescribedMedicines.length > 0 ? prescribedMedicines.length : prescriptions.length },
-                { id: 'ml-analysis', label: '3D Simulation', icon: <Activity size={13} />, count: null },
-                { id: 'comparisons', label: 'Comparisons & AI', icon: <Sliders size={13} />, count: null },
-                { id: 'report', label: 'Clinical Report', icon: <FileText size={13} />, count: null },
-                { id: 'ml-model', label: 'ML Model & API', icon: <Database size={13} />, count: null },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveView(tab.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                    activeView === tab.id
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-400/50'
-                      : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800'
-                  }`}
-                >
-                  {tab.icon}
-                  <span>{tab.label}</span>
-                  {tab.count !== null && (
-                    <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-mono ${
-                      activeView === tab.id ? 'bg-blue-800 text-white' : 'bg-slate-800 text-cyan-400'
-                    }`}>
-                      {tab.count}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {selectedPatient && (
-              <div className="hidden lg:flex items-center gap-2 pl-3 border-l border-slate-800 text-xs shrink-0">
-                <span className="text-slate-400">Patient:</span>
-                <span className="font-bold text-white truncate max-w-[130px]">{selectedPatient.name}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-cyan-300 font-mono">
-                  {selectedPatient.age}y
-                </span>
-                {selectedPatient.allergies && selectedPatient.allergies.toLowerCase() !== 'none' && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 truncate max-w-[110px]" title={`Allergies: ${selectedPatient.allergies}`}>
-                    ⚠ {selectedPatient.allergies}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-
           <main className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
           {/* SCREEN 2: DOCTOR DASHBOARD OVERVIEW */}
           {activeView === 'dashboard' && (
@@ -1622,14 +1568,54 @@ export default function DoctorDashboard() {
                 </div>
               )}
 
+              {/* Multi-drug tablet switcher when multiple medicines in prescription */}
+              {prescribedMedicines.length > 1 && (
+                <div className="bg-slate-950 rounded-2xl border border-cyan-500/30 p-4 space-y-2 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-black text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+                      <Layers size={14} /> Prescribed Tablets ({prescribedMedicines.length}) — Click to Inspect Organ Target & Pharmacokinetics:
+                    </h3>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      Active: <strong className="text-white">{activeVisualizeDrug || selectedDrug}</strong>
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {prescribedMedicines.map((med) => {
+                      const isCurrent = (activeVisualizeDrug || selectedDrug) === med.drug;
+                      return (
+                        <button
+                          key={med.drug}
+                          onClick={() => {
+                            setSelectedDrug(med.drug);
+                            setActiveVisualizeDrug(med.drug);
+                            handleRunAnalysis();
+                          }}
+                          className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-2 cursor-pointer ${
+                            isCurrent
+                              ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-md shadow-cyan-500/20'
+                              : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-cyan-500 hover:text-white'
+                          }`}
+                        >
+                          <Pill size={13} className={isCurrent ? 'text-slate-950' : 'text-cyan-400'} />
+                          <span>{med.drug}</span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${isCurrent ? 'bg-slate-900/30 text-slate-950' : 'bg-slate-800 text-slate-400'}`}>
+                            {med.timing}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                <div className="xl:col-span-7 bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-sm flex flex-col">
+                <div className="xl:col-span-6 bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-sm flex flex-col">
                   <div className="p-3.5 border-b border-slate-800 flex items-center justify-between text-xs">
                     <span className="font-bold text-slate-200 flex items-center gap-2">
                       <Activity size={15} className="text-cyan-400" /> Real 3D Human Anatomy & Pharmacokinetics Simulation
                     </span>
                     <span className="text-cyan-400 font-mono text-[11px]">
-                      Active Tablet: <strong className="text-white">{activeVisualizeDrug || selectedDrug || 'Select Drug'}</strong>
+                      Tablet: <strong className="text-white">{activeVisualizeDrug || selectedDrug || 'Select Drug'}</strong>
                       <span className="text-slate-400 ml-1.5">→ Target:</span>
                       <strong className="text-amber-400 capitalize ml-1">
                         {Array.isArray(prediction?.target_organs) && prediction.target_organs.length > 0
@@ -1638,7 +1624,7 @@ export default function DoctorDashboard() {
                       </strong>
                     </span>
                   </div>
-                  <div className="h-[520px]">
+                  <div className="h-[560px]">
                     <HumanBody3D
                       targetOrgans={prediction?.target_organs || selectedDrugData?.target_organs || ['Stomach']}
                       drugName={activeVisualizeDrug || selectedDrug || 'Pantoprazole 40mg'}
@@ -1647,41 +1633,16 @@ export default function DoctorDashboard() {
                   </div>
                 </div>
 
-                {/* Multi-drug selector when multiple medicines in prescription */}
-                {prescribedMedicines.length > 1 && (
-                  <div className="bg-slate-950 rounded-2xl border border-slate-800 p-4 space-y-2 shadow-sm">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                      <Layers size={14} className="text-cyan-400" /> Visualizing Drug — Click to switch 3D view
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {prescribedMedicines.map((med) => (
-                        <button
-                          key={med.drug}
-                          onClick={() => { setSelectedDrug(med.drug); setActiveVisualizeDrug(med.drug); handleRunAnalysis(); }}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 ${
-                            (activeVisualizeDrug || selectedDrug) === med.drug
-                              ? 'bg-cyan-500 text-slate-950 border-cyan-400'
-                              : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-cyan-500'
-                          }`}
-                        >
-                          <Pill size={12} /> {med.drug}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="xl:col-span-5 space-y-4">
-                  {/* Gemini-powered dynamic analysis (body effects + side effects + advisory + allergy) */}
+                <div className="xl:col-span-6 space-y-4">
+                  {/* Medical API Powered 5 Separate Clinical Boxes (Advisory, Body Effects, Side Effects, Diet, Allergies) */}
                   <AiRecommendation
                     prediction={prediction}
                     patient={selectedPatient}
                     patientName={selectedPatient?.name}
-                    drugNames={prescribedMedicines.length > 0 ? prescribedMedicines.map(m => m.drug) : [selectedDrug || 'Drug']}
+                    drugNames={activeVisualizeDrug || selectedDrug ? [activeVisualizeDrug || selectedDrug] : (prescribedMedicines.length > 0 ? prescribedMedicines.map(m => m.drug) : ['Pantoprazole'])}
                     recommendations={prediction?.multilingual_recommendation}
                   />
                 </div>
-
               </div>
             </div>
           )}
