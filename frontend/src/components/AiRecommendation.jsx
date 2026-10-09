@@ -81,7 +81,7 @@ export default function AiRecommendation({
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-extrabold text-white">Pharmacological Intelligence Engine</h3>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-mono font-bold">
-                Medical API Verified
+                NVIDIA NIM AI Verified
               </span>
             </div>
             <p className="text-[11px] text-slate-400">
@@ -116,7 +116,7 @@ export default function AiRecommendation({
           <button
             onClick={fetchClinicalAnalysis}
             disabled={loading}
-            title="Refresh Analysis via Medical API"
+            title="Refresh Analysis via NVIDIA NIM API"
             className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-cyan-400 border border-slate-800 transition cursor-pointer"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
@@ -128,7 +128,7 @@ export default function AiRecommendation({
         <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center gap-3 text-slate-300">
           <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
           <span className="text-xs font-medium">
-            Medical API evaluating {primaryDrug} pharmacodynamics, side effects, and diet for {patient?.name || patientName}...
+            NVIDIA NIM analyzing {primaryDrug} pharmacodynamics, side effects, and diet for {patient?.name || patientName}...
           </span>
         </div>
       )}
@@ -143,12 +143,8 @@ export default function AiRecommendation({
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* 5 DISTINCT SEPARATE BOXES (AS REQUESTED: NOT IN ONE BOX / NOT IN TABS)     */}
-      {/* ========================================================================= */}
-
       {/* ───────────────────────────────────────────────────────────────────────── */}
-      {/* BOX 1: AI CLINICAL ADVISORY & DOCTOR SECOND OPINION                       */}
+      {/* 1. AI CLINICAL ADVISORY & DOCTOR SECOND OPINION                           */}
       {/* ───────────────────────────────────────────────────────────────────────── */}
       <div className="bg-slate-950 rounded-2xl border border-blue-500/40 p-4 sm:p-5 space-y-3 shadow-lg shadow-blue-950/20">
         <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
@@ -157,7 +153,7 @@ export default function AiRecommendation({
               <Sparkles size={16} />
             </div>
             <h4 className="text-xs font-black text-white uppercase tracking-wider">
-              Box 1: AI Clinical Advisory & Second Opinion
+              AI Clinical Advisory & Second Opinion
             </h4>
           </div>
           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-600/20 text-cyan-300 border border-blue-500/30">
@@ -180,14 +176,14 @@ export default function AiRecommendation({
           <span className="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 text-slate-300">
             <Activity size={12} className="text-emerald-400" /> Condition: <strong className="text-white">{patientCondition}</strong>
           </span>
-          <span className="ml-auto text-[10px] text-slate-500 font-mono">
-            Gateway: MedResearch-Pharma-AI-Gateway
+          <span className="ml-auto text-[10px] text-cyan-400 font-mono font-semibold">
+            Gateway: NVIDIA NIM Clinical & Translation
           </span>
         </div>
       </div>
 
       {/* ───────────────────────────────────────────────────────────────────────── */}
-      {/* BOX 2: TARGETED EFFECT ON BODY (ORGAN PHARMACODYNAMICS)                  */}
+      {/* 2. TARGETED EFFECT ON BODY (ORGAN PHARMACODYNAMICS)                       */}
       {/* ───────────────────────────────────────────────────────────────────────── */}
       <div className="bg-slate-950 rounded-2xl border border-cyan-500/40 p-4 sm:p-5 space-y-3 shadow-lg shadow-cyan-950/20">
         <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
@@ -196,7 +192,7 @@ export default function AiRecommendation({
               <Activity size={16} />
             </div>
             <h4 className="text-xs font-black text-white uppercase tracking-wider">
-              Box 2: Targeted Effect on Body (Organ Pharmacodynamics)
+              Targeted Effect on Body (Organ Pharmacodynamics)
             </h4>
           </div>
           <span className="text-[10px] font-mono text-cyan-400">
@@ -233,7 +229,7 @@ export default function AiRecommendation({
       </div>
 
       {/* ───────────────────────────────────────────────────────────────────────── */}
-      {/* BOX 3: POSSIBLE SIDE EFFECTS & RISK STRATIFICATION                       */}
+      {/* 3. POSSIBLE SIDE EFFECTS & RISK STRATIFICATION                            */}
       {/* ───────────────────────────────────────────────────────────────────────── */}
       <div className="bg-slate-950 rounded-2xl border border-amber-500/40 p-4 sm:p-5 space-y-3 shadow-lg shadow-amber-950/20">
         <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
@@ -242,7 +238,7 @@ export default function AiRecommendation({
               <AlertTriangle size={16} />
             </div>
             <h4 className="text-xs font-black text-white uppercase tracking-wider">
-              Box 3: Possible Side Effects & Risk Stratification
+              Possible Side Effects & Risk Stratification
             </h4>
           </div>
           <span className="text-[10px] font-mono text-amber-400">
@@ -282,7 +278,7 @@ export default function AiRecommendation({
       </div>
 
       {/* ───────────────────────────────────────────────────────────────────────── */}
-      {/* BOX 4: PERSONALIZED NUTRITION: WHAT TO EAT vs WHAT TO AVOID             */}
+      {/* 4. PERSONALIZED NUTRITION: WHAT TO EAT vs WHAT TO AVOID                   */}
       {/* ───────────────────────────────────────────────────────────────────────── */}
       <div className="bg-slate-950 rounded-2xl border border-emerald-500/40 p-4 sm:p-5 space-y-3.5 shadow-lg shadow-emerald-950/20">
         <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
@@ -291,7 +287,7 @@ export default function AiRecommendation({
               <Utensils size={16} />
             </div>
             <h4 className="text-xs font-black text-white uppercase tracking-wider">
-              Box 4: Personalized Nutrition & Food Intake (Multilingual)
+              Personalized Nutrition & Food Intake (Multilingual)
             </h4>
           </div>
           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
@@ -360,7 +356,7 @@ export default function AiRecommendation({
       </div>
 
       {/* ───────────────────────────────────────────────────────────────────────── */}
-      {/* BOX 5: ALLERGY CROSS-REFERENCE & SAFETY CHECK                             */}
+      {/* 5. ALLERGY CROSS-REFERENCE & SAFETY CHECK                                 */}
       {/* ───────────────────────────────────────────────────────────────────────── */}
       <div className="bg-slate-950 rounded-2xl border border-purple-500/40 p-4 sm:p-5 space-y-3 shadow-lg shadow-purple-950/20">
         <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
@@ -369,7 +365,7 @@ export default function AiRecommendation({
               <ShieldAlert size={16} />
             </div>
             <h4 className="text-xs font-black text-white uppercase tracking-wider">
-              Box 5: Patient Allergies & Cross-Reference Safety Check
+              Patient Allergies & Cross-Reference Safety Check
             </h4>
           </div>
           <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold border ${

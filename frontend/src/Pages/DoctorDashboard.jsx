@@ -5,7 +5,8 @@ import {
   Sparkles, Save, Heart, Info, FileText, BarChart3, Database, Sliders,
   Check, ArrowRight, UserCheck, AlertCircle, Building2, Award, Printer,
   Languages, Zap, TrendingUp, Layers, Calendar, Clock, DollarSign,
-  ThumbsUp, ChevronDown, Smile, ShieldCheck, HelpCircle, Plus, X
+  ThumbsUp, ChevronDown, Smile, ShieldCheck, HelpCircle, Plus, X,
+  Trash2, Download, FileSpreadsheet
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import HumanBody3D from '../components/HumanBody3D';
@@ -14,11 +15,12 @@ import DrugComparison from '../components/DrugComparison';
 import AiRecommendation from '../components/AiRecommendation';
 import MedicalReport from '../components/MedicalReport';
 import {
-  getPatients, getDrugs, addPatient, predictDrugEffect,
+  getPatients, getDrugs, addPatient, deletePatient, deletePrescription, predictDrugEffect,
   compareThreeDrugs, prescribeDrug, getMlDatasetStats, retrainModel,
   getDrugResearch, expandDatasetWithApi, getPrescriptions, getDashboardStats,
   checkAllergyConflict, getGeminiMedicineRecommendation, getConditionMatchingDrugs
 } from '../services/api';
+import { exportPatientsExcelFile } from '../utils/excelExport';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function DoctorDashboard() {
@@ -63,6 +65,12 @@ export default function DoctorDashboard() {
   const [externalResearch, setExternalResearch] = useState(null);
   const [prescribeSuccess, setPrescribeSuccess] = useState('');
   const [prescribeError, setPrescribeError] = useState('');
+
+  // Patient Deletion & Excel Export State
+  const [patientToDelete, setPatientToDelete] = useState(null);
+  const [isDeletingPatient, setIsDeletingPatient] = useState(false);
+  const [isExportingExcel, setIsExportingExcel] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
 
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -400,6 +408,72 @@ export default function DoctorDashboard() {
     }
   };
 
+  const showToast = (text, type = 'success') => {
+    setToastMessage({ text, type });
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4500);
+  };
+
+  const handlePromptDeletePatient = (patient) => {
+    setPatientToDelete(patient);
+  };
+
+  const handleConfirmDeletePatient = async () => {
+    if (!patientToDelete) return;
+    setIsDeletingPatient(true);
+    try {
+      await deletePatient(patientToDelete.id);
+
+      const remainingPatients = patients.filter(p => p.id !== patientToDelete.id);
+      setPatients(remainingPatients);
+
+      setPrescriptions(prev => prev.filter(
+        pr => pr.patient_id !== patientToDelete.id && pr.patient_contact !== patientToDelete.contact_number
+      ));
+
+      if (selectedPatient?.id === patientToDelete.id) {
+        setSelectedPatient(remainingPatients.length > 0 ? remainingPatients[0] : null);
+      }
+
+      if (dashboardStats) {
+        setDashboardStats(prev => ({
+          ...prev,
+          total_patients: Math.max(0, (prev.total_patients || 1) - 1)
+        }));
+      }
+
+      showToast(`Patient "${patientToDelete.name}" removed from clinical records.`);
+      setPatientToDelete(null);
+    } catch (err) {
+      showToast(err.message || 'Failed to remove patient.', 'error');
+    } finally {
+      setIsDeletingPatient(false);
+    }
+  };
+
+  const handleExportExcel = async (patientsToExport = null) => {
+    setIsExportingExcel(true);
+    try {
+      const list = patientsToExport || patients;
+      if (list.length === 0) {
+        showToast('No patient records available to export.', 'error');
+        return;
+      }
+      const result = await exportPatientsExcelFile({
+        patients: list,
+        prescriptions,
+        doctorProfile,
+        preferBackend: true
+      });
+      showToast(`Exported ${result.count || list.length} patient records to Excel successfully!`);
+    } catch (err) {
+      showToast('Excel export failed: ' + err.message, 'error');
+    } finally {
+      setIsExportingExcel(false);
+    }
+  };
+
   // Real new patients count (last 7 days)
   const newPatientsCount = (() => {
     if (dashboardStats && typeof dashboardStats.new_patients === 'number') {
@@ -560,7 +634,7 @@ export default function DoctorDashboard() {
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
-              <Activity size={17} /> ML Analysis & 3D View
+              <Activity size={17} /> Machine Analysis & 3D View
             </button>
 
             <button
@@ -571,7 +645,7 @@ export default function DoctorDashboard() {
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
-              <Sliders size={17} /> Comparisons & AI
+              <Sliders size={17} /> 2D Comparison & AI Analysis
             </button>
 
             <button
@@ -630,7 +704,20 @@ export default function DoctorDashboard() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={() => handleExportExcel(patients)}
+                    disabled={isExportingExcel || patients.length === 0}
+                    title="Download complete patient records & counts in Excel (.xlsx)"
+                    className="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    {isExportingExcel ? (
+                      <RefreshCw size={14} className="animate-spin" />
+                    ) : (
+                      <FileSpreadsheet size={15} />
+                    )}
+                    <span>Export Excel</span>
+                  </button>
                   <button
                     onClick={() => setActiveView('new-patient')}
                     className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-600/20 flex items-center gap-1.5 transition"
@@ -743,12 +830,23 @@ export default function DoctorDashboard() {
                       </h3>
                       <p className="text-[11px] text-slate-400">Click any patient to prescribe medicine or view history</p>
                     </div>
-                    <button
-                      onClick={() => setActiveView('patients')}
-                      className="text-xs text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 cursor-pointer"
-                    >
-                      View All ({patients.length}) <ChevronRight size={14} />
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleExportExcel(patients)}
+                        disabled={isExportingExcel || patients.length === 0}
+                        title="Export all patients to Excel (.xlsx)"
+                        className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 cursor-pointer transition disabled:opacity-50"
+                      >
+                        <FileSpreadsheet size={13} />
+                        <span>Export Excel</span>
+                      </button>
+                      <button
+                        onClick={() => setActiveView('patients')}
+                        className="text-xs text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 cursor-pointer"
+                      >
+                        View All ({patients.length}) <ChevronRight size={14} />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="divide-y divide-slate-800/80">
@@ -790,7 +888,7 @@ export default function DoctorDashboard() {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               p.allergies ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             }`}>
@@ -806,6 +904,16 @@ export default function DoctorDashboard() {
                             >
                               <span>Prescribe</span>
                               <ChevronRight size={12} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePromptDeletePatient(p);
+                              }}
+                              title={`Remove ${p.name} from list`}
+                              className="p-1.5 rounded-lg bg-slate-900 hover:bg-rose-600 text-slate-400 hover:text-white border border-slate-800 transition cursor-pointer"
+                            >
+                              <Trash2 size={13} />
                             </button>
                           </div>
                         </div>
@@ -1190,6 +1298,23 @@ export default function DoctorDashboard() {
                                 className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
                               >
                                 <FileText size={13} /> Report
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (window.confirm(`Delete prescription record #${pr.id} for ${pr.drug_name}?`)) {
+                                    try {
+                                      await deletePrescription(pr.id);
+                                      setPrescriptions(prev => prev.filter(p => p.id !== pr.id));
+                                      showToast(`Prescription record for ${pr.drug_name} deleted.`);
+                                    } catch (err) {
+                                      showToast(err.message, 'error');
+                                    }
+                                  }
+                                }}
+                                title="Delete this prescription record"
+                                className="p-1.5 rounded-xl bg-slate-900 hover:bg-rose-600 text-slate-400 hover:text-white border border-slate-800 transition cursor-pointer"
+                              >
+                                <Trash2 size={13} />
                               </button>
                             </div>
                           </div>
@@ -1760,10 +1885,12 @@ export default function DoctorDashboard() {
                   <h1 className="text-xl font-black text-white flex items-center gap-2">
                     <Users size={22} className="text-blue-500" /> Patient Directory
                   </h1>
-                  <p className="text-xs text-slate-400">{patients.length} Registered Patients with Phone-based Health Records</p>
+                  <p className="text-xs text-slate-400">
+                    {patients.length} Registered Patients • Count & Clinical Records Maintained
+                  </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <div className="relative">
                     <Search size={14} className="absolute left-3 top-3 text-slate-400" />
                     <input
@@ -1774,9 +1901,28 @@ export default function DoctorDashboard() {
                       className="bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
                     />
                   </div>
+
+                  {/* Export to Excel & Download Button */}
+                  <button
+                    onClick={() => handleExportExcel(searchQuery ? filteredPatients : patients)}
+                    disabled={isExportingExcel || patients.length === 0}
+                    title="Export and download complete patient records & counts in Excel (.xlsx)"
+                    className="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition shadow-md shadow-emerald-900/20 cursor-pointer"
+                  >
+                    {isExportingExcel ? (
+                      <RefreshCw size={14} className="animate-spin" />
+                    ) : (
+                      <FileSpreadsheet size={15} />
+                    )}
+                    <span>Export to Excel</span>
+                    <span className="px-1.5 py-0.5 rounded-md bg-white/20 text-[10px] font-mono">
+                      {searchQuery ? filteredPatients.length : patients.length}
+                    </span>
+                  </button>
+
                   <button
                     onClick={() => setActiveView('new-patient')}
-                    className="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition"
+                    className="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition cursor-pointer"
                   >
                     <UserPlus size={14} /> Add
                   </button>
@@ -1820,10 +1966,26 @@ export default function DoctorDashboard() {
                       >
                         <div>
                           <div className="flex justify-between items-start mb-2">
-                            <h4 className="font-bold text-white text-sm">{p.name}</h4>
-                            <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-300 text-[11px]">
-                              {p.age}y • {p.gender}
-                            </span>
+                            <div>
+                              <h4 className="font-bold text-white text-sm">{p.name}</h4>
+                              <span className="text-[10px] text-cyan-400 font-mono">PAT-{String(p.id).padStart(3, '0')}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-300 text-[11px]">
+                                {p.age}y • {p.gender}
+                              </span>
+                              <button
+                                type="button"
+                                title={`Remove ${p.name} from list`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePromptDeletePatient(p);
+                                }}
+                                className="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
                           </div>
                           <div className="space-y-1 text-xs text-slate-400 mb-3">
                             <div>
@@ -1876,6 +2038,17 @@ export default function DoctorDashboard() {
                               className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-[11px] font-semibold transition cursor-pointer"
                             >
                               Report
+                            </button>
+                            <button
+                              type="button"
+                              title={`Remove ${p.name} from list`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePromptDeletePatient(p);
+                              }}
+                              className="p-1 rounded-lg bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/20 text-[11px] font-semibold transition flex items-center justify-center cursor-pointer"
+                            >
+                              <Trash2 size={12} />
                             </button>
                           </div>
                         </div>
@@ -2025,6 +2198,100 @@ export default function DoctorDashboard() {
         </main>
         </div>
       </div>
+
+      {/* DELETE PATIENT CONFIRMATION MODAL */}
+      {patientToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-slate-950 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 relative">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center shrink-0">
+                <Trash2 size={24} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-bold text-white">Remove Patient from List?</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Are you sure you want to remove <strong className="text-white">{patientToDelete.name}</strong> from your clinical records?
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+              <div className="flex justify-between items-center text-slate-300">
+                <span className="text-slate-400">Patient ID:</span>
+                <span className="font-mono text-cyan-400 font-bold">PAT-{String(patientToDelete.id).padStart(3, '0')}</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-300">
+                <span className="text-slate-400">Phone Number:</span>
+                <span className="font-mono text-slate-200">{patientToDelete.contact_number}</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-300">
+                <span className="text-slate-400">Age / Gender:</span>
+                <span>{patientToDelete.age} yrs • {patientToDelete.gender}</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-300">
+                <span className="text-slate-400">Diagnosis / Issue:</span>
+                <span className="truncate max-w-[200px] text-slate-200">{patientToDelete.current_health_issue || patientToDelete.existing_diseases || 'General Checkup'}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center gap-2">
+              <AlertTriangle size={16} className="shrink-0 text-amber-400" />
+              <span>This will delete all corresponding prescriptions and history for this patient.</span>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setPatientToDelete(null)}
+                disabled={isDeletingPatient}
+                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeletePatient}
+                disabled={isDeletingPatient}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-rose-600/20 cursor-pointer"
+              >
+                {isDeletingPatient ? (
+                  <>
+                    <RefreshCw size={13} className="animate-spin" />
+                    <span>Removing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={13} />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FLOATING TOAST NOTIFICATION */}
+      {toastMessage && (
+        <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border text-xs font-semibold transition-all duration-300 ${
+          toastMessage.type === 'error'
+            ? 'bg-rose-950/95 border-rose-500/50 text-rose-200 shadow-rose-950/50'
+            : 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200 shadow-emerald-950/50'
+        }`}>
+          {toastMessage.type === 'error' ? (
+            <AlertTriangle size={16} className="text-rose-400 shrink-0" />
+          ) : (
+            <CheckCircle size={16} className="text-emerald-400 shrink-0" />
+          )}
+          <span>{toastMessage.text}</span>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="ml-2 text-slate-400 hover:text-white cursor-pointer"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

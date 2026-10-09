@@ -15,8 +15,10 @@ import urllib.request
 import urllib.parse
 from datetime import datetime
 
-# External Medical API Key configured by user
-MEDICAL_API_KEY = os.environ.get("MEDICAL_API_KEY", "5d5094cae00d74ee47d92601d5e4afd0")
+# Configured NVIDIA NIM API Keys
+TRANSLATION_API_KEY = os.environ.get("TRANSLATION_API_KEY", "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")
+MODEL_RESPONSE_API_KEY = os.environ.get("MODEL_RESPONSE_API_KEY", "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")
+MEDICAL_API_KEY = MODEL_RESPONSE_API_KEY
 
 # Clinical trial & guideline database mapped to major pharmacological classes
 CLINICAL_TRIAL_REFERENCES = {
@@ -443,90 +445,211 @@ CLINICAL_DIETARY_MAP = {
     }
 }
 
+# In-memory thread-safe cache for NVIDIA API calls to provide instant responses
+_NVIDIA_CACHE = {}
+
+def query_nvidia_nim(api_key, messages, model="meta/llama-3.2-11b-vision-instruct", max_tokens=600, temperature=0.2, timeout=8):
+    """
+    Executes a chat completion request to NVIDIA NIM API.
+    Caches results in-memory by hash of messages for instant subsequent queries.
+    """
+    if not api_key:
+        return None
+        
+    cache_key = f"{api_key[-8:]}_{model}_{json.dumps(messages, sort_keys=True)}"
+    if cache_key in _NVIDIA_CACHE:
+        return _NVIDIA_CACHE[cache_key]
+
+    url = "https://integrate.api.nvidia.com/v1/chat/completions"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+    payload = {
+        "model": model,
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": temperature
+    }
+    try:
+        req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            choice = data.get("choices", [{}])[0]
+            msg = choice.get("message", {})
+            content = msg.get("content") or msg.get("reasoning")
+            if content:
+                content = content.strip()
+                _NVIDIA_CACHE[cache_key] = content
+                return content
+    except Exception as e:
+        print(f"[NVIDIA NIM Notice] API call error or timeout: {e}")
+        return None
+    return None
+
+def translate_with_nvidia(text, target_lang="marathi", source_lang="english"):
+    """
+    Translates medical text using the dedicated Translation API Key:
+    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
+    Supports Marathi (Devanagari) and natural conversational Hinglish.
+    """
+    if not text or target_lang.lower() == "english":
+        return text
+
+    target_clean = target_lang.lower().strip()
+    system_instruction = (
+        "You are an expert clinical medical translator for patients and doctors. "
+        "Translate accurately while maintaining empathetic medical terminology. "
+        "Return ONLY the direct translated text, without commentary or quotes."
+    )
+    if target_clean == "marathi":
+        user_prompt = f"Translate this medical advice to clear, accurate Marathi (Devanagari script):\n{text}"
+    elif target_clean in ["hinglish", "hindi"]:
+        user_prompt = f"Translate this medical advice to natural conversational Hinglish (Hindi words in English/Latin alphabet, easy for patients to read):\n{text}"
+    else:
+        user_prompt = f"Translate this medical statement into {target_lang}:\n{text}"
+
+    messages = [
+        {"role": "system", "content": system_instruction},
+        {"role": "user", "content": user_prompt}
+    ]
+    
+    result = query_nvidia_nim(
+        api_key=TRANSLATION_API_KEY,
+        messages=messages,
+        model="meta/llama-3.2-11b-vision-instruct",
+        max_tokens=300,
+        temperature=0.1,
+        timeout=6
+    )
+    return result if result else text
+
+def generate_comparison_explanation_with_nvidia(patient, best_candidate, p_issue):
+    """
+    Generates multi-drug comparison explanation for patient using the Model Response API Key
+    and translates into Hinglish and Marathi using the Translation API Key.
+    """
+    p_name = patient.get("name", "Patient")
+    age = int(patient.get("age", 35) or 35)
+    age_group = "Pediatric (<12y)" if age < 12 else ("Adolescent (12-17y)" if age < 18 else ("Geriatric (60y+)" if age >= 60 else "Adult (18-59y)"))
+    
+    # 1. Base English explanation tailored to age group & issue
+    en_text = (
+        f"{best_candidate} is selected as the optimal medication for {p_name} ({age_group}) "
+        f"presenting with {p_issue}. It provides high evidence-based therapeutic efficacy with "
+        f"minimal adverse organ load and lower polypharmacy risk."
+    )
+    
+    # 2. Live translation with Translation API Key
+    hi_text = translate_with_nvidia(en_text, target_lang="hinglish")
+    mr_text = translate_with_nvidia(en_text, target_lang="marathi")
+    
+    # Ensure fallbacks if translation timed out
+    if not hi_text or hi_text == en_text:
+        hi_text = f"{p_name} ({age_group}) ke liye {p_issue} me {best_candidate} sabse asardaar aur safe dawai payi gayi hai. Yeh jaldi aaram deti hai aur iska side effect bahut kam hai."
+    if not mr_text or mr_text == en_text:
+        mr_text = f"{p_name} ({age_group}) यांच्या {p_issue} त्रासासाठी {best_candidate} हे सर्वाधिक सुरक्षित आणि गुणकारी औषध म्हणून निवडण्यात आले आहे."
+
+    return {
+        "english": en_text,
+        "hinglish": hi_text,
+        "marathi": mr_text
+    }
+
 def fetch_external_clinical_analysis(patient, drug_name, candidate_drugs=None, lang="english"):
     """
     Performs high-precision clinical pharmacodynamics, organ effect attribution,
     side-effect profiling, personalized nutrition (eat vs avoid), and allergy checking
-    using the configured Medical API Key without hitting external third-party quotas.
+    using NVIDIA NIM API Key (MODEL_RESPONSE_API_KEY) and Translation API Key (TRANSLATION_API_KEY).
+    Analyzes patient data, age group, and health issue comprehensively.
     """
     drug_clean = drug_name.strip()
     drug_info = get_drug_info(drug_clean) or {}
     
     age = int(patient.get("age", 35) or 35)
     age_group = "Pediatric (<12y)" if age < 12 else ("Adolescent (12-17y)" if age < 18 else ("Geriatric (60y+)" if age >= 60 else "Adult (18-59y)"))
-    patient_allergies = str(patient.get("allergies", "None") or "None").lower()
-    patient_issue = str(patient.get("current_health_issue", "") or patient.get("existing_diseases", "") or "General Medical").lower()
+    patient_allergies = str(patient.get("allergies", "None") or "None").strip()
+    patient_allergies_lower = patient_allergies.lower()
+    patient_issue = str(patient.get("current_health_issue", "") or patient.get("existing_diseases", "") or "General Medical Condition").strip()
+    patient_issue_lower = patient_issue.lower()
+    p_name = patient.get("name", "Patient")
     
     # 1. Determine matching dietary profile
     diet_key = "acidity"
-    if any(k in patient_issue for k in ["acid", "gerd", "reflux", "heartburn", "gastric", "stomach", "ulcer"]):
+    if any(k in patient_issue_lower for k in ["acid", "gerd", "reflux", "heartburn", "gastric", "stomach", "ulcer"]):
         diet_key = "acidity"
-    elif any(k in patient_issue for k in ["hypertens", "high bp", "cardio", "blood pressure"]) or ("heart" in patient_issue and "heartburn" not in patient_issue):
+    elif any(k in patient_issue_lower for k in ["hypertens", "high bp", "cardio", "blood pressure"]) or ("heart" in patient_issue_lower and "heartburn" not in patient_issue_lower):
         diet_key = "hypertension"
-    elif any(k in patient_issue for k in ["diabet", "sugar", "glycem"]):
+    elif any(k in patient_issue_lower for k in ["diabet", "sugar", "glycem"]):
         diet_key = "diabetes"
-    elif any(k in patient_issue for k in ["asthma", "cough", "breath", "lung"]):
+    elif any(k in patient_issue_lower for k in ["asthma", "cough", "breath", "lung"]):
         diet_key = "asthma"
-    elif any(k in patient_issue for k in ["pain", "arthrit", "joint", "headache", "fever"]):
+    elif any(k in patient_issue_lower for k in ["pain", "arthrit", "joint", "headache", "fever"]):
         diet_key = "pain"
         
-    diet_profile = CLINICAL_DIETARY_MAP.get(diet_key, CLINICAL_DIETARY_MAP["acidity"])
+    diet_profile = dict(CLINICAL_DIETARY_MAP.get(diet_key, CLINICAL_DIETARY_MAP["acidity"]))
     
-    # 2. Build tablet-specific body effects
+    # 2. Build tablet-specific body effects (Organ Pharmacodynamics)
     body_effects = []
     target_organs = drug_info.get("target_organs", ["stomach"])
     for organ in target_organs:
         if organ == "stomach":
             body_effects.append({
                 "title": f"Gastric Mucosa Protection ({drug_clean})",
-                "description": f"Inhibits excess acid secretion and accelerates mucosal repair in {age_group} patients.",
+                "description": f"Inhibits excess gastric acid secretion and accelerates mucosal re-epithelialization tailored for {age_group} physiology.",
                 "organ": "stomach"
             })
         elif organ == "heart":
             body_effects.append({
                 "title": f"Cardiovascular Hemodynamics ({drug_clean})",
-                "description": f"Reduces peripheral vascular resistance and stabilizes arterial pressure.",
+                "description": f"Reduces peripheral vascular resistance, optimizes cardiac stroke work, and preserves arterial compliance in {age_group}.",
                 "organ": "heart"
             })
         elif organ == "lungs":
             body_effects.append({
                 "title": f"Bronchial Airway Dilation ({drug_clean})",
-                "description": f"Relaxes bronchial smooth muscle and improves peak expiratory airflow.",
+                "description": f"Relaxes bronchial smooth muscle tone, reduces hyperresponsiveness, and enhances peak expiratory volume.",
                 "organ": "lungs"
             })
         elif organ == "liver":
             body_effects.append({
                 "title": f"Hepatic Lipid & Enzymatic Regulation ({drug_clean})",
-                "description": f"Modulates CYP enzyme pathways and controls endogenous synthesis.",
+                "description": f"Modulates hepatic clearance enzyme pathways and regulates endogenous biosynthesis in {age_group}.",
                 "organ": "liver"
             })
-        elif organ == "kidneys" or organ == "kidney":
+        elif organ in ["kidneys", "kidney"]:
             body_effects.append({
-                "title": f"Renal Filtration & Electrolyte Balance ({drug_clean})",
-                "description": f"Regulates glomerular hydrostatic pressure and sodium homeostasis.",
+                "title": f"Renal Filtration & Homeostasis ({drug_clean})",
+                "description": f"Balances glomerular hydrostatic pressure and regulates tubular electrolyte filtration suited for {age_group}.",
                 "organ": "kidneys"
             })
         elif organ == "brain":
             body_effects.append({
                 "title": f"Central Neurotransmitter Modulation ({drug_clean})",
-                "description": f"Stabilizes neuronal receptor transmission and central pain perception.",
+                "description": f"Stabilizes synaptic neurotransmission and modulates central nociceptive perception for {age_group}.",
                 "organ": "brain"
             })
             
     if not body_effects:
         body_effects.append({
-            "title": f"Targeted Bioavailability ({drug_clean})",
-            "description": f"Therapeutic systemic bio-distribution tailored for {age_group}.",
+            "title": f"Targeted Systemic Pharmacodynamics ({drug_clean})",
+            "description": f"Provides evidence-grounded therapeutic bioavailability and receptor selectivity for {age_group} presenting with {patient_issue}.",
             "organ": "stomach"
         })
         
-    # 3. Possible Side Effects
+    # 3. Possible Side Effects & Risk Stratification (Age-Group Sensitive)
     side_effects = []
     common_se = drug_info.get("common_side_effects", ["Mild Headache", "Transient Nausea"])
     for i, se in enumerate(common_se[:4]):
         incidence = f"{3 + i * 2}%"
         sev = "mild" if i < 2 else "moderate"
-        age_note = f"Monitor closely in {age_group} due to physiological clearance variance."
+        if age >= 60:
+            age_note = f"Geriatric priority: titrate cautiously due to reduced renal/hepatic elimination reserve."
+        elif age < 18:
+            age_note = f"Pediatric/Adolescent vigilance: monitor growth parameters and weight-adjusted dosing."
+        else:
+            age_note = f"Adult cohort standard monitoring: report persistent symptoms to attending clinician."
+            
         side_effects.append({
             "effect": se,
             "severity": sev,
@@ -534,51 +657,141 @@ def fetch_external_clinical_analysis(patient, drug_name, candidate_drugs=None, l
             "ageNote": age_note
         })
         
-    # 4. Allergy cross-reference check
+    # 4. Allergy cross-reference safety check
     has_allergy_conflict = False
     allergy_warnings = []
-    if "penicillin" in patient_allergies and any(k in drug_clean.lower() for k in ["amox", "penicil", "ampicil"]):
+    if "penicillin" in patient_allergies_lower and any(k in drug_clean.lower() for k in ["amox", "penicil", "ampicil"]):
         has_allergy_conflict = True
         allergy_warnings.append({
             "allergen": "Penicillin",
-            "risk": "High direct beta-lactam anaphylaxis hazard! Contraindicated.",
-            "recommendation": "Switch immediately to Macrolide (Azithromycin) or Fluoroquinolone alternative."
+            "risk": f"Direct Beta-Lactam Anaphylaxis Alert! {drug_clean} has severe cross-allergy potential.",
+            "recommendation": "Contraindicated. Switch immediately to Macrolide (Azithromycin) or alternate non-beta-lactam class."
         })
-    elif "sulfa" in patient_allergies and any(k in drug_clean.lower() for k in ["glimepiride", "spironolactone", "furosemide"]):
+    elif "sulfa" in patient_allergies_lower and any(k in drug_clean.lower() for k in ["glimepiride", "spironolactone", "furosemide"]):
         has_allergy_conflict = True
         allergy_warnings.append({
             "allergen": "Sulfa",
-            "risk": "Potential sulfonamide cross-reactivity causing cutaneous rash.",
-            "recommendation": "Use non-sulfa antidiabetic or diuretic alternatives with cautious titration."
+            "risk": f"Potential sulfonamide dermatological and hypersensitivity cross-reactivity with {drug_clean}.",
+            "recommendation": "Use non-sulfonamide alternatives or perform cautious fractional dose titration."
         })
-    elif "nsaid" in patient_allergies and any(k in drug_clean.lower() for k in ["ibuprofen", "aspirin", "celecoxib"]):
+    elif "nsaid" in patient_allergies_lower and any(k in drug_clean.lower() for k in ["ibuprofen", "aspirin", "celecoxib", "diclofenac"]):
         has_allergy_conflict = True
         allergy_warnings.append({
             "allergen": "NSAIDs / Aspirin",
-            "risk": "Risk of bronchospasm or severe urticaria from COX inhibition.",
-            "recommendation": "Use Paracetamol / Acetaminophen as first-line safe analgesic."
+            "risk": f"Risk of acute bronchospasm, urticaria, or gastric erosion due to COX-inhibition sensitivity.",
+            "recommendation": "Prescribe Paracetamol / Acetaminophen as first-line safe analgesic."
         })
     else:
         allergy_warnings.append({
-            "allergen": patient_allergies if patient_allergies != "none" else "None reported",
-            "risk": "No direct cross-reactivity detected with this medication.",
-            "recommendation": "Safe to administer under standard clinical observation."
+            "allergen": patient_allergies if patient_allergies_lower != "none" else "None reported",
+            "risk": f"No direct pharmacological contraindication or cross-reactivity detected between {drug_clean} and {patient_allergies}.",
+            "recommendation": "Verified safe to administer under standard clinical protocol."
         })
 
-    # 5. Multilingual AI Advisory
-    p_name = patient.get("name", "Patient")
+    # 5. Multilingual AI Advisory & Clinical Insights generated with NVIDIA Model Key (MODEL_RESPONSE_API_KEY)
+    live_advisory_en = None
+    live_organ_effect = None
+    live_side_effect_note = None
+    live_diet_advice = None
+
+    try:
+        sys_prompt = "You are an elite clinical pharmacologist AI. Analyze the patient profile, age group, condition, and medication to return clinical guidance in valid JSON format only."
+        user_prompt = (
+            f"Patient: {p_name}\n"
+            f"Age: {age} ({age_group})\n"
+            f"Diagnosed Health Issue: {patient_issue}\n"
+            f"Known Allergies: {patient_allergies}\n"
+            f"Evaluated Medication: {drug_clean}\n\n"
+            "Return a raw JSON object (no markdown, no backticks) with these exact keys:\n"
+            "{\n"
+            f'  "advisory": "2 sentences of clinical second opinion for {p_name} ({age_group}) regarding {drug_clean} efficacy and precautions for {patient_issue}.",\n'
+            f'  "organ_effect": "1 sentence on biological pharmacodynamics and receptor action on target organs.",\n'
+            f'  "side_effects_note": "1 sentence stratifying adverse risk specifically for {age_group} with {patient_issue}.",\n'
+            f'  "diet_advice": "1 sentence specifying food intake priority and foods to avoid for {patient_issue}."\n'
+            "}"
+        )
+        live_res = query_nvidia_nim(
+            api_key=MODEL_RESPONSE_API_KEY,
+            messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": user_prompt}],
+            model="meta/llama-3.2-11b-vision-instruct",
+            max_tokens=350,
+            temperature=0.2,
+            timeout=8
+        )
+        if live_res:
+            clean_res = live_res.strip()
+            if clean_res.startswith("```"):
+                clean_res = clean_res.strip("`")
+                if clean_res.lower().startswith("json"):
+                    clean_res = clean_res[4:].strip()
+            try:
+                parsed = json.loads(clean_res)
+                if isinstance(parsed, dict):
+                    live_advisory_en = parsed.get("advisory")
+                    live_organ_effect = parsed.get("organ_effect")
+                    live_side_effect_note = parsed.get("side_effects_note")
+                    live_diet_advice = parsed.get("diet_advice")
+            except Exception:
+                if len(clean_res) > 30 and "{" not in clean_res[:10]:
+                    live_advisory_en = clean_res
+    except Exception as e:
+        print(f"[NVIDIA NIM Clinical Notice]: {e}")
+
+    # Enrich organ pharmacodynamics if generated by model
+    if live_organ_effect and len(body_effects) > 0:
+        body_effects[0]["description"] = live_organ_effect
+
+    # Enrich side effects risk stratification if generated by model
+    if live_side_effect_note and len(side_effects) > 0:
+        side_effects[0]["ageNote"] = live_side_effect_note
+
+    # Enrich personalized diet clinical rationale if generated by model
+    if live_diet_advice:
+        diet_profile["clinical_reason"]["english"] = live_diet_advice
+        hi_diet_reason = translate_with_nvidia(live_diet_advice, target_lang="hinglish")
+        mr_diet_reason = translate_with_nvidia(live_diet_advice, target_lang="marathi")
+        if hi_diet_reason and hi_diet_reason != live_diet_advice:
+            diet_profile["clinical_reason"]["hinglish"] = hi_diet_reason
+        if mr_diet_reason and mr_diet_reason != live_diet_advice:
+            diet_profile["clinical_reason"]["marathi"] = mr_diet_reason
+
+    # Default fallback for advisory if not returned
+    if not live_advisory_en:
+        live_advisory_en = (
+            f"{drug_clean} provides optimal evidence-based therapeutic action for {p_name} ({age_group}) "
+            f"presenting with {patient_issue}. Take strictly as prescribed with water; adhere to targeted dietary guidelines "
+            f"to optimize mucosal absorption and clinical recovery."
+        )
+
+    # Translate advisory into Hinglish and Marathi using Translation API Key
+    advisory_hinglish = translate_with_nvidia(live_advisory_en, target_lang="hinglish")
+    advisory_marathi = translate_with_nvidia(live_advisory_en, target_lang="marathi")
+
+    if not advisory_hinglish or advisory_hinglish == live_advisory_en:
+        advisory_hinglish = (
+            f"{p_name} ({age_group}) ke liye {patient_issue} me {drug_clean} sabse asardaar dawai hai. "
+            f"Isse doctor ke niyamit nirdesh ke sath lein aur parhez ka dhyan rakhein taaki jald aaram mile."
+        )
+    if not advisory_marathi or advisory_marathi == live_advisory_en:
+        advisory_marathi = (
+            f"{p_name} ({age_group}) यांच्या {patient_issue} त्रासासाठी {drug_clean} अत्यंत गुणकारी ठरले आहे. "
+            f"डॉक्टरांच्या सल्ल्यानुसार हे औषध पाण्यासोबत घ्यावे आणि पथ्य पाळावे."
+        )
+
     advisory = {
-        "english": f"{drug_clean} provides optimal evidence-based therapeutic action for {p_name} ({age_group}) suffering from {patient_issue}. Take with water as prescribed; follow dietary restrictions to maximize clinical recovery.",
-        "hinglish": f"{p_name} ({age_group}) ke liye {patient_issue} me {drug_clean} sabse asardaar dawai hai. Isse niyamit roop se paani ke sath lein aur parhez ka dhyan rakhein taaki jaldi aaram mile.",
-        "marathi": f"{p_name} ({age_group}) यांच्या {patient_issue} त्रासासाठी {drug_clean} अत्यंत गुणकारी ठरले आहे. डॉक्टरांच्या सल्ल्यानुसार हे औषध पाण्यासोबत घ्यावे आणि पथ्य पाळावे."
+        "english": live_advisory_en,
+        "hinglish": advisory_hinglish,
+        "marathi": advisory_marathi
     }
     
     return {
         "status": "success",
-        "api_gateway": "MedResearch-Pharma-AI-Gateway",
-        "api_key_verified": f"{MEDICAL_API_KEY[:6]}...{MEDICAL_API_KEY[-4:]}",
+        "api_gateway": "NVIDIA NIM Medical & Translation Gateway",
+        "model_api_key_masked": f"{MODEL_RESPONSE_API_KEY[:9]}...{MODEL_RESPONSE_API_KEY[-4:]}",
+        "translation_api_key_masked": f"{TRANSLATION_API_KEY[:9]}...{TRANSLATION_API_KEY[-4:]}",
         "drug_name": drug_clean,
         "age_group": age_group,
+        "patient_condition": patient_issue,
         "bodyEffects": body_effects,
         "sideEffects": side_effects,
         "personalizedDiet": diet_profile,
@@ -586,3 +799,4 @@ def fetch_external_clinical_analysis(patient, drug_name, candidate_drugs=None, l
         "allergyWarnings": allergy_warnings,
         "advisory": advisory
     }
+

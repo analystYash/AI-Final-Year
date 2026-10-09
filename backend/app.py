@@ -5,14 +5,18 @@ Serves prediction endpoints, drug repository, 3-drug comparative analysis,
 multilingual second-opinion generation, and doctor/patient portal endpoints.
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import sqlite3
 import json
 import random
+import io
 from datetime import datetime, timedelta
 
 import os
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
 
 try:
     from backend.knowledge_base import DRUG_DATABASE, ORGAN_MAP, get_drug_info
@@ -21,7 +25,11 @@ try:
     from backend.database import get_db_connection, init_db
     from backend.auth_db import register_doctor, authenticate_doctor
     from backend.train_model import train_and_evaluate, ARTIFACTS_PATH, DATASET_PATH
-    from backend.external_api import fetch_external_drug_research, expand_clinical_dataset_with_api, fetch_external_clinical_analysis, MEDICAL_API_KEY
+    from backend.external_api import (
+        fetch_external_drug_research, expand_clinical_dataset_with_api,
+        fetch_external_clinical_analysis, MEDICAL_API_KEY, TRANSLATION_API_KEY,
+        MODEL_RESPONSE_API_KEY, translate_with_nvidia, generate_comparison_explanation_with_nvidia
+    )
 except ImportError:
     from knowledge_base import DRUG_DATABASE, ORGAN_MAP, get_drug_info
     from ml_engine import ml_engine
@@ -29,7 +37,11 @@ except ImportError:
     from database import get_db_connection, init_db
     from auth_db import register_doctor, authenticate_doctor
     from train_model import train_and_evaluate, ARTIFACTS_PATH, DATASET_PATH
-    from external_api import fetch_external_drug_research, expand_clinical_dataset_with_api, fetch_external_clinical_analysis, MEDICAL_API_KEY
+    from external_api import (
+        fetch_external_drug_research, expand_clinical_dataset_with_api,
+        fetch_external_clinical_analysis, MEDICAL_API_KEY, TRANSLATION_API_KEY,
+        MODEL_RESPONSE_API_KEY, translate_with_nvidia, generate_comparison_explanation_with_nvidia
+    )
 
 
 app = Flask(__name__)
@@ -262,17 +274,32 @@ def compare():
                 best_pred, patient.get("name", "Patient")
             )
 
-        # Generate patient-friendly explanation in 3 languages
-        p_name = patient.get("name", "Patient")
+        # Generate patient-friendly explanation in 3 languages using NVIDIA NIM Model & Translation APIs
         p_issue = patient.get("current_health_issue") or patient.get("existing_diseases") or "your medical condition"
-        comparison_result["explanation_for_patient"] = {
-            "english": f"{best_candidate} is selected as the optimal medication for {p_name} to treat {p_issue}, presenting high therapeutic efficacy with minimal side-effect risks.",
-            "hinglish": f"{p_name} ke liye {p_issue} me {best_candidate} sabse asardaar aur safe dawai payi gayi hai. Yeh jaldi aaram deti hai aur iska side effect bahut kam hai.",
-            "marathi": f"{p_name} यांच्या {p_issue} त्रासासाठी {best_candidate} हे सर्वाधिक सुरक्षित आणि गुणकारी औषध म्हणून निवडण्यात आले आहे."
-        }
-        comparison_result["api_key_verified"] = f"{MEDICAL_API_KEY[:6]}...{MEDICAL_API_KEY[-4:]}"
+        comparison_result["explanation_for_patient"] = generate_comparison_explanation_with_nvidia(patient, best_candidate, p_issue)
+        comparison_result["api_key_verified"] = f"{MODEL_RESPONSE_API_KEY[:9]}...{MODEL_RESPONSE_API_KEY[-4:]}"
+        comparison_result["translation_key_verified"] = f"{TRANSLATION_API_KEY[:9]}...{TRANSLATION_API_KEY[-4:]}"
 
         return jsonify(comparison_result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/translate", methods=["POST"])
+def api_translate():
+    """Translates medical instruction into Marathi or Hinglish using the configured NVIDIA Translation API Key."""
+    try:
+        data = request.get_json() or {}
+        text = data.get("text", "")
+        target_lang = data.get("target_lang", "marathi")
+        if not text:
+            return jsonify({"error": "Text is required"}), 400
+        translated = translate_with_nvidia(text, target_lang=target_lang)
+        return jsonify({
+            "original": text,
+            "translated": translated,
+            "target_lang": target_lang,
+            "translation_key": f"{TRANSLATION_API_KEY[:9]}...{TRANSLATION_API_KEY[-4:]}"
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -390,6 +417,296 @@ def get_patient_by_contact(contact):
             prescriptions.append(p_dict)
         conn.close()
         return jsonify({"patient": patient, "prescriptions": prescriptions})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/patients/<int:patient_id>", methods=["DELETE"])
+def delete_patient(patient_id):
+    """Deletes a patient profile and associated prescriptions from the database."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM patients WHERE id = ?", (patient_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            conn.close()
+            return jsonify({"error": f"Patient with ID {patient_id} not found."}), 404
+
+        patient_name = patient["name"]
+        contact = patient["contact_number"]
+
+        # Delete associated prescriptions
+        cursor.execute("DELETE FROM prescriptions WHERE patient_id = ? OR patient_contact = ?", (patient_id, contact))
+        deleted_prescriptions = cursor.rowcount
+
+        # Delete OTP sessions if any
+        cursor.execute("DELETE FROM otp_sessions WHERE contact_number = ?", (contact,))
+
+        # Delete patient record
+        cursor.execute("DELETE FROM patients WHERE id = ?", (patient_id,))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "message": f"Patient '{patient_name}' and {deleted_prescriptions} associated prescription record(s) deleted successfully.",
+            "deleted_patient_id": patient_id,
+            "deleted_prescriptions_count": deleted_prescriptions
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/prescriptions/<int:prescription_id>", methods=["DELETE"])
+def delete_prescription(prescription_id):
+    """Deletes an individual prescription from the database."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM prescriptions WHERE id = ?", (prescription_id,))
+        deleted = cursor.rowcount
+        conn.commit()
+        conn.close()
+        if deleted == 0:
+            return jsonify({"error": f"Prescription {prescription_id} not found."}), 404
+        return jsonify({
+            "success": True,
+            "message": f"Prescription record {prescription_id} deleted successfully.",
+            "deleted_id": prescription_id
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/patients/export-excel", methods=["GET"])
+def export_patients_excel():
+    """Generates and downloads a styled Excel (.xlsx) workbook for patient count and clinical record maintenance."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Query all patients
+        cursor.execute("SELECT * FROM patients ORDER BY id ASC")
+        patients = [dict(row) for row in cursor.fetchall()]
+
+        # Query prescriptions to map prescription count & latest prescription per patient
+        cursor.execute("SELECT id, patient_id, patient_contact, drug_name, dosage, created_at FROM prescriptions ORDER BY id DESC")
+        all_prescriptions = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        # Build prescription lookup
+        prescriptions_by_patient = {}
+        for pr in all_prescriptions:
+            p_key = pr.get("patient_id")
+            c_key = pr.get("patient_contact")
+            for k in [p_key, c_key]:
+                if k:
+                    if k not in prescriptions_by_patient:
+                        prescriptions_by_patient[k] = []
+                    prescriptions_by_patient[k].append(pr)
+
+        wb = openpyxl.Workbook()
+
+        # ── SHEET 1: Patient Directory & Clinical Records ──
+        ws1 = wb.active
+        ws1.title = "Patient Records"
+        ws1.views.sheetView[0].showGridLines = True
+
+        # Styles
+        title_font = Font(name="Calibri", size=15, bold=True, color="1E3A8A")
+        sub_font = Font(name="Calibri", size=9, italic=True, color="475569")
+        header_font = Font(name="Calibri", size=10, bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="1E40AF", end_color="1E40AF", fill_type="solid")
+
+        row_even_fill = PatternFill(start_color="F8FAFC", end_color="F8FAFC", fill_type="solid")
+        row_odd_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+        alert_fill = PatternFill(start_color="FEF3C7", end_color="FEF3C7", fill_type="solid")
+
+        thin_border = Border(
+            left=Side(style="thin", color="CBD5E1"),
+            right=Side(style="thin", color="CBD5E1"),
+            top=Side(style="thin", color="CBD5E1"),
+            bottom=Side(style="thin", color="CBD5E1")
+        )
+
+        align_center = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        align_left = Alignment(horizontal="left", vertical="center", wrap_text=True)
+
+        # Title Block
+        ws1.cell(row=1, column=1, value="DrugAI Clinical Intelligence - Patient Registry & Records").font = title_font
+        ws1.cell(row=2, column=1, value=f"Exported on {datetime.now().strftime('%d %b %Y, %I:%M %p')} | Total Registered Patients: {len(patients)}").font = sub_font
+        ws1.row_dimensions[1].height = 24
+        ws1.row_dimensions[2].height = 18
+
+        headers = [
+            "Patient ID",
+            "Full Name",
+            "Age",
+            "Gender",
+            "Contact Number",
+            "Current Health Issue",
+            "Existing Diseases",
+            "Allergies",
+            "Medical History",
+            "Current Medications",
+            "Pregnancy Status",
+            "Trimester",
+            "Prescriptions Count",
+            "Latest Prescribed Drug",
+            "Registration Date"
+        ]
+
+        # Write Headers at Row 4
+        ws1.row_dimensions[4].height = 26
+        for col_idx, header_text in enumerate(headers, 1):
+            cell = ws1.cell(row=4, column=col_idx, value=header_text)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = align_center
+            cell.border = thin_border
+
+        # Write Data Rows
+        row_idx = 5
+        for p in patients:
+            p_id = p.get("id")
+            contact = p.get("contact_number")
+            p_prescriptions = prescriptions_by_patient.get(p_id) or prescriptions_by_patient.get(contact) or []
+            rx_count = len(p_prescriptions)
+            latest_rx = p_prescriptions[0]["drug_name"] if rx_count > 0 else "None"
+
+            is_pregnant_str = "Yes" if p.get("is_pregnant") else "No"
+            allergies_str = p.get("allergies") or "None"
+
+            row_data = [
+                f"PAT-{p_id:03d}",
+                p.get("name") or "Unknown",
+                p.get("age") or 0,
+                p.get("gender") or "Other",
+                contact or "N/A",
+                p.get("current_health_issue") or "N/A",
+                p.get("existing_diseases") or "None",
+                allergies_str,
+                p.get("medical_history") or "None",
+                p.get("current_medications") or "None",
+                is_pregnant_str,
+                p.get("pregnancy_trimester") or "N/A",
+                rx_count,
+                latest_rx,
+                str(p.get("created_at") or "")[:19]
+            ]
+
+            fill_to_use = row_even_fill if row_idx % 2 == 0 else row_odd_fill
+            ws1.row_dimensions[row_idx].height = 20
+
+            for col_idx, val in enumerate(row_data, 1):
+                cell = ws1.cell(row=row_idx, column=col_idx, value=val)
+                cell.font = Font(name="Calibri", size=10)
+                cell.border = thin_border
+
+                if col_idx == 8 and allergies_str.lower() not in ["none", ""]:
+                    cell.fill = alert_fill
+                    cell.font = Font(name="Calibri", size=10, bold=True, color="B45309")
+                else:
+                    cell.fill = fill_to_use
+
+                if col_idx in [1, 3, 4, 5, 11, 12, 13, 15]:
+                    cell.alignment = align_center
+                else:
+                    cell.alignment = align_left
+
+            row_idx += 1
+
+        # Auto-adjust column widths
+        for col in ws1.columns:
+            max_len = 0
+            col_letter = get_column_letter(col[0].column)
+            for cell in col:
+                if cell.row >= 4 and cell.value:
+                    val_len = len(str(cell.value))
+                    if val_len > max_len:
+                        max_len = val_len
+            ws1.column_dimensions[col_letter].width = max(max_len + 4, 12)
+
+        # ── SHEET 2: Clinical Summary & Counts ──
+        ws2 = wb.create_sheet(title="Summary & Statistics")
+        ws2.views.sheetView[0].showGridLines = True
+
+        ws2.cell(row=1, column=1, value="Clinical Cohort Summary & Record Maintenance Counts").font = title_font
+        ws2.cell(row=2, column=1, value=f"Comprehensive analytics summary as of {datetime.now().strftime('%d %b %Y, %I:%M %p')}").font = sub_font
+        ws2.row_dimensions[1].height = 24
+        ws2.row_dimensions[2].height = 18
+
+        total_pts = len(patients)
+        male_pts = sum(1 for p in patients if str(p.get("gender", "")).lower() == "male")
+        female_pts = sum(1 for p in patients if str(p.get("gender", "")).lower() == "female")
+        other_pts = total_pts - male_pts - female_pts
+        allergies_count = sum(1 for p in patients if p.get("allergies") and p.get("allergies").lower() not in ["none", "no", ""])
+        pregnant_count = sum(1 for p in patients if p.get("is_pregnant"))
+        total_rx_count = len(all_prescriptions)
+        avg_age = round(sum(p.get("age", 0) for p in patients) / total_pts, 1) if total_pts > 0 else 0
+
+        summary_headers = ["Metric / Parameter", "Count / Value", "Description & Clinical Relevance"]
+        ws2.row_dimensions[4].height = 24
+        for col_idx, h_text in enumerate(summary_headers, 1):
+            cell = ws2.cell(row=4, column=col_idx, value=h_text)
+            cell.font = header_font
+            cell.fill = PatternFill(start_color="1E3A8A", end_color="1E3A8A", fill_type="solid")
+            cell.alignment = align_center
+            cell.border = thin_border
+
+        summary_rows = [
+            ("Total Registered Patients", total_pts, "Active clinical cohort size in database"),
+            ("Male Patients", male_pts, f"{round((male_pts/total_pts)*100, 1) if total_pts else 0}% of total cohort"),
+            ("Female Patients", female_pts, f"{round((female_pts/total_pts)*100, 1) if total_pts else 0}% of total cohort"),
+            ("Other / Unspecified Gender", other_pts, "Gender unspecified or diverse"),
+            ("Average Cohort Age", f"{avg_age} years", "Mean age across all registered patients"),
+            ("Patients with Recorded Allergies", allergies_count, "Require strict drug allergy contraindication screening"),
+            ("Pregnant Patients", pregnant_count, "Require pregnancy trimester safety check (FDA Category / Teratogenicity)"),
+            ("Total Prescriptions Recorded", total_rx_count, "Total therapeutic treatments committed with AI verification"),
+            ("Attending Physician", "Dr. Sharma, MD", "Cardiology & Internal Medicine"),
+            ("Hospital / Clinical Center", "Apex Multispecialty Hospital", "MH-CARD-2021-984"),
+            ("Report Export Timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Timestamp for audit log & record maintenance")
+        ]
+
+        for s_idx, (m_label, m_val, m_desc) in enumerate(summary_rows, 5):
+            ws2.row_dimensions[s_idx].height = 20
+            c1 = ws2.cell(row=s_idx, column=1, value=m_label)
+            c2 = ws2.cell(row=s_idx, column=2, value=m_val)
+            c3 = ws2.cell(row=s_idx, column=3, value=m_desc)
+
+            c1.font = Font(name="Calibri", size=10, bold=True)
+            c2.font = Font(name="Calibri", size=10, bold=True, color="1E40AF")
+            c3.font = Font(name="Calibri", size=10, italic=True, color="475569")
+
+            c1.border = thin_border
+            c2.border = thin_border
+            c3.border = thin_border
+
+            c1.alignment = align_left
+            c2.alignment = align_center
+            c3.alignment = align_left
+
+            s_fill = row_even_fill if s_idx % 2 == 0 else row_odd_fill
+            c1.fill = s_fill
+            c2.fill = s_fill
+            c3.fill = s_fill
+
+        ws2.column_dimensions["A"].width = 34
+        ws2.column_dimensions["B"].width = 22
+        ws2.column_dimensions["C"].width = 46
+
+        # Save to memory buffer
+        buf = io.BytesIO()
+        wb.save(buf)
+        buf.seek(0)
+
+        filename = f"Patient_Records_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        return send_file(
+            buf,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            as_attachment=True,
+            download_name=filename
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

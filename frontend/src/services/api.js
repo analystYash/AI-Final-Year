@@ -285,6 +285,41 @@ export async function addPatient(patientData) {
   return data;
 }
 
+export async function deletePatient(patientId) {
+  const res = await fetch(`${API_BASE}/patients/${patientId}`, {
+    method: 'DELETE'
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to delete patient');
+  return data;
+}
+
+export async function deletePrescription(prescriptionId) {
+  const res = await fetch(`${API_BASE}/prescriptions/${prescriptionId}`, {
+    method: 'DELETE'
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to delete prescription');
+  return data;
+}
+
+export async function downloadPatientsExcel() {
+  const res = await fetch(`${API_BASE}/patients/export-excel`);
+  if (!res.ok) throw new Error('Failed to export patients Excel file');
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const nowStr = new Date().toISOString().slice(0, 10);
+  a.download = `Patient_Records_${nowStr}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+  return true;
+}
+
+
 export async function predictDrugEffect(patient, drugName) {
   const res = await fetch(`${API_BASE}/predict`, {
     method: 'POST',
@@ -408,5 +443,23 @@ export async function expandDatasetWithApi(numRecords = 300) {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to expand dataset via medical API');
   return data;
+}
+
+/**
+ * Live medical translation powered by NVIDIA Translation Key
+ */
+export async function translateText({ text, targetLang = 'marathi' }) {
+  try {
+    const res = await fetch(`${API_BASE}/translate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, target_lang: targetLang })
+    });
+    if (!res.ok) throw new Error('Translation failed');
+    return await res.json();
+  } catch (e) {
+    console.warn('Translate API fallback:', e);
+    return { original: text, translated: text, target_lang: targetLang };
+  }
 }
 

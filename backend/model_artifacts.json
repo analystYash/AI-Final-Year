@@ -1,9 +1,9 @@
 {
   "model_name": "Personalized-Pharmacology-Gradient-Ensemble v2.4",
-  "trained_at": "2026-10-01 15:43:45",
-  "total_samples": 15700,
-  "train_samples": 12560,
-  "test_samples": 3140,
+  "trained_at": "2026-10-06 13:47:55",
+  "total_samples": 16000,
+  "train_samples": 12800,
+  "test_samples": 3200,
   "algorithms_evaluated": [
     {
       "algorithm": "Random Forest Regressor",
@@ -19,8 +19,8 @@
     },
     {
       "algorithm": "Ridge Calibrated Linear Model",
-      "r2": 0.9334,
-      "mae": 4.94,
+      "r2": 0.9319,
+      "mae": 5.02,
       "status": "Active Ensemble"
     },
     {
@@ -32,19 +32,19 @@
   ],
   "metrics": {
     "effectiveness_regression": {
-      "r2_score": 0.9334,
-      "mae": 4.94,
-      "rmse": 6.05,
+      "r2_score": 0.9319,
+      "mae": 5.02,
+      "rmse": 6.13,
       "metric_label": "Drug Effectiveness Score (0 - 100%)"
     },
     "side_effect_regression": {
-      "r2_score": 0.769,
-      "mae": 6.05,
-      "rmse": 7.63,
+      "r2_score": 0.7622,
+      "mae": 6.08,
+      "rmse": 7.69,
       "metric_label": "Adverse Reaction Probability (0 - 100%)"
     },
     "risk_classification": {
-      "accuracy_pct": 78.76,
+      "accuracy_pct": 79.06,
       "classes": [
         "LOW",
         "MODERATE",
@@ -53,28 +53,28 @@
       ],
       "confusion_matrix": {
         "LOW": {
-          "LOW": 255,
+          "LOW": 260,
           "MODERATE": 0,
           "HIGH": 0,
           "CRITICAL": 0
         },
         "MODERATE": {
           "LOW": 0,
-          "MODERATE": 1237,
-          "HIGH": 560,
+          "MODERATE": 1258,
+          "HIGH": 568,
           "CRITICAL": 0
         },
         "HIGH": {
           "LOW": 0,
           "MODERATE": 0,
-          "HIGH": 692,
-          "CRITICAL": 92
+          "HIGH": 725,
+          "CRITICAL": 89
         },
         "CRITICAL": {
           "LOW": 0,
           "MODERATE": 0,
-          "HIGH": 15,
-          "CRITICAL": 289
+          "HIGH": 13,
+          "CRITICAL": 287
         }
       }
     }
@@ -82,45 +82,45 @@
   "feature_importances": [
     {
       "feature": "Allergy Conflict",
-      "importance_pct": 29.4,
-      "effectiveness_weight": -29.446,
-      "adverse_risk_weight": 49.201
+      "importance_pct": 29.3,
+      "effectiveness_weight": -29.34,
+      "adverse_risk_weight": 49.354
     },
     {
       "feature": "Indication Match",
       "importance_pct": 19.1,
-      "effectiveness_weight": 50.141,
-      "adverse_risk_weight": -1.025
+      "effectiveness_weight": 50.18,
+      "adverse_risk_weight": -1.133
     },
     {
       "feature": "Normalized Age",
-      "importance_pct": 17.6,
-      "effectiveness_weight": -18.339,
-      "adverse_risk_weight": 28.597
+      "importance_pct": 17.5,
+      "effectiveness_weight": -18.476,
+      "adverse_risk_weight": 28.65
     },
     {
       "feature": "Organ Clearance Mismatch",
       "importance_pct": 14.3,
-      "effectiveness_weight": -12.344,
-      "adverse_risk_weight": 25.988
+      "effectiveness_weight": -12.46,
+      "adverse_risk_weight": 26.099
     },
     {
       "feature": "Geriatric Age Factor",
       "importance_pct": 8.9,
-      "effectiveness_weight": -8.923,
-      "adverse_risk_weight": 14.953
+      "effectiveness_weight": -9.056,
+      "adverse_risk_weight": 14.988
     },
     {
       "feature": "Pregnancy Hazard",
       "importance_pct": 6.5,
-      "effectiveness_weight": 9.307,
-      "adverse_risk_weight": 8.045
+      "effectiveness_weight": 9.529,
+      "adverse_risk_weight": 8.017
     },
     {
       "feature": "DDI Hazard Level",
-      "importance_pct": 4.1,
-      "effectiveness_weight": -2.606,
-      "adverse_risk_weight": 8.479
+      "importance_pct": 4.3,
+      "effectiveness_weight": -2.858,
+      "adverse_risk_weight": 8.567
     }
   ],
   "dataset_metadata": {
@@ -128,98 +128,98 @@
     "features_count": 7,
     "drugs_evaluated_count": 15,
     "drug_distribution": {
-      "Sertraline": 1020,
-      "Lisinopril": 1115,
-      "Paracetamol": 1003,
-      "Omeprazole": 1125,
-      "Metoprolol": 999,
-      "Levothyroxine": 1085,
-      "Clopidogrel": 1106,
-      "Ciprofloxacin": 1151,
-      "Warfarin": 1065,
-      "Metformin": 982,
-      "Amoxicillin": 881,
-      "Losartan": 1056,
-      "Atorvastatin": 1212,
-      "Amlodipine": 891,
-      "Ibuprofen": 1009
+      "Sertraline": 1040,
+      "Lisinopril": 1135,
+      "Paracetamol": 1019,
+      "Omeprazole": 1147,
+      "Metoprolol": 1023,
+      "Levothyroxine": 1108,
+      "Clopidogrel": 1126,
+      "Ciprofloxacin": 1168,
+      "Warfarin": 1091,
+      "Metformin": 1002,
+      "Amoxicillin": 899,
+      "Losartan": 1078,
+      "Atorvastatin": 1224,
+      "Amlodipine": 915,
+      "Ibuprofen": 1025
     },
     "conditions_count": 48,
     "condition_distribution": {
-      "GERD": 515,
-      "Hypertension": 1234,
-      "Obsessive-Compulsive Disorder": 217,
-      "Mild to Moderate Pain": 194,
-      "Bacterial Infection": 421,
-      "TSH Suppression": 222,
-      "Post-PCI Stent Placement": 184,
-      "Asthma": 373,
-      "Insulin Resistance": 318,
-      "Diabetes Type 2": 782,
-      "Major Depressive Disorder": 600,
-      "Heart Failure": 719,
-      "Post-MI Cardioprotection": 168,
-      "Thyroiditis": 229,
-      "Cardiovascular Prevention": 245,
-      "Peripheral Artery Disease": 194,
-      "Angina": 226,
-      "Ischemic Stroke": 218,
-      "Sinusitis": 158,
-      "Pulmonary Embolism": 224,
-      "Acute Pain": 376,
-      "Hypothyroidism": 545,
-      "Atrial Fibrillation": 519,
-      "Angina Pectoris": 220,
-      "Coronary Artery Disease": 605,
-      "Hyperlipidemia": 658,
-      "Urinary Tract Infection": 553,
-      "Post-Myocardial Infarction": 325,
-      "Prostatitis": 188,
-      "Fever": 387,
-      "Osteoarthritis Pain": 158,
-      "Diabetic Nephropathy": 267,
-      "Zollinger-Ellison": 207,
-      "Pyelonephritis": 210,
-      "Duodenal Ulcer": 234,
-      "Otitis Media": 135,
-      "Osteoarthritis": 424,
-      "Panic Disorder": 200,
-      "Inflammation": 190,
-      "Headache": 161,
+      "GERD": 522,
+      "Hypertension": 1261,
+      "Obsessive-Compulsive Disorder": 224,
+      "Mild to Moderate Pain": 197,
+      "Bacterial Infection": 432,
+      "TSH Suppression": 228,
+      "Post-PCI Stent Placement": 190,
+      "Asthma": 383,
+      "Insulin Resistance": 325,
+      "Diabetes Type 2": 800,
+      "Major Depressive Disorder": 611,
+      "Heart Failure": 735,
+      "Post-MI Cardioprotection": 172,
+      "Thyroiditis": 235,
+      "Cardiovascular Prevention": 250,
+      "Peripheral Artery Disease": 199,
+      "Angina": 234,
+      "Ischemic Stroke": 222,
+      "Sinusitis": 163,
+      "Pulmonary Embolism": 230,
+      "Acute Pain": 385,
+      "Hypothyroidism": 554,
+      "Atrial Fibrillation": 522,
+      "Angina Pectoris": 226,
+      "Coronary Artery Disease": 610,
+      "Hyperlipidemia": 671,
+      "Urinary Tract Infection": 564,
+      "Post-Myocardial Infarction": 331,
+      "Prostatitis": 189,
+      "Fever": 393,
+      "Osteoarthritis Pain": 161,
+      "Diabetic Nephropathy": 272,
+      "Zollinger-Ellison": 213,
+      "Pyelonephritis": 214,
+      "Duodenal Ulcer": 237,
+      "Otitis Media": 137,
+      "Osteoarthritis": 430,
+      "Panic Disorder": 202,
+      "Inflammation": 194,
+      "Headache": 163,
       "PTSD": 156,
-      "Infectious Diarrhea": 262,
-      "Mechanical Heart Valves": 206,
-      "Gastric Ulcer": 196,
-      "Streptococcal Pharyngitis": 254,
+      "Infectious Diarrhea": 268,
+      "Mechanical Heart Valves": 214,
+      "Gastric Ulcer": 197,
+      "Streptococcal Pharyngitis": 259,
       "Acute Coronary Syndrome": 220,
-      "Deep Vein Thrombosis": 118,
-      "Dyslipidemia": 285
+      "Deep Vein Thrombosis": 119,
+      "Dyslipidemia": 286
     }
   },
   "weights": {
     "effectiveness": {
       "weights": [
-        50.1411,
-        -2.6064,
-        -12.3441,
-        -8.9225,
-        -29.446,
-        9.3074,
-        -18.3389
+        50.1799,
+        -2.8584,
+        -12.4599,
+        -9.0562,
+        -29.3396,
+        9.5289,
+        -18.4761
       ],
-      "bias": 47.8915
+      "bias": 48.2475
     },
     "side_effect": {
       "weights": [
-        -1.0248,
-        8.4795,
-        25.9881,
-        14.9531,
-        49.2005,
-        8.0447,
-        28.5971
+        -1.1326,
+        8.5667,
+        26.0991,
+        14.9876,
+        49.3536,
+        8.0169,
+        28.6498
       ],
-      "bias": -4.9894
+      "bias": -5.0905
     }
   }
 }
