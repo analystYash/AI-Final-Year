@@ -47,6 +47,23 @@ except ImportError:
 app = Flask(__name__)
 CORS(app) # Enable cross-origin resource sharing for Vite frontend
 
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify({"error": "Bad Request", "detail": str(e)}), 400
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"error": "Resource Not Found", "detail": str(e)}), 404
+
+@app.errorhandler(405)
+def method_not_allowed(e):
+    return jsonify({"error": "Method Not Allowed", "detail": str(e)}), 405
+
+@app.errorhandler(500)
+def server_error(e):
+    return jsonify({"error": "Internal Server Error", "detail": str(e)}), 500
+
+
 @app.route("/api/health", methods=["GET"])
 def health_check():
     return jsonify({

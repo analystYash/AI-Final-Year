@@ -4,8 +4,15 @@ echo ======================================================================
 echo Launching Optimized Personalized Drug Effect Prediction & 3D Visualization
 echo ======================================================================
 
+set "PY_CMD=python"
+if exist ".venv\Scripts\python.exe" (
+    set "PY_CMD=.venv\Scripts\python.exe"
+) else if exist "backend\.venv\Scripts\python.exe" (
+    set "PY_CMD=backend\.venv\Scripts\python.exe"
+)
+
 echo [1/2] Starting Python Flask Backend on port 5000...
-start "DrugAI Backend (Port 5000)" cmd /k "python backend/app.py"
+start "DrugAI Backend (Port 5000)" cmd /k "%PY_CMD% backend/app.py"
 
 timeout /t 3 /nobreak > nul
 

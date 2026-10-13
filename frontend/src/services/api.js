@@ -4,26 +4,75 @@
 const API_BASE = '/api';
 
 /**
+ * Safely parses response JSON body.
+ * Prevents "Failed to execute 'json' on 'Response': Unexpected end of JSON input"
+ * by reading as text first, verifying non-empty content, and safely parsing.
+ */
+async function parseApiResponse(res, fallbackError = 'Request failed') {
+  let text = '';
+  try {
+    text = await res.text();
+  } catch (readErr) {
+    throw new Error(`${fallbackError}: Could not read response stream (${readErr.message})`);
+  }
+
+  let data = null;
+  if (text && text.trim().length > 0) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      // Non-JSON response (e.g. HTML error page or empty/corrupt body)
+      data = null;
+    }
+  }
+
+  if (!res.ok) {
+    const errorMsg =
+      data?.error ||
+      data?.message ||
+      (text && text.length < 200 && !text.includes('<!DOCTYPE') && !text.includes('<html') ? text.trim() : null) ||
+      `${fallbackError} (HTTP ${res.status}${res.statusText ? ' ' + res.statusText : ''})`.trim();
+    throw new Error(errorMsg);
+  }
+
+  return data !== null ? data : {};
+}
+
+/**
+ * Universal safe fetch wrapper that handles connection errors and response parsing.
+ */
+async function safeFetch(url, options = {}, fallbackError = 'Request failed') {
+  let res;
+  try {
+    res = await fetch(url, options);
+  } catch (netErr) {
+    throw new Error(
+      `Unable to reach backend server. Please verify the Python Flask backend is running on port 5000 (${netErr.message}).`
+    );
+  }
+  return await parseApiResponse(res, fallbackError);
+}
+
+/**
  * Get personalized clinical analysis (body effects, side effects, personalized diet, advisory, allergy checks)
  * powered by the configured Medical API Key (5d5094cae00d74ee47d92601d5e4afd0).
  */
 export async function getExternalClinicalAnalysis({ patient, drugName, candidateDrugs, lang = 'english' }) {
   try {
-    const res = await fetch(`${API_BASE}/external/clinical-analysis`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        patient,
-        drug_name: drugName,
-        candidate_drugs: candidateDrugs,
-        lang
-      })
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Failed to fetch clinical analysis');
-    }
-    return await res.json();
+    return await safeFetch(
+      `${API_BASE}/external/clinical-analysis`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patient,
+          drug_name: drugName,
+          candidate_drugs: candidateDrugs,
+          lang
+        })
+      },
+      'Failed to fetch clinical analysis'
+    );
   } catch (error) {
     console.warn('External clinical analysis fallback:', error);
     // Safe clinical fallback data
@@ -187,14 +236,11 @@ export async function getGeminiMedicineRecommendation({ patient, candidateDrugs,
   const drugsList = candidateDrugs && candidateDrugs.length > 0 ? candidateDrugs : getConditionMatchingDrugs(patient);
 
   try {
-    const res = await fetch(`${API_BASE}/compare`, {
+    const data = await safeFetch(`${API_BASE}/compare`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ patient, drugs: drugsList })
-    });
-
-    if (!res.ok) throw new Error('Compare API call failed');
-    const data = await res.json();
+    }, 'Compare API call failed');
 
     const candidateDrugsMapped = (data.candidate_drugs || []).map((cd, i) => ({
       drug_name: cd.drug_name,
@@ -257,55 +303,60 @@ export async function getGeminiMedicineRecommendation({ patient, candidateDrugs,
 }
 
 export async function getHealth() {
-  const res = await fetch(`${API_BASE}/health`);
-  if (!res.ok) throw new Error('Backend health check failed');
-  return res.json();
+  return await safeFetch(`${API_BASE}/health`, {}, 'Backend health check failed');
 }
 
 export async function getDrugs() {
-  const res = await fetch(`${API_BASE}/drugs`);
-  if (!res.ok) throw new Error('Failed to fetch drugs catalog');
-  return res.json();
+  return await safeFetch(`${API_BASE}/drugs`, {}, 'Failed to fetch drugs catalog');
 }
 
 export async function getPatients() {
-  const res = await fetch(`${API_BASE}/patients`);
-  if (!res.ok) throw new Error('Failed to fetch patients');
-  return res.json();
+  return await safeFetch(`${API_BASE}/patients`, {}, 'Failed to fetch patients');
 }
 
 export async function addPatient(patientData) {
-  const res = await fetch(`${API_BASE}/patients`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(patientData)
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Failed to add patient');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/patients`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patientData)
+    },
+    'Failed to add patient'
+  );
 }
 
 export async function deletePatient(patientId) {
-  const res = await fetch(`${API_BASE}/patients/${patientId}`, {
-    method: 'DELETE'
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Failed to delete patient');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/patients/${patientId}`,
+    {
+      method: 'DELETE'
+    },
+    'Failed to delete patient'
+  );
 }
 
 export async function deletePrescription(prescriptionId) {
-  const res = await fetch(`${API_BASE}/prescriptions/${prescriptionId}`, {
-    method: 'DELETE'
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Failed to delete prescription');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/prescriptions/${prescriptionId}`,
+    {
+      method: 'DELETE'
+    },
+    'Failed to delete prescription'
+  );
 }
 
 export async function downloadPatientsExcel() {
-  const res = await fetch(`${API_BASE}/patients/export-excel`);
-  if (!res.ok) throw new Error('Failed to export patients Excel file');
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/patients/export-excel`);
+  } catch (netErr) {
+    throw new Error(`Failed to export patients Excel file: Backend unreachable (${netErr.message})`);
+  }
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Failed to export patients Excel file: (HTTP ${res.status}) ${text}`);
+  }
   const blob = await res.blob();
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -319,130 +370,132 @@ export async function downloadPatientsExcel() {
   return true;
 }
 
-
 export async function predictDrugEffect(patient, drugName) {
-  const res = await fetch(`${API_BASE}/predict`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ patient, drug_name: drugName })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Prediction failed');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/predict`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ patient, drug_name: drugName })
+    },
+    'Prediction failed'
+  );
 }
 
 export async function compareThreeDrugs(patient, drugsList) {
-  const res = await fetch(`${API_BASE}/compare`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ patient, drugs: drugsList })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Comparison failed');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/compare`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ patient, drugs: drugsList })
+    },
+    'Comparison failed'
+  );
 }
 
 export async function prescribeDrug(prescriptionData) {
-  const res = await fetch(`${API_BASE}/prescribe`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(prescriptionData)
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Prescription submission failed');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/prescribe`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(prescriptionData)
+    },
+    'Prescription submission failed'
+  );
 }
 
 export async function getPrescriptions(patientId) {
   const url = patientId ? `${API_BASE}/prescriptions?patient_id=${patientId}` : `${API_BASE}/prescriptions`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to fetch prescriptions');
-  return res.json();
+  return await safeFetch(url, {}, 'Failed to fetch prescriptions');
 }
 
 export async function getDashboardStats() {
-  const res = await fetch(`${API_BASE}/dashboard/stats`);
-  if (!res.ok) throw new Error('Failed to fetch dashboard stats');
-  return res.json();
+  return await safeFetch(`${API_BASE}/dashboard/stats`, {}, 'Failed to fetch dashboard stats');
 }
 
 export async function sendPatientOtp(contactNumber) {
-  const res = await fetch(`${API_BASE}/otp/send`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contact_number: contactNumber })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/otp/send`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contact_number: contactNumber })
+    },
+    'Failed to send OTP'
+  );
 }
 
 export async function verifyPatientOtp(contactNumber, otp) {
-  const res = await fetch(`${API_BASE}/otp/verify`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contact_number: contactNumber, otp })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'OTP verification failed');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/otp/verify`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contact_number: contactNumber, otp })
+    },
+    'OTP verification failed'
+  );
 }
 
 export async function registerDoctor(doctorData) {
-  const res = await fetch(`${API_BASE}/auth/register-doctor`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(doctorData)
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Doctor registration failed');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/auth/register-doctor`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(doctorData)
+    },
+    'Doctor registration failed'
+  );
 }
 
 export async function loginDoctor(credentials) {
-  const res = await fetch(`${API_BASE}/auth/login-doctor`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(credentials)
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Doctor login failed');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/auth/login-doctor`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    },
+    'Doctor login failed'
+  );
 }
 
 export async function getMlDatasetStats() {
-  const res = await fetch(`${API_BASE}/ml/dataset-stats`);
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Failed to fetch ML dataset statistics');
-  return data;
+  return await safeFetch(`${API_BASE}/ml/dataset-stats`, {}, 'Failed to fetch ML dataset statistics');
 }
 
 export async function retrainModel() {
-  const res = await fetch(`${API_BASE}/ml/retrain`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Model retraining failed');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/ml/retrain`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    },
+    'Model retraining failed'
+  );
 }
 
 export async function getDrugResearch(drugName) {
-  const res = await fetch(`${API_BASE}/external/drug-research/${encodeURIComponent(drugName)}`);
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Failed to fetch drug research');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/external/drug-research/${encodeURIComponent(drugName)}`,
+    {},
+    'Failed to fetch drug research'
+  );
 }
 
 export async function expandDatasetWithApi(numRecords = 300) {
-  const res = await fetch(`${API_BASE}/external/expand-dataset`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ num_records: numRecords })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Failed to expand dataset via medical API');
-  return data;
+  return await safeFetch(
+    `${API_BASE}/external/expand-dataset`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ num_records: numRecords })
+    },
+    'Failed to expand dataset via medical API'
+  );
 }
 
 /**
@@ -450,16 +503,19 @@ export async function expandDatasetWithApi(numRecords = 300) {
  */
 export async function translateText({ text, targetLang = 'marathi' }) {
   try {
-    const res = await fetch(`${API_BASE}/translate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, target_lang: targetLang })
-    });
-    if (!res.ok) throw new Error('Translation failed');
-    return await res.json();
+    return await safeFetch(
+      `${API_BASE}/translate`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, target_lang: targetLang })
+      },
+      'Translation failed'
+    );
   } catch (e) {
     console.warn('Translate API fallback:', e);
     return { original: text, translated: text, target_lang: targetLang };
   }
 }
+
 
