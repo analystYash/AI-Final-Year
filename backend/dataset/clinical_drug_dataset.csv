@@ -15999,3 +15999,603 @@ EXT-API-25997,45,Male,Asthma,Mild Hepatic Steatosis,Aspirin Sensitivity,Aspirin,
 EXT-API-25998,72,Female,Thyroiditis,Diabetes Type 2,Aspirin Sensitivity,Lisinopril,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,1,76.8,30.5,MODERATE,Optimal Efficacy
 EXT-API-25999,44,Male,Mechanical Heart Valves,Renal Impairment,Sulfa Allergy,Metformin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,87.3,20.8,MODERATE,Optimal Efficacy
 EXT-API-26000,49,Male,Diabetes Type 2,Hypertension,Aspirin Sensitivity,Potassium Supplements,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,80.6,19.3,MODERATE,Optimal Efficacy
+EXT-API-26001,32,Male,GERD,Peptic Ulcer,Penicillin Allergy,Warfarin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,2,0,0,26.8,33.1,HIGH,Poor Response
+EXT-API-26002,72,Male,Hypertension,Peptic Ulcer,Aspirin Sensitivity,Potassium Supplements,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,2,0,1,64.3,41.6,HIGH,Moderate Response
+EXT-API-26003,87,Female,Obsessive-Compulsive Disorder,None,Penicillin Allergy,Metformin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,1,0,1,77.4,29.2,MODERATE,Optimal Efficacy
+EXT-API-26004,61,Male,Mild to Moderate Pain,Chronic Kidney Disease,Sulfa Allergy,Potassium Supplements,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,0,82.6,14.3,MODERATE,Optimal Efficacy
+EXT-API-26005,86,Male,Bacterial Infection,Renal Impairment,Aspirin Sensitivity,Aspirin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,1,32.3,32.9,MODERATE,Poor Response
+EXT-API-26006,64,Male,Hypertension,Peptic Ulcer,Sulfa Allergy,Warfarin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,88.6,20.9,MODERATE,Optimal Efficacy
+EXT-API-26007,53,Female,TSH Suppression,Liver Cirrhosis,Sulfa Allergy,Omeprazole,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,1,1,0,0,70.1,41.1,HIGH,Moderate Response
+EXT-API-26008,27,Male,Post-PCI Stent Placement,Liver Cirrhosis,NSAID Allergy,Metformin,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,1,1,0,0,70.7,46.4,HIGH,Moderate Response
+EXT-API-26009,89,Male,Urinary Tract Infection,Peptic Ulcer,None,Omeprazole,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,1,78.0,28.5,MODERATE,Optimal Efficacy
+EXT-API-26010,90,Female,Peripheral Artery Disease,Mild Hepatic Steatosis,NSAID Allergy,Lisinopril,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,1,1,0,1,64.6,55.0,HIGH,Adverse Reaction
+EXT-API-26011,86,Female,Bacterial Infection,Mild Hepatic Steatosis,Sulfa Allergy,Ibuprofen,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,1,3,0,1,12.0,83.1,CRITICAL,Adverse Reaction
+EXT-API-26012,29,Male,Hyperlipidemia,Liver Cirrhosis,NSAID Allergy,Potassium Supplements,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,1,1,0,0,18.6,42.1,HIGH,Poor Response
+EXT-API-26013,85,Female,Hypertension,Renal Impairment,Aspirin Sensitivity,Aspirin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,1,31.7,30.7,MODERATE,Poor Response
+EXT-API-26014,73,Male,Otitis Media,Diabetes Type 2,Penicillin Allergy,Clopidogrel,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,1,1,53.1,85.0,CRITICAL,Adverse Reaction
+EXT-API-26015,82,Male,Streptococcal Pharyngitis,Diabetes Type 2,Aspirin Sensitivity,None,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,0,0,1,80.0,25.9,MODERATE,Optimal Efficacy
+EXT-API-26016,64,Female,Hypertension,Renal Impairment,None,Sertraline,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,1,1,0,0,76.2,46.8,HIGH,Moderate Response
+EXT-API-26017,34,Male,Deep Vein Thrombosis,Bradycardia,Aspirin Sensitivity,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,84.2,15.7,MODERATE,Optimal Efficacy
+EXT-API-26018,43,Female,Pulmonary Embolism,Hypertension,Aspirin Sensitivity,Sertraline,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,82.2,16.7,MODERATE,Optimal Efficacy
+EXT-API-26019,88,Male,Hypertension,Renal Impairment,None,Ibuprofen,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,1,62.7,53.3,HIGH,Adverse Reaction
+EXT-API-26020,27,Male,Fever,Peptic Ulcer,Aspirin Sensitivity,Lisinopril,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,1,0,0,87.2,21.1,MODERATE,Optimal Efficacy
+EXT-API-26021,78,Male,Asthma,Mild Hepatic Steatosis,Penicillin Allergy,Warfarin,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,0,1,1,0,1,13.0,56.4,CRITICAL,Adverse Reaction
+EXT-API-26022,70,Female,Hypertension,Renal Impairment,None,Metformin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,0,1,0,1,31.3,34.4,MODERATE,Poor Response
+EXT-API-26023,49,Male,Heart Failure,Liver Cirrhosis,NSAID Allergy,Lisinopril,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,0,0,0,82.8,10.0,LOW,Optimal Efficacy
+EXT-API-26024,27,Female,Major Depressive Disorder,Renal Impairment,None,Clopidogrel,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,0,0,0,0,0,39.7,15.4,LOW,Poor Response
+EXT-API-26025,48,Male,Post-MI Cardioprotection,Peptic Ulcer,NSAID Allergy,None,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,0,0,0,81.6,8.0,LOW,Optimal Efficacy
+EXT-API-26026,51,Female,Thyroiditis,Diabetes Type 2,NSAID Allergy,Lisinopril,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,81.9,15.7,MODERATE,Optimal Efficacy
+EXT-API-26027,87,Male,Hypertension,None,Aspirin Sensitivity,Sertraline,0,None,Metformin,Biguanide,500,Renal,0,0,1,0,1,29.0,34.8,MODERATE,Poor Response
+EXT-API-26028,25,Male,Diabetes Type 2,Renal Impairment,Penicillin Allergy,Metformin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,0,1,0,0,33.2,21.1,MODERATE,Poor Response
+EXT-API-26029,23,Male,Cardiovascular Prevention,Diabetes Type 2,Sulfa Allergy,Aspirin,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,84.0,19.7,MODERATE,Optimal Efficacy
+EXT-API-26030,51,Female,Cardiovascular Prevention,Bradycardia,NSAID Allergy,Omeprazole,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,89.3,21.5,MODERATE,Optimal Efficacy
+EXT-API-26031,76,Male,Diabetes Type 2,Diabetes Type 2,Sulfa Allergy,Lisinopril,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,1,83.3,35.0,HIGH,Moderate Response
+EXT-API-26032,49,Female,Peripheral Artery Disease,Diabetes Type 2,Sulfa Allergy,Potassium Supplements,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,88.1,18.2,MODERATE,Optimal Efficacy
+EXT-API-26033,88,Female,Diabetes Type 2,Liver Cirrhosis,Sulfa Allergy,Warfarin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,1,2,0,1,10.9,70.9,CRITICAL,Adverse Reaction
+EXT-API-26034,52,Female,Angina,Chronic Kidney Disease,Penicillin Allergy,Aspirin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,85.1,16.0,MODERATE,Optimal Efficacy
+EXT-API-26035,24,Male,Ischemic Stroke,None,None,Omeprazole,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,2,0,0,79.7,31.1,HIGH,Optimal Efficacy
+EXT-API-26036,38,Female,Sinusitis,Diabetes Type 2,None,Warfarin,1,3rd,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,0,89.0,18.4,MODERATE,Optimal Efficacy
+EXT-API-26037,65,Male,Hypertension,Bradycardia,Sulfa Allergy,None,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,0,0,1,83.0,23.7,MODERATE,Optimal Efficacy
+EXT-API-26038,31,Female,Bacterial Infection,Liver Cirrhosis,Penicillin Allergy,Lisinopril,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,0,1,1,0,0,26.1,46.1,HIGH,Poor Response
+EXT-API-26039,40,Female,Bacterial Infection,Peptic Ulcer,Sulfa Allergy,Lisinopril,0,None,Metformin,Biguanide,500,Renal,0,0,1,0,0,31.1,21.0,MODERATE,Poor Response
+EXT-API-26040,78,Male,Post-MI Cardioprotection,Chronic Kidney Disease,Sulfa Allergy,Ibuprofen,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,76.2,33.3,MODERATE,Optimal Efficacy
+EXT-API-26041,60,Female,Asthma,Bradycardia,Sulfa Allergy,Clopidogrel,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,0,1,0,0,34.0,21.8,MODERATE,Poor Response
+EXT-API-26042,60,Male,Pulmonary Embolism,Liver Cirrhosis,Aspirin Sensitivity,Aspirin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,1,3,0,0,58.4,72.8,CRITICAL,Adverse Reaction
+EXT-API-26043,58,Female,Acute Pain,Mild Hepatic Steatosis,Aspirin Sensitivity,Ibuprofen,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,1,0,0,0,70.5,38.7,HIGH,Moderate Response
+EXT-API-26044,84,Male,Diabetes Type 2,Chronic Kidney Disease,Aspirin Sensitivity,Omeprazole,0,None,Metformin,Biguanide,500,Renal,1,1,1,0,1,68.6,54.0,HIGH,Adverse Reaction
+EXT-API-26045,56,Female,Ischemic Stroke,Mild Hepatic Steatosis,Sulfa Allergy,Clopidogrel,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,1,0,0,0,69.3,36.4,HIGH,Moderate Response
+EXT-API-26046,40,Female,Hypothyroidism,Bradycardia,Sulfa Allergy,Ibuprofen,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,85.8,19.2,MODERATE,Optimal Efficacy
+EXT-API-26047,74,Female,Zollinger-Ellison,Liver Cirrhosis,None,Aspirin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,1,1,0,1,67.2,58.1,CRITICAL,Adverse Reaction
+EXT-API-26048,29,Male,Inflammation,Peptic Ulcer,Penicillin Allergy,None,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,0,0,0,80.5,15.9,LOW,Optimal Efficacy
+EXT-API-26049,27,Female,Heart Failure,Peptic Ulcer,NSAID Allergy,Sertraline,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,81.5,19.5,MODERATE,Optimal Efficacy
+EXT-API-26050,31,Female,Peripheral Artery Disease,None,Aspirin Sensitivity,Ibuprofen,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,81.2,15.1,MODERATE,Optimal Efficacy
+EXT-API-26051,85,Female,Acute Pain,Diabetes Type 2,NSAID Allergy,Clopidogrel,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,1,28.5,29.3,MODERATE,Poor Response
+EXT-API-26052,78,Female,Angina Pectoris,Bradycardia,Aspirin Sensitivity,Sertraline,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,80.3,30.2,MODERATE,Optimal Efficacy
+EXT-API-26053,54,Male,Heart Failure,Diabetes Type 2,None,Lisinopril,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,0,0,0,81.5,11.1,LOW,Optimal Efficacy
+EXT-API-26054,45,Male,Coronary Artery Disease,Diabetes Type 2,NSAID Allergy,Metformin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,80.6,20.7,MODERATE,Optimal Efficacy
+EXT-API-26055,20,Female,TSH Suppression,Bradycardia,NSAID Allergy,Metformin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,89.3,20.4,MODERATE,Optimal Efficacy
+EXT-API-26056,46,Female,Peripheral Artery Disease,Hypertension,None,Metformin,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,86.8,17.2,MODERATE,Optimal Efficacy
+EXT-API-26057,77,Male,Major Depressive Disorder,None,NSAID Allergy,Potassium Supplements,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,0,1,0,1,29.6,28.2,MODERATE,Poor Response
+EXT-API-26058,72,Male,Hyperlipidemia,None,Sulfa Allergy,Metformin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,1,0,1,27.3,31.6,MODERATE,Poor Response
+EXT-API-26059,66,Female,Bacterial Infection,Bradycardia,None,Sertraline,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,0,0,1,0,1,24.2,32.3,MODERATE,Poor Response
+EXT-API-26060,46,Male,Urinary Tract Infection,None,None,Ibuprofen,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,0,0,0,0,0,32.0,8.2,LOW,Poor Response
+EXT-API-26061,48,Male,Hypertension,Peptic Ulcer,NSAID Allergy,Aspirin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,87.7,15.3,MODERATE,Optimal Efficacy
+EXT-API-26062,32,Male,Diabetes Type 2,None,Sulfa Allergy,Potassium Supplements,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,0,0,1,0,0,36.8,21.7,MODERATE,Poor Response
+EXT-API-26063,43,Male,Thyroiditis,Peptic Ulcer,None,Aspirin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,88.5,18.8,MODERATE,Optimal Efficacy
+EXT-API-26064,90,Male,Heart Failure,Chronic Kidney Disease,None,Clopidogrel,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,1,1,0,1,68.5,53.1,HIGH,Adverse Reaction
+EXT-API-26065,80,Male,TSH Suppression,Hypertension,Penicillin Allergy,Metformin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,1,75.8,32.2,MODERATE,Optimal Efficacy
+EXT-API-26066,52,Female,Obsessive-Compulsive Disorder,Chronic Kidney Disease,Penicillin Allergy,Warfarin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,2,0,0,72.8,29.6,HIGH,Optimal Efficacy
+EXT-API-26067,77,Female,Osteoarthritis Pain,Chronic Kidney Disease,Penicillin Allergy,Sertraline,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,1,76.1,34.4,MODERATE,Optimal Efficacy
+EXT-API-26068,53,Female,Inflammation,Renal Impairment,Penicillin Allergy,Metformin,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,1,1,0,0,72.9,45.1,HIGH,Moderate Response
+EXT-API-26069,78,Female,Urinary Tract Infection,Renal Impairment,Sulfa Allergy,Ibuprofen,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,1,66.0,54.9,HIGH,Adverse Reaction
+EXT-API-26070,65,Female,Obsessive-Compulsive Disorder,Mild Hepatic Steatosis,Aspirin Sensitivity,Omeprazole,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,1,1,0,1,65.5,56.6,CRITICAL,Adverse Reaction
+EXT-API-26071,50,Male,Streptococcal Pharyngitis,Chronic Kidney Disease,None,Clopidogrel,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,1,1,0,0,77.5,44.5,HIGH,Moderate Response
+EXT-API-26072,45,Female,Cardiovascular Prevention,Diabetes Type 2,Aspirin Sensitivity,Aspirin,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,88.3,16.4,MODERATE,Optimal Efficacy
+EXT-API-26073,40,Female,Inflammation,Bradycardia,None,None,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,0,0,0,87.0,9.0,LOW,Optimal Efficacy
+EXT-API-26074,80,Male,Atrial Fibrillation,Bradycardia,NSAID Allergy,Sertraline,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,1,28.4,29.5,MODERATE,Poor Response
+EXT-API-26075,50,Female,Diabetes Type 2,Mild Hepatic Steatosis,NSAID Allergy,Warfarin,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,85.8,19.5,MODERATE,Optimal Efficacy
+EXT-API-26076,37,Female,Hypertension,Renal Impairment,Aspirin Sensitivity,Metformin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,87.9,15.8,MODERATE,Optimal Efficacy
+EXT-API-26077,66,Female,Coronary Artery Disease,Mild Hepatic Steatosis,Sulfa Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,1,1,0,1,18.2,57.9,CRITICAL,Adverse Reaction
+EXT-API-26078,30,Male,Infectious Diarrhea,Renal Impairment,Penicillin Allergy,Ibuprofen,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,0,69.7,39.6,HIGH,Moderate Response
+EXT-API-26079,70,Female,Insulin Resistance,Bradycardia,None,Ibuprofen,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,1,76.9,30.3,MODERATE,Optimal Efficacy
+EXT-API-26080,76,Male,Heart Failure,Peptic Ulcer,NSAID Allergy,Warfarin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,79.4,33.2,MODERATE,Optimal Efficacy
+EXT-API-26081,52,Male,Post-PCI Stent Placement,Bradycardia,Aspirin Sensitivity,Potassium Supplements,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,89.2,17.5,MODERATE,Optimal Efficacy
+EXT-API-26082,56,Female,Major Depressive Disorder,Diabetes Type 2,NSAID Allergy,Sertraline,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,0,30.8,14.3,MODERATE,Poor Response
+EXT-API-26083,59,Female,Hypothyroidism,None,Sulfa Allergy,Potassium Supplements,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,80.4,20.1,MODERATE,Optimal Efficacy
+EXT-API-26084,84,Female,Hyperlipidemia,Mild Hepatic Steatosis,NSAID Allergy,Warfarin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,1,1,0,1,16.7,56.3,CRITICAL,Adverse Reaction
+EXT-API-26085,31,Male,Fever,Bradycardia,NSAID Allergy,Clopidogrel,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,1,1,0,50.4,64.7,CRITICAL,Adverse Reaction
+EXT-API-26086,59,Male,Bacterial Infection,Diabetes Type 2,None,Clopidogrel,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,0,84.6,14.4,MODERATE,Optimal Efficacy
+EXT-API-26087,64,Female,Atrial Fibrillation,Peptic Ulcer,Sulfa Allergy,Clopidogrel,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,81.3,16.3,MODERATE,Optimal Efficacy
+EXT-API-26088,80,Male,Post-PCI Stent Placement,Liver Cirrhosis,Sulfa Allergy,Clopidogrel,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,1,0,0,1,62.1,50.3,HIGH,Adverse Reaction
+EXT-API-26089,32,Female,Urinary Tract Infection,Liver Cirrhosis,NSAID Allergy,Aspirin,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,0,1,1,0,0,20.7,45.7,HIGH,Poor Response
+EXT-API-26090,49,Female,Zollinger-Ellison,Peptic Ulcer,Aspirin Sensitivity,Clopidogrel,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,0,81.4,14.6,MODERATE,Optimal Efficacy
+EXT-API-26091,71,Female,Major Depressive Disorder,Bradycardia,None,Aspirin,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,0,1,0,1,31.3,34.7,MODERATE,Poor Response
+EXT-API-26092,80,Male,Diabetic Nephropathy,Chronic Kidney Disease,Sulfa Allergy,Clopidogrel,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,1,69.6,56.0,CRITICAL,Adverse Reaction
+EXT-API-26093,59,Male,GERD,Mild Hepatic Steatosis,Penicillin Allergy,Metformin,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,0,1,1,0,0,18.4,45.0,HIGH,Poor Response
+EXT-API-26094,66,Female,Asthma,Liver Cirrhosis,NSAID Allergy,None,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,0,0,0,0,1,25.3,29.7,MODERATE,Poor Response
+EXT-API-26095,30,Female,Fever,None,Penicillin Allergy,Metformin,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,1,0,0,89.7,14.6,MODERATE,Optimal Efficacy
+EXT-API-26096,51,Female,Osteoarthritis Pain,Renal Impairment,Sulfa Allergy,Clopidogrel,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,0,83.8,16.5,MODERATE,Optimal Efficacy
+EXT-API-26097,80,Male,Pyelonephritis,Bradycardia,Penicillin Allergy,Warfarin,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,1,78.3,28.8,MODERATE,Optimal Efficacy
+EXT-API-26098,30,Female,Obsessive-Compulsive Disorder,None,None,Omeprazole,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,1,0,0,82.9,17.0,MODERATE,Optimal Efficacy
+EXT-API-26099,49,Female,Hypertension,Liver Cirrhosis,Penicillin Allergy,Warfarin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,1,1,0,0,71.8,44.5,HIGH,Moderate Response
+EXT-API-26100,36,Male,Duodenal Ulcer,Hypertension,Sulfa Allergy,None,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,0,0,0,89.0,11.7,LOW,Optimal Efficacy
+EXT-API-26101,87,Male,Otitis Media,Bradycardia,NSAID Allergy,Aspirin,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,1,78.6,30.4,MODERATE,Optimal Efficacy
+EXT-API-26102,79,Male,Thyroiditis,Chronic Kidney Disease,Aspirin Sensitivity,Aspirin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,1,83.9,30.4,MODERATE,Optimal Efficacy
+EXT-API-26103,68,Female,Hypertension,Hypertension,Sulfa Allergy,Ibuprofen,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,80.1,30.8,MODERATE,Optimal Efficacy
+EXT-API-26104,42,Female,Panic Disorder,Renal Impairment,None,Aspirin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,2,0,0,70.3,28.9,HIGH,Optimal Efficacy
+EXT-API-26105,29,Female,Coronary Artery Disease,Liver Cirrhosis,Penicillin Allergy,Lisinopril,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,1,1,0,0,76.8,41.9,HIGH,Moderate Response
+EXT-API-26106,52,Male,Mechanical Heart Valves,Bradycardia,Sulfa Allergy,Warfarin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,0,0,0,84.7,8.6,LOW,Optimal Efficacy
+EXT-API-26107,46,Female,Asthma,Diabetes Type 2,Sulfa Allergy,Warfarin,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,0,1,0,0,30.1,18.3,MODERATE,Poor Response
+EXT-API-26108,65,Female,Duodenal Ulcer,Renal Impairment,Penicillin Allergy,Sertraline,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,1,74.3,35.1,HIGH,Moderate Response
+EXT-API-26109,59,Male,Mechanical Heart Valves,Bradycardia,NSAID Allergy,Warfarin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,0,0,0,81.4,15.6,LOW,Optimal Efficacy
+EXT-API-26110,81,Male,Streptococcal Pharyngitis,Mild Hepatic Steatosis,NSAID Allergy,Omeprazole,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,1,80.7,33.9,MODERATE,Optimal Efficacy
+EXT-API-26111,71,Male,Urinary Tract Infection,Renal Impairment,NSAID Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,1,0,1,28.1,35.6,HIGH,Poor Response
+EXT-API-26112,65,Male,Diabetes Type 2,Chronic Kidney Disease,None,Omeprazole,0,None,Metformin,Biguanide,500,Renal,1,1,1,0,1,67.4,60.8,CRITICAL,Adverse Reaction
+EXT-API-26113,25,Female,Acute Pain,Hypertension,None,Ibuprofen,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,0,0,0,88.0,8.2,LOW,Optimal Efficacy
+EXT-API-26114,60,Male,Asthma,Peptic Ulcer,None,Clopidogrel,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,0,1,0,0,32.1,15.7,MODERATE,Poor Response
+EXT-API-26115,47,Female,Asthma,None,Sulfa Allergy,Lisinopril,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,0,35.4,20.4,MODERATE,Poor Response
+EXT-API-26116,21,Male,Hypertension,Chronic Kidney Disease,None,Lisinopril,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,1,0,0,0,72.7,34.0,HIGH,Optimal Efficacy
+EXT-API-26117,85,Male,Acute Pain,Hypertension,Sulfa Allergy,Clopidogrel,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,0,1,0,1,29.9,31.6,MODERATE,Poor Response
+EXT-API-26118,23,Female,Hyperlipidemia,None,NSAID Allergy,Metformin,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,83.1,19.7,MODERATE,Optimal Efficacy
+EXT-API-26119,27,Male,Gastric Ulcer,Renal Impairment,Penicillin Allergy,Aspirin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,0,86.2,18.7,MODERATE,Optimal Efficacy
+EXT-API-26120,59,Female,Major Depressive Disorder,Bradycardia,NSAID Allergy,Clopidogrel,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,0,0,1,0,0,36.1,14.8,MODERATE,Poor Response
+EXT-API-26121,32,Male,Pyelonephritis,Mild Hepatic Steatosis,Sulfa Allergy,Sertraline,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,0,84.0,19.8,MODERATE,Optimal Efficacy
+EXT-API-26122,72,Female,Osteoarthritis,Liver Cirrhosis,NSAID Allergy,Warfarin,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,1,1,1,1,32.9,98.0,CRITICAL,Adverse Reaction
+EXT-API-26123,30,Female,Major Depressive Disorder,None,Aspirin Sensitivity,Clopidogrel,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,0,1,0,0,36.7,17.3,MODERATE,Poor Response
+EXT-API-26124,72,Male,Atrial Fibrillation,Bradycardia,Sulfa Allergy,Warfarin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,1,29.8,29.7,MODERATE,Poor Response
+EXT-API-26125,79,Male,Hypothyroidism,Diabetes Type 2,Sulfa Allergy,Warfarin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,2,0,1,21.6,44.6,HIGH,Poor Response
+EXT-API-26126,72,Male,Fever,None,Penicillin Allergy,Aspirin,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,1,81.0,30.5,MODERATE,Optimal Efficacy
+EXT-API-26127,62,Male,Inflammation,Mild Hepatic Steatosis,None,Lisinopril,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,1,1,0,0,75.4,46.8,HIGH,Moderate Response
+EXT-API-26128,85,Male,Heart Failure,Chronic Kidney Disease,Penicillin Allergy,Omeprazole,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,1,1,0,1,65.1,55.6,CRITICAL,Adverse Reaction
+EXT-API-26129,28,Male,Heart Failure,None,None,Aspirin,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,84.4,17.4,MODERATE,Optimal Efficacy
+EXT-API-26130,74,Female,Heart Failure,Renal Impairment,Sulfa Allergy,Metformin,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,1,63.1,58.4,CRITICAL,Adverse Reaction
+EXT-API-26131,80,Female,Diabetic Nephropathy,None,None,Ibuprofen,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,1,77.0,29.7,MODERATE,Optimal Efficacy
+EXT-API-26132,50,Female,Hypertension,Hypertension,NSAID Allergy,Lisinopril,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,81.3,18.3,MODERATE,Optimal Efficacy
+EXT-API-26133,82,Female,Cardiovascular Prevention,None,NSAID Allergy,None,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,0,0,1,78.6,22.6,MODERATE,Optimal Efficacy
+EXT-API-26134,72,Female,Bacterial Infection,Bradycardia,None,Metformin,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,0,0,1,0,1,24.2,30.6,MODERATE,Poor Response
+EXT-API-26135,76,Female,Mild to Moderate Pain,Peptic Ulcer,NSAID Allergy,Potassium Supplements,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,1,78.0,28.6,MODERATE,Optimal Efficacy
+EXT-API-26136,57,Female,Angina Pectoris,Renal Impairment,Aspirin Sensitivity,Warfarin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,85.3,15.6,MODERATE,Optimal Efficacy
+EXT-API-26137,62,Female,Urinary Tract Infection,Liver Cirrhosis,Penicillin Allergy,Warfarin,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,1,1,0,0,19.5,40.6,HIGH,Poor Response
+EXT-API-26138,37,Male,Heart Failure,Hypertension,NSAID Allergy,Potassium Supplements,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,87.6,17.6,MODERATE,Optimal Efficacy
+EXT-API-26139,90,Female,Urinary Tract Infection,Chronic Kidney Disease,Penicillin Allergy,Sertraline,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,0,0,1,0,1,24.7,31.5,MODERATE,Poor Response
+EXT-API-26140,53,Male,Bacterial Infection,Bradycardia,NSAID Allergy,Sertraline,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,0,80.4,16.9,MODERATE,Optimal Efficacy
+EXT-API-26141,27,Male,Sinusitis,Hypertension,Aspirin Sensitivity,Clopidogrel,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,0,89.5,19.9,MODERATE,Optimal Efficacy
+EXT-API-26142,75,Male,Insulin Resistance,Diabetes Type 2,Penicillin Allergy,None,0,None,Metformin,Biguanide,500,Renal,1,0,0,0,1,78.5,28.5,MODERATE,Optimal Efficacy
+EXT-API-26143,61,Male,Angina Pectoris,None,Penicillin Allergy,Sertraline,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,89.9,18.2,MODERATE,Optimal Efficacy
+EXT-API-26144,38,Female,Diabetic Nephropathy,Mild Hepatic Steatosis,NSAID Allergy,Omeprazole,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,0,68.5,44.0,HIGH,Moderate Response
+EXT-API-26145,26,Female,Fever,Bradycardia,Sulfa Allergy,Potassium Supplements,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,1,0,0,83.3,18.7,MODERATE,Optimal Efficacy
+EXT-API-26146,62,Female,Osteoarthritis,Mild Hepatic Steatosis,Penicillin Allergy,Potassium Supplements,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,1,1,0,0,25.1,39.7,HIGH,Poor Response
+EXT-API-26147,66,Female,Urinary Tract Infection,Diabetes Type 2,None,Metformin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,1,0,1,29.1,28.1,MODERATE,Poor Response
+EXT-API-26148,41,Male,Sinusitis,Peptic Ulcer,Penicillin Allergy,Lisinopril,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,1,0,51.5,66.4,CRITICAL,Adverse Reaction
+EXT-API-26149,30,Male,Headache,Mild Hepatic Steatosis,Penicillin Allergy,Lisinopril,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,1,1,0,0,69.8,44.5,HIGH,Moderate Response
+EXT-API-26150,39,Female,Diabetic Nephropathy,Peptic Ulcer,NSAID Allergy,Potassium Supplements,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,87.5,17.6,MODERATE,Optimal Efficacy
+EXT-API-26151,48,Female,Asthma,Hypertension,Penicillin Allergy,Omeprazole,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,3,0,0,25.7,46.5,HIGH,Poor Response
+EXT-API-26152,54,Female,Osteoarthritis Pain,Liver Cirrhosis,Penicillin Allergy,Potassium Supplements,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,1,1,0,0,69.4,41.0,HIGH,Moderate Response
+EXT-API-26153,79,Female,Major Depressive Disorder,Diabetes Type 2,None,Aspirin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,2,0,1,64.8,41.3,HIGH,Moderate Response
+EXT-API-26154,83,Male,Diabetes Type 2,Peptic Ulcer,NSAID Allergy,Omeprazole,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,0,0,1,33.3,25.3,MODERATE,Poor Response
+EXT-API-26155,82,Female,Hypothyroidism,Chronic Kidney Disease,Penicillin Allergy,None,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,0,0,1,77.2,22.8,MODERATE,Optimal Efficacy
+EXT-API-26156,60,Male,Infectious Diarrhea,Hypertension,Penicillin Allergy,Sertraline,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,0,84.5,14.0,MODERATE,Optimal Efficacy
+EXT-API-26157,20,Female,Hypertension,Diabetes Type 2,Aspirin Sensitivity,Clopidogrel,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,0,89.8,15.9,MODERATE,Optimal Efficacy
+EXT-API-26158,24,Male,Post-Myocardial Infarction,Hypertension,None,Warfarin,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,0,90.4,18.0,MODERATE,Optimal Efficacy
+EXT-API-26159,20,Male,Coronary Artery Disease,Mild Hepatic Steatosis,None,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,1,1,0,0,23.5,43.6,HIGH,Poor Response
+EXT-API-26160,28,Female,Angina,Diabetes Type 2,Aspirin Sensitivity,Clopidogrel,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,83.9,17.8,MODERATE,Optimal Efficacy
+EXT-API-26161,67,Female,Major Depressive Disorder,Chronic Kidney Disease,None,Omeprazole,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,1,0,1,76.4,33.3,MODERATE,Optimal Efficacy
+EXT-API-26162,60,Male,Post-Myocardial Infarction,Chronic Kidney Disease,Penicillin Allergy,Sertraline,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,1,1,0,0,77.8,42.8,HIGH,Moderate Response
+EXT-API-26163,35,Male,Acute Pain,None,Sulfa Allergy,Ibuprofen,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,0,1,0,0,30.4,15.6,MODERATE,Poor Response
+EXT-API-26164,58,Female,Insulin Resistance,Bradycardia,None,Ibuprofen,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,82.9,20.9,MODERATE,Optimal Efficacy
+EXT-API-26165,60,Female,Insulin Resistance,Mild Hepatic Steatosis,NSAID Allergy,Sertraline,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,88.9,17.1,MODERATE,Optimal Efficacy
+EXT-API-26166,81,Female,Angina,Bradycardia,None,Metformin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,1,74.8,32.8,MODERATE,Optimal Efficacy
+EXT-API-26167,41,Female,Hypertension,Chronic Kidney Disease,Sulfa Allergy,Aspirin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,87.2,15.3,MODERATE,Optimal Efficacy
+EXT-API-26168,62,Female,Duodenal Ulcer,Mild Hepatic Steatosis,Sulfa Allergy,None,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,1,0,0,0,68.8,38.1,HIGH,Moderate Response
+EXT-API-26169,83,Male,Hyperlipidemia,Hypertension,None,Lisinopril,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,0,0,1,0,1,24.7,34.2,MODERATE,Poor Response
+EXT-API-26170,64,Female,Hypertension,Liver Cirrhosis,NSAID Allergy,Omeprazole,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,0,1,1,1,0,10.0,95.1,CRITICAL,Adverse Reaction
+EXT-API-26171,35,Female,Heart Failure,Bradycardia,Penicillin Allergy,Warfarin,1,1st,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,85.0,62.1,CRITICAL,Adverse Reaction
+EXT-API-26172,33,Female,Osteoarthritis,Hypertension,Penicillin Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,1,0,0,39.2,17.9,MODERATE,Poor Response
+EXT-API-26173,35,Male,Post-Myocardial Infarction,Hypertension,None,Omeprazole,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,0,86.7,19.7,MODERATE,Optimal Efficacy
+EXT-API-26174,87,Female,Hyperlipidemia,Liver Cirrhosis,Sulfa Allergy,Clopidogrel,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,1,1,0,1,14.2,60.9,CRITICAL,Adverse Reaction
+EXT-API-26175,35,Male,Hypertension,Chronic Kidney Disease,Aspirin Sensitivity,Potassium Supplements,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,0,1,0,0,33.7,20.4,MODERATE,Poor Response
+EXT-API-26176,34,Male,Mechanical Heart Valves,Hypertension,Aspirin Sensitivity,Metformin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,87.7,20.6,MODERATE,Optimal Efficacy
+EXT-API-26177,34,Female,Heart Failure,Hypertension,Aspirin Sensitivity,Omeprazole,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,0,88.3,18.4,MODERATE,Optimal Efficacy
+EXT-API-26178,41,Male,Hypertension,Renal Impairment,Aspirin Sensitivity,Lisinopril,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,0,71.0,40.3,HIGH,Moderate Response
+EXT-API-26179,46,Female,Major Depressive Disorder,Bradycardia,None,Aspirin,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,0,0,2,0,0,29.6,28.2,HIGH,Poor Response
+EXT-API-26180,56,Male,Panic Disorder,Liver Cirrhosis,Penicillin Allergy,Potassium Supplements,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,1,1,0,0,75.2,43.8,HIGH,Moderate Response
+EXT-API-26181,90,Male,Hypertension,Renal Impairment,None,Potassium Supplements,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,76.6,29.7,MODERATE,Optimal Efficacy
+EXT-API-26182,71,Male,Heart Failure,Diabetes Type 2,Sulfa Allergy,Aspirin,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,1,78.8,34.4,MODERATE,Optimal Efficacy
+EXT-API-26183,69,Female,Major Depressive Disorder,Liver Cirrhosis,NSAID Allergy,Metformin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,1,1,0,1,66.8,54.6,HIGH,Adverse Reaction
+EXT-API-26184,36,Female,Hypothyroidism,Chronic Kidney Disease,NSAID Allergy,Lisinopril,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,0,1,1,0,0,23.1,39.8,HIGH,Poor Response
+EXT-API-26185,77,Male,Hyperlipidemia,Liver Cirrhosis,None,None,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,1,0,0,1,64.9,50.1,HIGH,Adverse Reaction
+EXT-API-26186,71,Male,Hyperlipidemia,Chronic Kidney Disease,Aspirin Sensitivity,Omeprazole,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,0,1,1,0,1,13.9,54.3,HIGH,Adverse Reaction
+EXT-API-26187,77,Female,Acute Pain,None,None,Metformin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,1,0,1,29.1,35.7,HIGH,Poor Response
+EXT-API-26188,63,Male,Dyslipidemia,Hypertension,Sulfa Allergy,Clopidogrel,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,80.1,14.9,MODERATE,Optimal Efficacy
+EXT-API-26189,51,Female,Hypothyroidism,None,NSAID Allergy,None,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,0,0,0,0,35.7,9.6,LOW,Poor Response
+EXT-API-26190,54,Male,Mechanical Heart Valves,Diabetes Type 2,Sulfa Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,86.8,15.0,MODERATE,Optimal Efficacy
+EXT-API-26191,68,Female,Hypothyroidism,Diabetes Type 2,Sulfa Allergy,Lisinopril,0,None,Lisinopril,ACE Inhibitor,10,Renal,0,0,0,0,1,26.0,26.1,MODERATE,Poor Response
+EXT-API-26192,23,Male,Pulmonary Embolism,Hypertension,Aspirin Sensitivity,Sertraline,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,83.5,21.1,MODERATE,Optimal Efficacy
+EXT-API-26193,59,Female,Angina,Bradycardia,Aspirin Sensitivity,Omeprazole,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,85.1,18.1,MODERATE,Optimal Efficacy
+EXT-API-26194,90,Female,GERD,Chronic Kidney Disease,Sulfa Allergy,Warfarin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,1,83.8,32.7,MODERATE,Optimal Efficacy
+EXT-API-26195,21,Female,Headache,None,Aspirin Sensitivity,Sertraline,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,0,88.3,19.0,MODERATE,Optimal Efficacy
+EXT-API-26196,66,Male,GERD,None,Aspirin Sensitivity,Warfarin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,1,25.9,31.5,MODERATE,Poor Response
+EXT-API-26197,37,Female,TSH Suppression,Diabetes Type 2,Aspirin Sensitivity,Sertraline,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,87.4,14.5,MODERATE,Optimal Efficacy
+EXT-API-26198,84,Male,Angina,Hypertension,Aspirin Sensitivity,Metformin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,1,77.1,29.4,MODERATE,Optimal Efficacy
+EXT-API-26199,86,Female,Ischemic Stroke,Hypertension,Penicillin Allergy,Ibuprofen,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,1,76.8,30.4,MODERATE,Optimal Efficacy
+EXT-API-26200,54,Male,Sinusitis,Chronic Kidney Disease,NSAID Allergy,Omeprazole,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,1,1,0,0,73.6,46.5,HIGH,Moderate Response
+EXT-API-26201,53,Female,Prostatitis,Mild Hepatic Steatosis,Sulfa Allergy,Lisinopril,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,0,82.9,16.3,MODERATE,Optimal Efficacy
+EXT-API-26202,28,Female,Urinary Tract Infection,Bradycardia,NSAID Allergy,Ibuprofen,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,0,85.4,21.5,MODERATE,Optimal Efficacy
+EXT-API-26203,52,Male,Pyelonephritis,Peptic Ulcer,None,Clopidogrel,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,0,82.3,15.9,MODERATE,Optimal Efficacy
+EXT-API-26204,70,Female,Diabetes Type 2,Liver Cirrhosis,None,Clopidogrel,0,None,Lisinopril,ACE Inhibitor,10,Renal,0,0,1,0,1,33.8,29.3,MODERATE,Poor Response
+EXT-API-26205,78,Female,Obsessive-Compulsive Disorder,Chronic Kidney Disease,Sulfa Allergy,None,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,0,0,1,83.1,22.7,MODERATE,Optimal Efficacy
+EXT-API-26206,47,Male,Hyperlipidemia,Mild Hepatic Steatosis,Penicillin Allergy,None,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,0,1,0,0,0,28.0,36.2,HIGH,Poor Response
+EXT-API-26207,41,Female,Hypertension,Bradycardia,Aspirin Sensitivity,Potassium Supplements,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,0,39.8,16.3,MODERATE,Poor Response
+EXT-API-26208,87,Female,Hyperlipidemia,Diabetes Type 2,NSAID Allergy,Aspirin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,2,0,1,15.9,40.9,HIGH,Poor Response
+EXT-API-26209,76,Female,Hypertension,Chronic Kidney Disease,Sulfa Allergy,Potassium Supplements,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,1,80.7,29.5,MODERATE,Optimal Efficacy
+EXT-API-26210,69,Female,Hypertension,Mild Hepatic Steatosis,None,Lisinopril,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,1,71.8,56.8,CRITICAL,Adverse Reaction
+EXT-API-26211,49,Male,Post-PCI Stent Placement,Hypertension,Sulfa Allergy,Omeprazole,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,2,0,0,73.0,31.8,HIGH,Optimal Efficacy
+EXT-API-26212,51,Female,Diabetes Type 2,Renal Impairment,NSAID Allergy,Aspirin,0,None,Metformin,Biguanide,500,Renal,1,1,1,0,0,69.6,44.5,HIGH,Moderate Response
+EXT-API-26213,57,Male,Ischemic Stroke,Chronic Kidney Disease,Aspirin Sensitivity,Ibuprofen,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,82.2,15.1,MODERATE,Optimal Efficacy
+EXT-API-26214,76,Female,Angina,Hypertension,Aspirin Sensitivity,Ibuprofen,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,1,81.6,33.4,MODERATE,Optimal Efficacy
+EXT-API-26215,28,Female,Diabetic Nephropathy,Renal Impairment,Aspirin Sensitivity,Warfarin,1,3rd,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,0,77.0,85.6,CRITICAL,Adverse Reaction
+EXT-API-26216,37,Male,Mechanical Heart Valves,Renal Impairment,Penicillin Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,84.9,21.2,MODERATE,Optimal Efficacy
+EXT-API-26217,25,Female,Zollinger-Ellison,Hypertension,Aspirin Sensitivity,None,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,0,0,0,88.7,10.5,LOW,Optimal Efficacy
+EXT-API-26218,68,Female,Osteoarthritis,Peptic Ulcer,Aspirin Sensitivity,Warfarin,0,None,Metformin,Biguanide,500,Renal,0,0,1,0,1,24.5,30.8,MODERATE,Poor Response
+EXT-API-26219,87,Male,Diabetes Type 2,Hypertension,None,Aspirin,0,None,Lisinopril,ACE Inhibitor,10,Renal,0,0,1,0,1,28.1,34.2,MODERATE,Poor Response
+EXT-API-26220,71,Female,Bacterial Infection,Hypertension,NSAID Allergy,Metformin,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,0,1,0,1,24.8,35.7,HIGH,Poor Response
+EXT-API-26221,87,Male,Heart Failure,Renal Impairment,Penicillin Allergy,Clopidogrel,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,77.9,29.0,MODERATE,Optimal Efficacy
+EXT-API-26222,18,Male,Acute Pain,Diabetes Type 2,NSAID Allergy,Clopidogrel,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,0,0,1,0,0,35.8,15.8,MODERATE,Poor Response
+EXT-API-26223,62,Male,GERD,None,NSAID Allergy,Potassium Supplements,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,0,87.7,21.1,MODERATE,Optimal Efficacy
+EXT-API-26224,48,Male,Diabetes Type 2,Hypertension,Aspirin Sensitivity,None,0,None,Metformin,Biguanide,500,Renal,1,0,0,0,0,82.4,8.4,LOW,Optimal Efficacy
+EXT-API-26225,47,Male,Asthma,None,Penicillin Allergy,Clopidogrel,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,0,39.9,15.9,MODERATE,Poor Response
+EXT-API-26226,58,Female,Post-PCI Stent Placement,Diabetes Type 2,Penicillin Allergy,Metformin,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,83.0,14.5,MODERATE,Optimal Efficacy
+EXT-API-26227,40,Female,Hypertension,Chronic Kidney Disease,NSAID Allergy,Clopidogrel,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,0,72.2,40.2,HIGH,Moderate Response
+EXT-API-26228,41,Female,Hypothyroidism,Bradycardia,Penicillin Allergy,Sertraline,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,85.6,21.7,MODERATE,Optimal Efficacy
+EXT-API-26229,85,Male,Pulmonary Embolism,Peptic Ulcer,Sulfa Allergy,Warfarin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,0,0,1,83.2,28.8,MODERATE,Optimal Efficacy
+EXT-API-26230,86,Male,Heart Failure,None,None,Ibuprofen,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,2,0,1,72.0,44.7,HIGH,Moderate Response
+EXT-API-26231,89,Male,Obsessive-Compulsive Disorder,Bradycardia,None,Ibuprofen,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,1,0,1,83.4,35.7,HIGH,Moderate Response
+EXT-API-26232,79,Male,Post-Myocardial Infarction,Peptic Ulcer,NSAID Allergy,Ibuprofen,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,2,0,1,69.5,46.2,HIGH,Moderate Response
+EXT-API-26233,77,Female,TSH Suppression,Diabetes Type 2,NSAID Allergy,Sertraline,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,1,75.0,35.9,HIGH,Moderate Response
+EXT-API-26234,58,Male,Zollinger-Ellison,None,Aspirin Sensitivity,Ibuprofen,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,0,87.4,14.1,MODERATE,Optimal Efficacy
+EXT-API-26235,71,Female,Pulmonary Embolism,Peptic Ulcer,NSAID Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,1,82.3,32.0,MODERATE,Optimal Efficacy
+EXT-API-26236,61,Female,Acute Pain,Hypertension,NSAID Allergy,Lisinopril,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,1,0,0,37.3,16.8,MODERATE,Poor Response
+EXT-API-26237,87,Female,Angina,None,Aspirin Sensitivity,None,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,0,0,1,82.4,22.6,MODERATE,Optimal Efficacy
+EXT-API-26238,24,Male,Angina Pectoris,Renal Impairment,Penicillin Allergy,None,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,0,0,0,84.2,11.6,LOW,Optimal Efficacy
+EXT-API-26239,79,Female,Insulin Resistance,None,None,Clopidogrel,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,1,81.2,32.3,MODERATE,Optimal Efficacy
+EXT-API-26240,20,Female,Hyperlipidemia,Renal Impairment,None,Clopidogrel,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,0,1,1,0,0,21.9,43.2,HIGH,Poor Response
+EXT-API-26241,63,Female,Diabetes Type 2,Chronic Kidney Disease,NSAID Allergy,Sertraline,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,0,35.7,21.9,MODERATE,Poor Response
+EXT-API-26242,56,Male,Cardiovascular Prevention,None,None,Metformin,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,83.8,18.4,MODERATE,Optimal Efficacy
+EXT-API-26243,19,Male,Insulin Resistance,Chronic Kidney Disease,Aspirin Sensitivity,Warfarin,0,None,Metformin,Biguanide,500,Renal,1,1,1,0,0,78.9,46.4,HIGH,Moderate Response
+EXT-API-26244,45,Female,Hyperlipidemia,Bradycardia,Aspirin Sensitivity,Potassium Supplements,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,81.8,20.8,MODERATE,Optimal Efficacy
+EXT-API-26245,44,Male,Osteoarthritis,Mild Hepatic Steatosis,None,Aspirin,0,None,Metformin,Biguanide,500,Renal,0,0,1,0,0,31.6,15.9,MODERATE,Poor Response
+EXT-API-26246,67,Female,Angina Pectoris,Renal Impairment,Aspirin Sensitivity,Omeprazole,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,74.5,31.5,MODERATE,Optimal Efficacy
+EXT-API-26247,27,Female,Post-MI Cardioprotection,Chronic Kidney Disease,None,Aspirin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,84.5,15.8,MODERATE,Optimal Efficacy
+EXT-API-26248,66,Female,Mechanical Heart Valves,Renal Impairment,Aspirin Sensitivity,Aspirin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,3,0,1,72.0,62.7,CRITICAL,Adverse Reaction
+EXT-API-26249,52,Male,Post-Myocardial Infarction,Liver Cirrhosis,NSAID Allergy,Omeprazole,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,0,83.6,14.7,MODERATE,Optimal Efficacy
+EXT-API-26250,74,Female,Diabetes Type 2,Liver Cirrhosis,None,Lisinopril,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,0,0,1,0,1,28.3,32.5,MODERATE,Poor Response
+EXT-API-26251,70,Male,Pulmonary Embolism,Diabetes Type 2,None,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,1,80.0,30.6,MODERATE,Optimal Efficacy
+EXT-API-26252,19,Female,Hypothyroidism,Diabetes Type 2,Penicillin Allergy,Potassium Supplements,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,88.9,15.4,MODERATE,Optimal Efficacy
+EXT-API-26253,56,Female,Bacterial Infection,Liver Cirrhosis,NSAID Allergy,Aspirin,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,0,84.2,17.9,MODERATE,Optimal Efficacy
+EXT-API-26254,64,Female,Osteoarthritis,Hypertension,Aspirin Sensitivity,Potassium Supplements,0,None,Lisinopril,ACE Inhibitor,10,Renal,0,0,2,0,0,22.0,26.9,HIGH,Poor Response
+EXT-API-26255,18,Female,Sinusitis,Chronic Kidney Disease,NSAID Allergy,Omeprazole,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,1,1,0,0,78.2,44.2,HIGH,Moderate Response
+EXT-API-26256,35,Female,Heart Failure,Peptic Ulcer,NSAID Allergy,Omeprazole,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,84.0,16.6,MODERATE,Optimal Efficacy
+EXT-API-26257,80,Male,Infectious Diarrhea,Mild Hepatic Steatosis,Sulfa Allergy,Warfarin,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,1,83.3,29.6,MODERATE,Optimal Efficacy
+EXT-API-26258,41,Male,Acute Pain,Peptic Ulcer,NSAID Allergy,Aspirin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,3,0,0,28.3,43.6,HIGH,Poor Response
+EXT-API-26259,70,Female,Heart Failure,Peptic Ulcer,Sulfa Allergy,Lisinopril,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,81.2,34.3,MODERATE,Optimal Efficacy
+EXT-API-26260,75,Female,Post-Myocardial Infarction,Diabetes Type 2,NSAID Allergy,Clopidogrel,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,1,74.4,35.7,HIGH,Moderate Response
+EXT-API-26261,86,Male,Pyelonephritis,Chronic Kidney Disease,Penicillin Allergy,Potassium Supplements,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,1,62.4,60.9,CRITICAL,Adverse Reaction
+EXT-API-26262,69,Female,Bacterial Infection,Renal Impairment,None,Warfarin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,2,0,1,16.6,44.1,HIGH,Poor Response
+EXT-API-26263,89,Male,Mechanical Heart Valves,Hypertension,Aspirin Sensitivity,Clopidogrel,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,1,75.5,36.0,HIGH,Moderate Response
+EXT-API-26264,31,Female,GERD,Renal Impairment,Penicillin Allergy,Omeprazole,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,0,0,0,84.6,9.7,LOW,Optimal Efficacy
+EXT-API-26265,62,Female,Zollinger-Ellison,Chronic Kidney Disease,None,Aspirin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,0,80.4,19.7,MODERATE,Optimal Efficacy
+EXT-API-26266,61,Male,Diabetes Type 2,Peptic Ulcer,Aspirin Sensitivity,Lisinopril,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,85.5,16.6,MODERATE,Optimal Efficacy
+EXT-API-26267,77,Male,Urinary Tract Infection,Liver Cirrhosis,Penicillin Allergy,Metformin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,1,1,0,1,16.0,58.9,CRITICAL,Adverse Reaction
+EXT-API-26268,43,Female,Peripheral Artery Disease,None,Penicillin Allergy,Ibuprofen,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,87.0,20.4,MODERATE,Optimal Efficacy
+EXT-API-26269,31,Male,Hypertension,Hypertension,None,Aspirin,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,86.7,17.9,MODERATE,Optimal Efficacy
+EXT-API-26270,58,Female,Major Depressive Disorder,Chronic Kidney Disease,Sulfa Allergy,Sertraline,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,0,0,0,86.2,14.5,LOW,Optimal Efficacy
+EXT-API-26271,56,Male,Infectious Diarrhea,Renal Impairment,Penicillin Allergy,Aspirin,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,0,69.2,42.0,HIGH,Moderate Response
+EXT-API-26272,83,Female,Hypertension,Mild Hepatic Steatosis,NSAID Allergy,Lisinopril,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,1,1,0,1,66.9,57.3,CRITICAL,Adverse Reaction
+EXT-API-26273,40,Male,Post-PCI Stent Placement,Liver Cirrhosis,Sulfa Allergy,Sertraline,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,1,1,0,0,74.2,45.9,HIGH,Moderate Response
+EXT-API-26274,80,Male,Insulin Resistance,Diabetes Type 2,Aspirin Sensitivity,Sertraline,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,1,78.1,31.9,MODERATE,Optimal Efficacy
+EXT-API-26275,74,Female,Urinary Tract Infection,Peptic Ulcer,Sulfa Allergy,None,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,0,0,1,76.7,26.3,MODERATE,Optimal Efficacy
+EXT-API-26276,76,Female,Hypertension,Renal Impairment,Sulfa Allergy,Clopidogrel,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,1,82.2,30.9,MODERATE,Optimal Efficacy
+EXT-API-26277,23,Female,Post-MI Cardioprotection,Renal Impairment,Penicillin Allergy,Aspirin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,82.3,16.1,MODERATE,Optimal Efficacy
+EXT-API-26278,29,Female,Diabetes Type 2,Peptic Ulcer,Penicillin Allergy,Potassium Supplements,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,0,38.6,18.9,MODERATE,Poor Response
+EXT-API-26279,39,Male,GERD,None,Aspirin Sensitivity,Omeprazole,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,0,1,0,0,35.3,18.8,MODERATE,Poor Response
+EXT-API-26280,59,Female,Coronary Artery Disease,Diabetes Type 2,None,Lisinopril,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,89.6,20.3,MODERATE,Optimal Efficacy
+EXT-API-26281,25,Female,Hyperlipidemia,Liver Cirrhosis,Penicillin Allergy,Lisinopril,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,0,1,1,0,0,28.3,45.1,HIGH,Poor Response
+EXT-API-26282,68,Female,Obsessive-Compulsive Disorder,Mild Hepatic Steatosis,NSAID Allergy,Sertraline,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,1,0,0,1,62.8,53.4,HIGH,Adverse Reaction
+EXT-API-26283,29,Female,Fever,Chronic Kidney Disease,NSAID Allergy,Sertraline,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,0,80.0,20.2,MODERATE,Optimal Efficacy
+EXT-API-26284,29,Female,Infectious Diarrhea,Renal Impairment,Aspirin Sensitivity,Metformin,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,0,72.3,40.7,HIGH,Moderate Response
+EXT-API-26285,59,Female,Streptococcal Pharyngitis,Hypertension,Sulfa Allergy,None,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,0,0,0,80.5,13.0,LOW,Optimal Efficacy
+EXT-API-26286,76,Male,Angina Pectoris,Hypertension,NSAID Allergy,None,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,0,0,1,83.9,25.4,MODERATE,Optimal Efficacy
+EXT-API-26287,34,Female,Infectious Diarrhea,Renal Impairment,Sulfa Allergy,Aspirin,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,0,74.6,44.2,HIGH,Moderate Response
+EXT-API-26288,68,Female,Asthma,Peptic Ulcer,NSAID Allergy,Warfarin,0,None,Metformin,Biguanide,500,Renal,0,0,1,0,1,31.0,28.0,MODERATE,Poor Response
+EXT-API-26289,27,Male,Zollinger-Ellison,None,None,Omeprazole,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,0,0,0,88.2,15.9,LOW,Optimal Efficacy
+EXT-API-26290,34,Female,TSH Suppression,Renal Impairment,None,Warfarin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,88.8,15.1,MODERATE,Optimal Efficacy
+EXT-API-26291,35,Male,Mild to Moderate Pain,Liver Cirrhosis,NSAID Allergy,Omeprazole,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,1,1,0,0,75.2,44.0,HIGH,Moderate Response
+EXT-API-26292,70,Female,Diabetes Type 2,Renal Impairment,Penicillin Allergy,Warfarin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,0,1,0,1,29.9,31.1,MODERATE,Poor Response
+EXT-API-26293,58,Male,Thyroiditis,Renal Impairment,Penicillin Allergy,Clopidogrel,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,86.0,19.8,MODERATE,Optimal Efficacy
+EXT-API-26294,21,Female,Streptococcal Pharyngitis,Mild Hepatic Steatosis,Sulfa Allergy,None,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,0,0,0,89.9,9.9,LOW,Optimal Efficacy
+EXT-API-26295,32,Male,Thyroiditis,Renal Impairment,Aspirin Sensitivity,None,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,0,0,0,89.9,15.5,LOW,Optimal Efficacy
+EXT-API-26296,67,Female,Angina,Liver Cirrhosis,NSAID Allergy,Warfarin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,1,1,0,1,62.2,53.5,HIGH,Adverse Reaction
+EXT-API-26297,45,Male,Asthma,Mild Hepatic Steatosis,Aspirin Sensitivity,Aspirin,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,0,0,1,0,0,36.3,18.0,MODERATE,Poor Response
+EXT-API-26298,72,Female,Thyroiditis,Diabetes Type 2,Aspirin Sensitivity,Lisinopril,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,1,76.8,30.5,MODERATE,Optimal Efficacy
+EXT-API-26299,44,Male,Mechanical Heart Valves,Renal Impairment,Sulfa Allergy,Metformin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,87.3,20.8,MODERATE,Optimal Efficacy
+EXT-API-26300,49,Male,Diabetes Type 2,Hypertension,Aspirin Sensitivity,Potassium Supplements,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,80.6,19.3,MODERATE,Optimal Efficacy
+EXT-API-26301,32,Male,GERD,Peptic Ulcer,Penicillin Allergy,Warfarin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,2,0,0,26.8,33.1,HIGH,Poor Response
+EXT-API-26302,72,Male,Hypertension,Peptic Ulcer,Aspirin Sensitivity,Potassium Supplements,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,2,0,1,64.3,41.6,HIGH,Moderate Response
+EXT-API-26303,87,Female,Obsessive-Compulsive Disorder,None,Penicillin Allergy,Metformin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,1,0,1,77.4,29.2,MODERATE,Optimal Efficacy
+EXT-API-26304,61,Male,Mild to Moderate Pain,Chronic Kidney Disease,Sulfa Allergy,Potassium Supplements,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,0,82.6,14.3,MODERATE,Optimal Efficacy
+EXT-API-26305,86,Male,Bacterial Infection,Renal Impairment,Aspirin Sensitivity,Aspirin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,1,32.3,32.9,MODERATE,Poor Response
+EXT-API-26306,64,Male,Hypertension,Peptic Ulcer,Sulfa Allergy,Warfarin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,88.6,20.9,MODERATE,Optimal Efficacy
+EXT-API-26307,53,Female,TSH Suppression,Liver Cirrhosis,Sulfa Allergy,Omeprazole,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,1,1,0,0,70.1,41.1,HIGH,Moderate Response
+EXT-API-26308,27,Male,Post-PCI Stent Placement,Liver Cirrhosis,NSAID Allergy,Metformin,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,1,1,0,0,70.7,46.4,HIGH,Moderate Response
+EXT-API-26309,89,Male,Urinary Tract Infection,Peptic Ulcer,None,Omeprazole,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,1,78.0,28.5,MODERATE,Optimal Efficacy
+EXT-API-26310,90,Female,Peripheral Artery Disease,Mild Hepatic Steatosis,NSAID Allergy,Lisinopril,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,1,1,0,1,64.6,55.0,HIGH,Adverse Reaction
+EXT-API-26311,86,Female,Bacterial Infection,Mild Hepatic Steatosis,Sulfa Allergy,Ibuprofen,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,1,3,0,1,12.0,83.1,CRITICAL,Adverse Reaction
+EXT-API-26312,29,Male,Hyperlipidemia,Liver Cirrhosis,NSAID Allergy,Potassium Supplements,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,1,1,0,0,18.6,42.1,HIGH,Poor Response
+EXT-API-26313,85,Female,Hypertension,Renal Impairment,Aspirin Sensitivity,Aspirin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,1,31.7,30.7,MODERATE,Poor Response
+EXT-API-26314,73,Male,Otitis Media,Diabetes Type 2,Penicillin Allergy,Clopidogrel,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,1,1,53.1,85.0,CRITICAL,Adverse Reaction
+EXT-API-26315,82,Male,Streptococcal Pharyngitis,Diabetes Type 2,Aspirin Sensitivity,None,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,0,0,1,80.0,25.9,MODERATE,Optimal Efficacy
+EXT-API-26316,64,Female,Hypertension,Renal Impairment,None,Sertraline,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,1,1,0,0,76.2,46.8,HIGH,Moderate Response
+EXT-API-26317,34,Male,Deep Vein Thrombosis,Bradycardia,Aspirin Sensitivity,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,84.2,15.7,MODERATE,Optimal Efficacy
+EXT-API-26318,43,Female,Pulmonary Embolism,Hypertension,Aspirin Sensitivity,Sertraline,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,82.2,16.7,MODERATE,Optimal Efficacy
+EXT-API-26319,88,Male,Hypertension,Renal Impairment,None,Ibuprofen,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,1,62.7,53.3,HIGH,Adverse Reaction
+EXT-API-26320,27,Male,Fever,Peptic Ulcer,Aspirin Sensitivity,Lisinopril,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,1,0,0,87.2,21.1,MODERATE,Optimal Efficacy
+EXT-API-26321,78,Male,Asthma,Mild Hepatic Steatosis,Penicillin Allergy,Warfarin,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,0,1,1,0,1,13.0,56.4,CRITICAL,Adverse Reaction
+EXT-API-26322,70,Female,Hypertension,Renal Impairment,None,Metformin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,0,1,0,1,31.3,34.4,MODERATE,Poor Response
+EXT-API-26323,49,Male,Heart Failure,Liver Cirrhosis,NSAID Allergy,Lisinopril,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,0,0,0,82.8,10.0,LOW,Optimal Efficacy
+EXT-API-26324,27,Female,Major Depressive Disorder,Renal Impairment,None,Clopidogrel,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,0,0,0,0,0,39.7,15.4,LOW,Poor Response
+EXT-API-26325,48,Male,Post-MI Cardioprotection,Peptic Ulcer,NSAID Allergy,None,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,0,0,0,81.6,8.0,LOW,Optimal Efficacy
+EXT-API-26326,51,Female,Thyroiditis,Diabetes Type 2,NSAID Allergy,Lisinopril,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,81.9,15.7,MODERATE,Optimal Efficacy
+EXT-API-26327,87,Male,Hypertension,None,Aspirin Sensitivity,Sertraline,0,None,Metformin,Biguanide,500,Renal,0,0,1,0,1,29.0,34.8,MODERATE,Poor Response
+EXT-API-26328,25,Male,Diabetes Type 2,Renal Impairment,Penicillin Allergy,Metformin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,0,1,0,0,33.2,21.1,MODERATE,Poor Response
+EXT-API-26329,23,Male,Cardiovascular Prevention,Diabetes Type 2,Sulfa Allergy,Aspirin,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,84.0,19.7,MODERATE,Optimal Efficacy
+EXT-API-26330,51,Female,Cardiovascular Prevention,Bradycardia,NSAID Allergy,Omeprazole,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,89.3,21.5,MODERATE,Optimal Efficacy
+EXT-API-26331,76,Male,Diabetes Type 2,Diabetes Type 2,Sulfa Allergy,Lisinopril,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,1,83.3,35.0,HIGH,Moderate Response
+EXT-API-26332,49,Female,Peripheral Artery Disease,Diabetes Type 2,Sulfa Allergy,Potassium Supplements,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,88.1,18.2,MODERATE,Optimal Efficacy
+EXT-API-26333,88,Female,Diabetes Type 2,Liver Cirrhosis,Sulfa Allergy,Warfarin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,1,2,0,1,10.9,70.9,CRITICAL,Adverse Reaction
+EXT-API-26334,52,Female,Angina,Chronic Kidney Disease,Penicillin Allergy,Aspirin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,85.1,16.0,MODERATE,Optimal Efficacy
+EXT-API-26335,24,Male,Ischemic Stroke,None,None,Omeprazole,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,2,0,0,79.7,31.1,HIGH,Optimal Efficacy
+EXT-API-26336,38,Female,Sinusitis,Diabetes Type 2,None,Warfarin,1,3rd,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,0,89.0,18.4,MODERATE,Optimal Efficacy
+EXT-API-26337,65,Male,Hypertension,Bradycardia,Sulfa Allergy,None,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,0,0,1,83.0,23.7,MODERATE,Optimal Efficacy
+EXT-API-26338,31,Female,Bacterial Infection,Liver Cirrhosis,Penicillin Allergy,Lisinopril,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,0,1,1,0,0,26.1,46.1,HIGH,Poor Response
+EXT-API-26339,40,Female,Bacterial Infection,Peptic Ulcer,Sulfa Allergy,Lisinopril,0,None,Metformin,Biguanide,500,Renal,0,0,1,0,0,31.1,21.0,MODERATE,Poor Response
+EXT-API-26340,78,Male,Post-MI Cardioprotection,Chronic Kidney Disease,Sulfa Allergy,Ibuprofen,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,76.2,33.3,MODERATE,Optimal Efficacy
+EXT-API-26341,60,Female,Asthma,Bradycardia,Sulfa Allergy,Clopidogrel,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,0,1,0,0,34.0,21.8,MODERATE,Poor Response
+EXT-API-26342,60,Male,Pulmonary Embolism,Liver Cirrhosis,Aspirin Sensitivity,Aspirin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,1,3,0,0,58.4,72.8,CRITICAL,Adverse Reaction
+EXT-API-26343,58,Female,Acute Pain,Mild Hepatic Steatosis,Aspirin Sensitivity,Ibuprofen,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,1,0,0,0,70.5,38.7,HIGH,Moderate Response
+EXT-API-26344,84,Male,Diabetes Type 2,Chronic Kidney Disease,Aspirin Sensitivity,Omeprazole,0,None,Metformin,Biguanide,500,Renal,1,1,1,0,1,68.6,54.0,HIGH,Adverse Reaction
+EXT-API-26345,56,Female,Ischemic Stroke,Mild Hepatic Steatosis,Sulfa Allergy,Clopidogrel,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,1,0,0,0,69.3,36.4,HIGH,Moderate Response
+EXT-API-26346,40,Female,Hypothyroidism,Bradycardia,Sulfa Allergy,Ibuprofen,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,85.8,19.2,MODERATE,Optimal Efficacy
+EXT-API-26347,74,Female,Zollinger-Ellison,Liver Cirrhosis,None,Aspirin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,1,1,0,1,67.2,58.1,CRITICAL,Adverse Reaction
+EXT-API-26348,29,Male,Inflammation,Peptic Ulcer,Penicillin Allergy,None,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,0,0,0,80.5,15.9,LOW,Optimal Efficacy
+EXT-API-26349,27,Female,Heart Failure,Peptic Ulcer,NSAID Allergy,Sertraline,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,81.5,19.5,MODERATE,Optimal Efficacy
+EXT-API-26350,31,Female,Peripheral Artery Disease,None,Aspirin Sensitivity,Ibuprofen,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,81.2,15.1,MODERATE,Optimal Efficacy
+EXT-API-26351,85,Female,Acute Pain,Diabetes Type 2,NSAID Allergy,Clopidogrel,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,1,28.5,29.3,MODERATE,Poor Response
+EXT-API-26352,78,Female,Angina Pectoris,Bradycardia,Aspirin Sensitivity,Sertraline,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,80.3,30.2,MODERATE,Optimal Efficacy
+EXT-API-26353,54,Male,Heart Failure,Diabetes Type 2,None,Lisinopril,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,0,0,0,81.5,11.1,LOW,Optimal Efficacy
+EXT-API-26354,45,Male,Coronary Artery Disease,Diabetes Type 2,NSAID Allergy,Metformin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,80.6,20.7,MODERATE,Optimal Efficacy
+EXT-API-26355,20,Female,TSH Suppression,Bradycardia,NSAID Allergy,Metformin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,89.3,20.4,MODERATE,Optimal Efficacy
+EXT-API-26356,46,Female,Peripheral Artery Disease,Hypertension,None,Metformin,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,86.8,17.2,MODERATE,Optimal Efficacy
+EXT-API-26357,77,Male,Major Depressive Disorder,None,NSAID Allergy,Potassium Supplements,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,0,1,0,1,29.6,28.2,MODERATE,Poor Response
+EXT-API-26358,72,Male,Hyperlipidemia,None,Sulfa Allergy,Metformin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,1,0,1,27.3,31.6,MODERATE,Poor Response
+EXT-API-26359,66,Female,Bacterial Infection,Bradycardia,None,Sertraline,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,0,0,1,0,1,24.2,32.3,MODERATE,Poor Response
+EXT-API-26360,46,Male,Urinary Tract Infection,None,None,Ibuprofen,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,0,0,0,0,0,32.0,8.2,LOW,Poor Response
+EXT-API-26361,48,Male,Hypertension,Peptic Ulcer,NSAID Allergy,Aspirin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,87.7,15.3,MODERATE,Optimal Efficacy
+EXT-API-26362,32,Male,Diabetes Type 2,None,Sulfa Allergy,Potassium Supplements,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,0,0,1,0,0,36.8,21.7,MODERATE,Poor Response
+EXT-API-26363,43,Male,Thyroiditis,Peptic Ulcer,None,Aspirin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,88.5,18.8,MODERATE,Optimal Efficacy
+EXT-API-26364,90,Male,Heart Failure,Chronic Kidney Disease,None,Clopidogrel,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,1,1,0,1,68.5,53.1,HIGH,Adverse Reaction
+EXT-API-26365,80,Male,TSH Suppression,Hypertension,Penicillin Allergy,Metformin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,1,75.8,32.2,MODERATE,Optimal Efficacy
+EXT-API-26366,52,Female,Obsessive-Compulsive Disorder,Chronic Kidney Disease,Penicillin Allergy,Warfarin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,2,0,0,72.8,29.6,HIGH,Optimal Efficacy
+EXT-API-26367,77,Female,Osteoarthritis Pain,Chronic Kidney Disease,Penicillin Allergy,Sertraline,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,1,76.1,34.4,MODERATE,Optimal Efficacy
+EXT-API-26368,53,Female,Inflammation,Renal Impairment,Penicillin Allergy,Metformin,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,1,1,0,0,72.9,45.1,HIGH,Moderate Response
+EXT-API-26369,78,Female,Urinary Tract Infection,Renal Impairment,Sulfa Allergy,Ibuprofen,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,1,66.0,54.9,HIGH,Adverse Reaction
+EXT-API-26370,65,Female,Obsessive-Compulsive Disorder,Mild Hepatic Steatosis,Aspirin Sensitivity,Omeprazole,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,1,1,0,1,65.5,56.6,CRITICAL,Adverse Reaction
+EXT-API-26371,50,Male,Streptococcal Pharyngitis,Chronic Kidney Disease,None,Clopidogrel,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,1,1,0,0,77.5,44.5,HIGH,Moderate Response
+EXT-API-26372,45,Female,Cardiovascular Prevention,Diabetes Type 2,Aspirin Sensitivity,Aspirin,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,88.3,16.4,MODERATE,Optimal Efficacy
+EXT-API-26373,40,Female,Inflammation,Bradycardia,None,None,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,0,0,0,87.0,9.0,LOW,Optimal Efficacy
+EXT-API-26374,80,Male,Atrial Fibrillation,Bradycardia,NSAID Allergy,Sertraline,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,1,28.4,29.5,MODERATE,Poor Response
+EXT-API-26375,50,Female,Diabetes Type 2,Mild Hepatic Steatosis,NSAID Allergy,Warfarin,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,85.8,19.5,MODERATE,Optimal Efficacy
+EXT-API-26376,37,Female,Hypertension,Renal Impairment,Aspirin Sensitivity,Metformin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,87.9,15.8,MODERATE,Optimal Efficacy
+EXT-API-26377,66,Female,Coronary Artery Disease,Mild Hepatic Steatosis,Sulfa Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,1,1,0,1,18.2,57.9,CRITICAL,Adverse Reaction
+EXT-API-26378,30,Male,Infectious Diarrhea,Renal Impairment,Penicillin Allergy,Ibuprofen,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,0,69.7,39.6,HIGH,Moderate Response
+EXT-API-26379,70,Female,Insulin Resistance,Bradycardia,None,Ibuprofen,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,1,76.9,30.3,MODERATE,Optimal Efficacy
+EXT-API-26380,76,Male,Heart Failure,Peptic Ulcer,NSAID Allergy,Warfarin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,79.4,33.2,MODERATE,Optimal Efficacy
+EXT-API-26381,52,Male,Post-PCI Stent Placement,Bradycardia,Aspirin Sensitivity,Potassium Supplements,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,89.2,17.5,MODERATE,Optimal Efficacy
+EXT-API-26382,56,Female,Major Depressive Disorder,Diabetes Type 2,NSAID Allergy,Sertraline,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,0,30.8,14.3,MODERATE,Poor Response
+EXT-API-26383,59,Female,Hypothyroidism,None,Sulfa Allergy,Potassium Supplements,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,80.4,20.1,MODERATE,Optimal Efficacy
+EXT-API-26384,84,Female,Hyperlipidemia,Mild Hepatic Steatosis,NSAID Allergy,Warfarin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,1,1,0,1,16.7,56.3,CRITICAL,Adverse Reaction
+EXT-API-26385,31,Male,Fever,Bradycardia,NSAID Allergy,Clopidogrel,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,1,1,0,50.4,64.7,CRITICAL,Adverse Reaction
+EXT-API-26386,59,Male,Bacterial Infection,Diabetes Type 2,None,Clopidogrel,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,0,84.6,14.4,MODERATE,Optimal Efficacy
+EXT-API-26387,64,Female,Atrial Fibrillation,Peptic Ulcer,Sulfa Allergy,Clopidogrel,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,81.3,16.3,MODERATE,Optimal Efficacy
+EXT-API-26388,80,Male,Post-PCI Stent Placement,Liver Cirrhosis,Sulfa Allergy,Clopidogrel,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,1,0,0,1,62.1,50.3,HIGH,Adverse Reaction
+EXT-API-26389,32,Female,Urinary Tract Infection,Liver Cirrhosis,NSAID Allergy,Aspirin,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,0,1,1,0,0,20.7,45.7,HIGH,Poor Response
+EXT-API-26390,49,Female,Zollinger-Ellison,Peptic Ulcer,Aspirin Sensitivity,Clopidogrel,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,0,81.4,14.6,MODERATE,Optimal Efficacy
+EXT-API-26391,71,Female,Major Depressive Disorder,Bradycardia,None,Aspirin,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,0,1,0,1,31.3,34.7,MODERATE,Poor Response
+EXT-API-26392,80,Male,Diabetic Nephropathy,Chronic Kidney Disease,Sulfa Allergy,Clopidogrel,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,1,69.6,56.0,CRITICAL,Adverse Reaction
+EXT-API-26393,59,Male,GERD,Mild Hepatic Steatosis,Penicillin Allergy,Metformin,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,0,1,1,0,0,18.4,45.0,HIGH,Poor Response
+EXT-API-26394,66,Female,Asthma,Liver Cirrhosis,NSAID Allergy,None,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,0,0,0,0,1,25.3,29.7,MODERATE,Poor Response
+EXT-API-26395,30,Female,Fever,None,Penicillin Allergy,Metformin,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,1,0,0,89.7,14.6,MODERATE,Optimal Efficacy
+EXT-API-26396,51,Female,Osteoarthritis Pain,Renal Impairment,Sulfa Allergy,Clopidogrel,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,0,83.8,16.5,MODERATE,Optimal Efficacy
+EXT-API-26397,80,Male,Pyelonephritis,Bradycardia,Penicillin Allergy,Warfarin,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,1,78.3,28.8,MODERATE,Optimal Efficacy
+EXT-API-26398,30,Female,Obsessive-Compulsive Disorder,None,None,Omeprazole,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,1,0,0,82.9,17.0,MODERATE,Optimal Efficacy
+EXT-API-26399,49,Female,Hypertension,Liver Cirrhosis,Penicillin Allergy,Warfarin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,1,1,0,0,71.8,44.5,HIGH,Moderate Response
+EXT-API-26400,36,Male,Duodenal Ulcer,Hypertension,Sulfa Allergy,None,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,0,0,0,89.0,11.7,LOW,Optimal Efficacy
+EXT-API-26401,87,Male,Otitis Media,Bradycardia,NSAID Allergy,Aspirin,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,1,78.6,30.4,MODERATE,Optimal Efficacy
+EXT-API-26402,79,Male,Thyroiditis,Chronic Kidney Disease,Aspirin Sensitivity,Aspirin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,1,83.9,30.4,MODERATE,Optimal Efficacy
+EXT-API-26403,68,Female,Hypertension,Hypertension,Sulfa Allergy,Ibuprofen,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,80.1,30.8,MODERATE,Optimal Efficacy
+EXT-API-26404,42,Female,Panic Disorder,Renal Impairment,None,Aspirin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,2,0,0,70.3,28.9,HIGH,Optimal Efficacy
+EXT-API-26405,29,Female,Coronary Artery Disease,Liver Cirrhosis,Penicillin Allergy,Lisinopril,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,1,1,0,0,76.8,41.9,HIGH,Moderate Response
+EXT-API-26406,52,Male,Mechanical Heart Valves,Bradycardia,Sulfa Allergy,Warfarin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,0,0,0,84.7,8.6,LOW,Optimal Efficacy
+EXT-API-26407,46,Female,Asthma,Diabetes Type 2,Sulfa Allergy,Warfarin,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,0,1,0,0,30.1,18.3,MODERATE,Poor Response
+EXT-API-26408,65,Female,Duodenal Ulcer,Renal Impairment,Penicillin Allergy,Sertraline,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,1,74.3,35.1,HIGH,Moderate Response
+EXT-API-26409,59,Male,Mechanical Heart Valves,Bradycardia,NSAID Allergy,Warfarin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,0,0,0,81.4,15.6,LOW,Optimal Efficacy
+EXT-API-26410,81,Male,Streptococcal Pharyngitis,Mild Hepatic Steatosis,NSAID Allergy,Omeprazole,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,1,80.7,33.9,MODERATE,Optimal Efficacy
+EXT-API-26411,71,Male,Urinary Tract Infection,Renal Impairment,NSAID Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,1,0,1,28.1,35.6,HIGH,Poor Response
+EXT-API-26412,65,Male,Diabetes Type 2,Chronic Kidney Disease,None,Omeprazole,0,None,Metformin,Biguanide,500,Renal,1,1,1,0,1,67.4,60.8,CRITICAL,Adverse Reaction
+EXT-API-26413,25,Female,Acute Pain,Hypertension,None,Ibuprofen,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,0,0,0,88.0,8.2,LOW,Optimal Efficacy
+EXT-API-26414,60,Male,Asthma,Peptic Ulcer,None,Clopidogrel,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,0,1,0,0,32.1,15.7,MODERATE,Poor Response
+EXT-API-26415,47,Female,Asthma,None,Sulfa Allergy,Lisinopril,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,0,35.4,20.4,MODERATE,Poor Response
+EXT-API-26416,21,Male,Hypertension,Chronic Kidney Disease,None,Lisinopril,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,1,0,0,0,72.7,34.0,HIGH,Optimal Efficacy
+EXT-API-26417,85,Male,Acute Pain,Hypertension,Sulfa Allergy,Clopidogrel,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,0,1,0,1,29.9,31.6,MODERATE,Poor Response
+EXT-API-26418,23,Female,Hyperlipidemia,None,NSAID Allergy,Metformin,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,83.1,19.7,MODERATE,Optimal Efficacy
+EXT-API-26419,27,Male,Gastric Ulcer,Renal Impairment,Penicillin Allergy,Aspirin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,0,86.2,18.7,MODERATE,Optimal Efficacy
+EXT-API-26420,59,Female,Major Depressive Disorder,Bradycardia,NSAID Allergy,Clopidogrel,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,0,0,1,0,0,36.1,14.8,MODERATE,Poor Response
+EXT-API-26421,32,Male,Pyelonephritis,Mild Hepatic Steatosis,Sulfa Allergy,Sertraline,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,0,84.0,19.8,MODERATE,Optimal Efficacy
+EXT-API-26422,72,Female,Osteoarthritis,Liver Cirrhosis,NSAID Allergy,Warfarin,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,1,1,1,1,32.9,98.0,CRITICAL,Adverse Reaction
+EXT-API-26423,30,Female,Major Depressive Disorder,None,Aspirin Sensitivity,Clopidogrel,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,0,1,0,0,36.7,17.3,MODERATE,Poor Response
+EXT-API-26424,72,Male,Atrial Fibrillation,Bradycardia,Sulfa Allergy,Warfarin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,1,29.8,29.7,MODERATE,Poor Response
+EXT-API-26425,79,Male,Hypothyroidism,Diabetes Type 2,Sulfa Allergy,Warfarin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,2,0,1,21.6,44.6,HIGH,Poor Response
+EXT-API-26426,72,Male,Fever,None,Penicillin Allergy,Aspirin,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,1,81.0,30.5,MODERATE,Optimal Efficacy
+EXT-API-26427,62,Male,Inflammation,Mild Hepatic Steatosis,None,Lisinopril,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,1,1,0,0,75.4,46.8,HIGH,Moderate Response
+EXT-API-26428,85,Male,Heart Failure,Chronic Kidney Disease,Penicillin Allergy,Omeprazole,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,1,1,0,1,65.1,55.6,CRITICAL,Adverse Reaction
+EXT-API-26429,28,Male,Heart Failure,None,None,Aspirin,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,84.4,17.4,MODERATE,Optimal Efficacy
+EXT-API-26430,74,Female,Heart Failure,Renal Impairment,Sulfa Allergy,Metformin,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,1,63.1,58.4,CRITICAL,Adverse Reaction
+EXT-API-26431,80,Female,Diabetic Nephropathy,None,None,Ibuprofen,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,1,77.0,29.7,MODERATE,Optimal Efficacy
+EXT-API-26432,50,Female,Hypertension,Hypertension,NSAID Allergy,Lisinopril,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,81.3,18.3,MODERATE,Optimal Efficacy
+EXT-API-26433,82,Female,Cardiovascular Prevention,None,NSAID Allergy,None,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,0,0,1,78.6,22.6,MODERATE,Optimal Efficacy
+EXT-API-26434,72,Female,Bacterial Infection,Bradycardia,None,Metformin,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,0,0,1,0,1,24.2,30.6,MODERATE,Poor Response
+EXT-API-26435,76,Female,Mild to Moderate Pain,Peptic Ulcer,NSAID Allergy,Potassium Supplements,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,1,78.0,28.6,MODERATE,Optimal Efficacy
+EXT-API-26436,57,Female,Angina Pectoris,Renal Impairment,Aspirin Sensitivity,Warfarin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,85.3,15.6,MODERATE,Optimal Efficacy
+EXT-API-26437,62,Female,Urinary Tract Infection,Liver Cirrhosis,Penicillin Allergy,Warfarin,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,1,1,0,0,19.5,40.6,HIGH,Poor Response
+EXT-API-26438,37,Male,Heart Failure,Hypertension,NSAID Allergy,Potassium Supplements,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,87.6,17.6,MODERATE,Optimal Efficacy
+EXT-API-26439,90,Female,Urinary Tract Infection,Chronic Kidney Disease,Penicillin Allergy,Sertraline,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,0,0,1,0,1,24.7,31.5,MODERATE,Poor Response
+EXT-API-26440,53,Male,Bacterial Infection,Bradycardia,NSAID Allergy,Sertraline,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,0,80.4,16.9,MODERATE,Optimal Efficacy
+EXT-API-26441,27,Male,Sinusitis,Hypertension,Aspirin Sensitivity,Clopidogrel,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,0,89.5,19.9,MODERATE,Optimal Efficacy
+EXT-API-26442,75,Male,Insulin Resistance,Diabetes Type 2,Penicillin Allergy,None,0,None,Metformin,Biguanide,500,Renal,1,0,0,0,1,78.5,28.5,MODERATE,Optimal Efficacy
+EXT-API-26443,61,Male,Angina Pectoris,None,Penicillin Allergy,Sertraline,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,89.9,18.2,MODERATE,Optimal Efficacy
+EXT-API-26444,38,Female,Diabetic Nephropathy,Mild Hepatic Steatosis,NSAID Allergy,Omeprazole,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,0,68.5,44.0,HIGH,Moderate Response
+EXT-API-26445,26,Female,Fever,Bradycardia,Sulfa Allergy,Potassium Supplements,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,1,0,1,0,0,83.3,18.7,MODERATE,Optimal Efficacy
+EXT-API-26446,62,Female,Osteoarthritis,Mild Hepatic Steatosis,Penicillin Allergy,Potassium Supplements,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,1,1,0,0,25.1,39.7,HIGH,Poor Response
+EXT-API-26447,66,Female,Urinary Tract Infection,Diabetes Type 2,None,Metformin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,1,0,1,29.1,28.1,MODERATE,Poor Response
+EXT-API-26448,41,Male,Sinusitis,Peptic Ulcer,Penicillin Allergy,Lisinopril,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,1,0,51.5,66.4,CRITICAL,Adverse Reaction
+EXT-API-26449,30,Male,Headache,Mild Hepatic Steatosis,Penicillin Allergy,Lisinopril,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,1,1,0,0,69.8,44.5,HIGH,Moderate Response
+EXT-API-26450,39,Female,Diabetic Nephropathy,Peptic Ulcer,NSAID Allergy,Potassium Supplements,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,87.5,17.6,MODERATE,Optimal Efficacy
+EXT-API-26451,48,Female,Asthma,Hypertension,Penicillin Allergy,Omeprazole,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,3,0,0,25.7,46.5,HIGH,Poor Response
+EXT-API-26452,54,Female,Osteoarthritis Pain,Liver Cirrhosis,Penicillin Allergy,Potassium Supplements,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,1,1,0,0,69.4,41.0,HIGH,Moderate Response
+EXT-API-26453,79,Female,Major Depressive Disorder,Diabetes Type 2,None,Aspirin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,2,0,1,64.8,41.3,HIGH,Moderate Response
+EXT-API-26454,83,Male,Diabetes Type 2,Peptic Ulcer,NSAID Allergy,Omeprazole,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,0,0,1,33.3,25.3,MODERATE,Poor Response
+EXT-API-26455,82,Female,Hypothyroidism,Chronic Kidney Disease,Penicillin Allergy,None,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,0,0,1,77.2,22.8,MODERATE,Optimal Efficacy
+EXT-API-26456,60,Male,Infectious Diarrhea,Hypertension,Penicillin Allergy,Sertraline,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,0,84.5,14.0,MODERATE,Optimal Efficacy
+EXT-API-26457,20,Female,Hypertension,Diabetes Type 2,Aspirin Sensitivity,Clopidogrel,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,0,89.8,15.9,MODERATE,Optimal Efficacy
+EXT-API-26458,24,Male,Post-Myocardial Infarction,Hypertension,None,Warfarin,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,0,90.4,18.0,MODERATE,Optimal Efficacy
+EXT-API-26459,20,Male,Coronary Artery Disease,Mild Hepatic Steatosis,None,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,1,1,0,0,23.5,43.6,HIGH,Poor Response
+EXT-API-26460,28,Female,Angina,Diabetes Type 2,Aspirin Sensitivity,Clopidogrel,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,83.9,17.8,MODERATE,Optimal Efficacy
+EXT-API-26461,67,Female,Major Depressive Disorder,Chronic Kidney Disease,None,Omeprazole,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,1,0,1,76.4,33.3,MODERATE,Optimal Efficacy
+EXT-API-26462,60,Male,Post-Myocardial Infarction,Chronic Kidney Disease,Penicillin Allergy,Sertraline,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,1,1,0,0,77.8,42.8,HIGH,Moderate Response
+EXT-API-26463,35,Male,Acute Pain,None,Sulfa Allergy,Ibuprofen,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,0,1,0,0,30.4,15.6,MODERATE,Poor Response
+EXT-API-26464,58,Female,Insulin Resistance,Bradycardia,None,Ibuprofen,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,82.9,20.9,MODERATE,Optimal Efficacy
+EXT-API-26465,60,Female,Insulin Resistance,Mild Hepatic Steatosis,NSAID Allergy,Sertraline,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,88.9,17.1,MODERATE,Optimal Efficacy
+EXT-API-26466,81,Female,Angina,Bradycardia,None,Metformin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,1,74.8,32.8,MODERATE,Optimal Efficacy
+EXT-API-26467,41,Female,Hypertension,Chronic Kidney Disease,Sulfa Allergy,Aspirin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,87.2,15.3,MODERATE,Optimal Efficacy
+EXT-API-26468,62,Female,Duodenal Ulcer,Mild Hepatic Steatosis,Sulfa Allergy,None,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,1,0,0,0,68.8,38.1,HIGH,Moderate Response
+EXT-API-26469,83,Male,Hyperlipidemia,Hypertension,None,Lisinopril,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,0,0,1,0,1,24.7,34.2,MODERATE,Poor Response
+EXT-API-26470,64,Female,Hypertension,Liver Cirrhosis,NSAID Allergy,Omeprazole,0,None,Ibuprofen,NSAID,400,Renal & Hepatic,0,1,1,1,0,10.0,95.1,CRITICAL,Adverse Reaction
+EXT-API-26471,35,Female,Heart Failure,Bradycardia,Penicillin Allergy,Warfarin,1,1st,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,85.0,62.1,CRITICAL,Adverse Reaction
+EXT-API-26472,33,Female,Osteoarthritis,Hypertension,Penicillin Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,1,0,0,39.2,17.9,MODERATE,Poor Response
+EXT-API-26473,35,Male,Post-Myocardial Infarction,Hypertension,None,Omeprazole,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,0,86.7,19.7,MODERATE,Optimal Efficacy
+EXT-API-26474,87,Female,Hyperlipidemia,Liver Cirrhosis,Sulfa Allergy,Clopidogrel,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,1,1,0,1,14.2,60.9,CRITICAL,Adverse Reaction
+EXT-API-26475,35,Male,Hypertension,Chronic Kidney Disease,Aspirin Sensitivity,Potassium Supplements,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,0,1,0,0,33.7,20.4,MODERATE,Poor Response
+EXT-API-26476,34,Male,Mechanical Heart Valves,Hypertension,Aspirin Sensitivity,Metformin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,87.7,20.6,MODERATE,Optimal Efficacy
+EXT-API-26477,34,Female,Heart Failure,Hypertension,Aspirin Sensitivity,Omeprazole,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,0,88.3,18.4,MODERATE,Optimal Efficacy
+EXT-API-26478,41,Male,Hypertension,Renal Impairment,Aspirin Sensitivity,Lisinopril,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,0,71.0,40.3,HIGH,Moderate Response
+EXT-API-26479,46,Female,Major Depressive Disorder,Bradycardia,None,Aspirin,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,0,0,2,0,0,29.6,28.2,HIGH,Poor Response
+EXT-API-26480,56,Male,Panic Disorder,Liver Cirrhosis,Penicillin Allergy,Potassium Supplements,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,1,1,0,0,75.2,43.8,HIGH,Moderate Response
+EXT-API-26481,90,Male,Hypertension,Renal Impairment,None,Potassium Supplements,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,76.6,29.7,MODERATE,Optimal Efficacy
+EXT-API-26482,71,Male,Heart Failure,Diabetes Type 2,Sulfa Allergy,Aspirin,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,1,78.8,34.4,MODERATE,Optimal Efficacy
+EXT-API-26483,69,Female,Major Depressive Disorder,Liver Cirrhosis,NSAID Allergy,Metformin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,1,1,0,1,66.8,54.6,HIGH,Adverse Reaction
+EXT-API-26484,36,Female,Hypothyroidism,Chronic Kidney Disease,NSAID Allergy,Lisinopril,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,0,1,1,0,0,23.1,39.8,HIGH,Poor Response
+EXT-API-26485,77,Male,Hyperlipidemia,Liver Cirrhosis,None,None,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,1,0,0,1,64.9,50.1,HIGH,Adverse Reaction
+EXT-API-26486,71,Male,Hyperlipidemia,Chronic Kidney Disease,Aspirin Sensitivity,Omeprazole,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,0,1,1,0,1,13.9,54.3,HIGH,Adverse Reaction
+EXT-API-26487,77,Female,Acute Pain,None,None,Metformin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,1,0,1,29.1,35.7,HIGH,Poor Response
+EXT-API-26488,63,Male,Dyslipidemia,Hypertension,Sulfa Allergy,Clopidogrel,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,80.1,14.9,MODERATE,Optimal Efficacy
+EXT-API-26489,51,Female,Hypothyroidism,None,NSAID Allergy,None,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,0,0,0,0,35.7,9.6,LOW,Poor Response
+EXT-API-26490,54,Male,Mechanical Heart Valves,Diabetes Type 2,Sulfa Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,86.8,15.0,MODERATE,Optimal Efficacy
+EXT-API-26491,68,Female,Hypothyroidism,Diabetes Type 2,Sulfa Allergy,Lisinopril,0,None,Lisinopril,ACE Inhibitor,10,Renal,0,0,0,0,1,26.0,26.1,MODERATE,Poor Response
+EXT-API-26492,23,Male,Pulmonary Embolism,Hypertension,Aspirin Sensitivity,Sertraline,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,83.5,21.1,MODERATE,Optimal Efficacy
+EXT-API-26493,59,Female,Angina,Bradycardia,Aspirin Sensitivity,Omeprazole,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,85.1,18.1,MODERATE,Optimal Efficacy
+EXT-API-26494,90,Female,GERD,Chronic Kidney Disease,Sulfa Allergy,Warfarin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,1,83.8,32.7,MODERATE,Optimal Efficacy
+EXT-API-26495,21,Female,Headache,None,Aspirin Sensitivity,Sertraline,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,0,88.3,19.0,MODERATE,Optimal Efficacy
+EXT-API-26496,66,Male,GERD,None,Aspirin Sensitivity,Warfarin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,1,25.9,31.5,MODERATE,Poor Response
+EXT-API-26497,37,Female,TSH Suppression,Diabetes Type 2,Aspirin Sensitivity,Sertraline,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,87.4,14.5,MODERATE,Optimal Efficacy
+EXT-API-26498,84,Male,Angina,Hypertension,Aspirin Sensitivity,Metformin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,1,77.1,29.4,MODERATE,Optimal Efficacy
+EXT-API-26499,86,Female,Ischemic Stroke,Hypertension,Penicillin Allergy,Ibuprofen,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,1,76.8,30.4,MODERATE,Optimal Efficacy
+EXT-API-26500,54,Male,Sinusitis,Chronic Kidney Disease,NSAID Allergy,Omeprazole,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,1,1,0,0,73.6,46.5,HIGH,Moderate Response
+EXT-API-26501,53,Female,Prostatitis,Mild Hepatic Steatosis,Sulfa Allergy,Lisinopril,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,0,82.9,16.3,MODERATE,Optimal Efficacy
+EXT-API-26502,28,Female,Urinary Tract Infection,Bradycardia,NSAID Allergy,Ibuprofen,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,0,85.4,21.5,MODERATE,Optimal Efficacy
+EXT-API-26503,52,Male,Pyelonephritis,Peptic Ulcer,None,Clopidogrel,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,0,82.3,15.9,MODERATE,Optimal Efficacy
+EXT-API-26504,70,Female,Diabetes Type 2,Liver Cirrhosis,None,Clopidogrel,0,None,Lisinopril,ACE Inhibitor,10,Renal,0,0,1,0,1,33.8,29.3,MODERATE,Poor Response
+EXT-API-26505,78,Female,Obsessive-Compulsive Disorder,Chronic Kidney Disease,Sulfa Allergy,None,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,0,0,1,83.1,22.7,MODERATE,Optimal Efficacy
+EXT-API-26506,47,Male,Hyperlipidemia,Mild Hepatic Steatosis,Penicillin Allergy,None,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,0,1,0,0,0,28.0,36.2,HIGH,Poor Response
+EXT-API-26507,41,Female,Hypertension,Bradycardia,Aspirin Sensitivity,Potassium Supplements,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,0,39.8,16.3,MODERATE,Poor Response
+EXT-API-26508,87,Female,Hyperlipidemia,Diabetes Type 2,NSAID Allergy,Aspirin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,2,0,1,15.9,40.9,HIGH,Poor Response
+EXT-API-26509,76,Female,Hypertension,Chronic Kidney Disease,Sulfa Allergy,Potassium Supplements,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,1,80.7,29.5,MODERATE,Optimal Efficacy
+EXT-API-26510,69,Female,Hypertension,Mild Hepatic Steatosis,None,Lisinopril,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,1,71.8,56.8,CRITICAL,Adverse Reaction
+EXT-API-26511,49,Male,Post-PCI Stent Placement,Hypertension,Sulfa Allergy,Omeprazole,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,2,0,0,73.0,31.8,HIGH,Optimal Efficacy
+EXT-API-26512,51,Female,Diabetes Type 2,Renal Impairment,NSAID Allergy,Aspirin,0,None,Metformin,Biguanide,500,Renal,1,1,1,0,0,69.6,44.5,HIGH,Moderate Response
+EXT-API-26513,57,Male,Ischemic Stroke,Chronic Kidney Disease,Aspirin Sensitivity,Ibuprofen,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,82.2,15.1,MODERATE,Optimal Efficacy
+EXT-API-26514,76,Female,Angina,Hypertension,Aspirin Sensitivity,Ibuprofen,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,1,81.6,33.4,MODERATE,Optimal Efficacy
+EXT-API-26515,28,Female,Diabetic Nephropathy,Renal Impairment,Aspirin Sensitivity,Warfarin,1,3rd,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,0,77.0,85.6,CRITICAL,Adverse Reaction
+EXT-API-26516,37,Male,Mechanical Heart Valves,Renal Impairment,Penicillin Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,84.9,21.2,MODERATE,Optimal Efficacy
+EXT-API-26517,25,Female,Zollinger-Ellison,Hypertension,Aspirin Sensitivity,None,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,0,0,0,88.7,10.5,LOW,Optimal Efficacy
+EXT-API-26518,68,Female,Osteoarthritis,Peptic Ulcer,Aspirin Sensitivity,Warfarin,0,None,Metformin,Biguanide,500,Renal,0,0,1,0,1,24.5,30.8,MODERATE,Poor Response
+EXT-API-26519,87,Male,Diabetes Type 2,Hypertension,None,Aspirin,0,None,Lisinopril,ACE Inhibitor,10,Renal,0,0,1,0,1,28.1,34.2,MODERATE,Poor Response
+EXT-API-26520,71,Female,Bacterial Infection,Hypertension,NSAID Allergy,Metformin,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,0,0,1,0,1,24.8,35.7,HIGH,Poor Response
+EXT-API-26521,87,Male,Heart Failure,Renal Impairment,Penicillin Allergy,Clopidogrel,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,77.9,29.0,MODERATE,Optimal Efficacy
+EXT-API-26522,18,Male,Acute Pain,Diabetes Type 2,NSAID Allergy,Clopidogrel,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,0,0,1,0,0,35.8,15.8,MODERATE,Poor Response
+EXT-API-26523,62,Male,GERD,None,NSAID Allergy,Potassium Supplements,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,0,87.7,21.1,MODERATE,Optimal Efficacy
+EXT-API-26524,48,Male,Diabetes Type 2,Hypertension,Aspirin Sensitivity,None,0,None,Metformin,Biguanide,500,Renal,1,0,0,0,0,82.4,8.4,LOW,Optimal Efficacy
+EXT-API-26525,47,Male,Asthma,None,Penicillin Allergy,Clopidogrel,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,0,0,1,0,0,39.9,15.9,MODERATE,Poor Response
+EXT-API-26526,58,Female,Post-PCI Stent Placement,Diabetes Type 2,Penicillin Allergy,Metformin,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,83.0,14.5,MODERATE,Optimal Efficacy
+EXT-API-26527,40,Female,Hypertension,Chronic Kidney Disease,NSAID Allergy,Clopidogrel,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,1,1,0,0,72.2,40.2,HIGH,Moderate Response
+EXT-API-26528,41,Female,Hypothyroidism,Bradycardia,Penicillin Allergy,Sertraline,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,85.6,21.7,MODERATE,Optimal Efficacy
+EXT-API-26529,85,Male,Pulmonary Embolism,Peptic Ulcer,Sulfa Allergy,Warfarin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,0,0,1,83.2,28.8,MODERATE,Optimal Efficacy
+EXT-API-26530,86,Male,Heart Failure,None,None,Ibuprofen,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,2,0,1,72.0,44.7,HIGH,Moderate Response
+EXT-API-26531,89,Male,Obsessive-Compulsive Disorder,Bradycardia,None,Ibuprofen,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,1,0,1,83.4,35.7,HIGH,Moderate Response
+EXT-API-26532,79,Male,Post-Myocardial Infarction,Peptic Ulcer,NSAID Allergy,Ibuprofen,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,2,0,1,69.5,46.2,HIGH,Moderate Response
+EXT-API-26533,77,Female,TSH Suppression,Diabetes Type 2,NSAID Allergy,Sertraline,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,1,75.0,35.9,HIGH,Moderate Response
+EXT-API-26534,58,Male,Zollinger-Ellison,None,Aspirin Sensitivity,Ibuprofen,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,0,87.4,14.1,MODERATE,Optimal Efficacy
+EXT-API-26535,71,Female,Pulmonary Embolism,Peptic Ulcer,NSAID Allergy,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,1,82.3,32.0,MODERATE,Optimal Efficacy
+EXT-API-26536,61,Female,Acute Pain,Hypertension,NSAID Allergy,Lisinopril,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,1,0,0,37.3,16.8,MODERATE,Poor Response
+EXT-API-26537,87,Female,Angina,None,Aspirin Sensitivity,None,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,0,0,1,82.4,22.6,MODERATE,Optimal Efficacy
+EXT-API-26538,24,Male,Angina Pectoris,Renal Impairment,Penicillin Allergy,None,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,0,0,0,84.2,11.6,LOW,Optimal Efficacy
+EXT-API-26539,79,Female,Insulin Resistance,None,None,Clopidogrel,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,1,81.2,32.3,MODERATE,Optimal Efficacy
+EXT-API-26540,20,Female,Hyperlipidemia,Renal Impairment,None,Clopidogrel,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,0,1,1,0,0,21.9,43.2,HIGH,Poor Response
+EXT-API-26541,63,Female,Diabetes Type 2,Chronic Kidney Disease,NSAID Allergy,Sertraline,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,0,35.7,21.9,MODERATE,Poor Response
+EXT-API-26542,56,Male,Cardiovascular Prevention,None,None,Metformin,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,83.8,18.4,MODERATE,Optimal Efficacy
+EXT-API-26543,19,Male,Insulin Resistance,Chronic Kidney Disease,Aspirin Sensitivity,Warfarin,0,None,Metformin,Biguanide,500,Renal,1,1,1,0,0,78.9,46.4,HIGH,Moderate Response
+EXT-API-26544,45,Female,Hyperlipidemia,Bradycardia,Aspirin Sensitivity,Potassium Supplements,0,None,Atorvastatin,HMG-CoA Reductase Inhibitor,20,Hepatic,1,0,1,0,0,81.8,20.8,MODERATE,Optimal Efficacy
+EXT-API-26545,44,Male,Osteoarthritis,Mild Hepatic Steatosis,None,Aspirin,0,None,Metformin,Biguanide,500,Renal,0,0,1,0,0,31.6,15.9,MODERATE,Poor Response
+EXT-API-26546,67,Female,Angina Pectoris,Renal Impairment,Aspirin Sensitivity,Omeprazole,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,74.5,31.5,MODERATE,Optimal Efficacy
+EXT-API-26547,27,Female,Post-MI Cardioprotection,Chronic Kidney Disease,None,Aspirin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,84.5,15.8,MODERATE,Optimal Efficacy
+EXT-API-26548,66,Female,Mechanical Heart Valves,Renal Impairment,Aspirin Sensitivity,Aspirin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,3,0,1,72.0,62.7,CRITICAL,Adverse Reaction
+EXT-API-26549,52,Male,Post-Myocardial Infarction,Liver Cirrhosis,NSAID Allergy,Omeprazole,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,0,83.6,14.7,MODERATE,Optimal Efficacy
+EXT-API-26550,74,Female,Diabetes Type 2,Liver Cirrhosis,None,Lisinopril,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,0,0,1,0,1,28.3,32.5,MODERATE,Poor Response
+EXT-API-26551,70,Male,Pulmonary Embolism,Diabetes Type 2,None,Potassium Supplements,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,1,80.0,30.6,MODERATE,Optimal Efficacy
+EXT-API-26552,19,Female,Hypothyroidism,Diabetes Type 2,Penicillin Allergy,Potassium Supplements,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,88.9,15.4,MODERATE,Optimal Efficacy
+EXT-API-26553,56,Female,Bacterial Infection,Liver Cirrhosis,NSAID Allergy,Aspirin,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,1,0,0,84.2,17.9,MODERATE,Optimal Efficacy
+EXT-API-26554,64,Female,Osteoarthritis,Hypertension,Aspirin Sensitivity,Potassium Supplements,0,None,Lisinopril,ACE Inhibitor,10,Renal,0,0,2,0,0,22.0,26.9,HIGH,Poor Response
+EXT-API-26555,18,Female,Sinusitis,Chronic Kidney Disease,NSAID Allergy,Omeprazole,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,1,1,0,0,78.2,44.2,HIGH,Moderate Response
+EXT-API-26556,35,Female,Heart Failure,Peptic Ulcer,NSAID Allergy,Omeprazole,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,84.0,16.6,MODERATE,Optimal Efficacy
+EXT-API-26557,80,Male,Infectious Diarrhea,Mild Hepatic Steatosis,Sulfa Allergy,Warfarin,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,1,0,1,83.3,29.6,MODERATE,Optimal Efficacy
+EXT-API-26558,41,Male,Acute Pain,Peptic Ulcer,NSAID Allergy,Aspirin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,0,0,3,0,0,28.3,43.6,HIGH,Poor Response
+EXT-API-26559,70,Female,Heart Failure,Peptic Ulcer,Sulfa Allergy,Lisinopril,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,1,81.2,34.3,MODERATE,Optimal Efficacy
+EXT-API-26560,75,Female,Post-Myocardial Infarction,Diabetes Type 2,NSAID Allergy,Clopidogrel,0,None,Lisinopril,ACE Inhibitor,10,Renal,1,0,1,0,1,74.4,35.7,HIGH,Moderate Response
+EXT-API-26561,86,Male,Pyelonephritis,Chronic Kidney Disease,Penicillin Allergy,Potassium Supplements,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,1,62.4,60.9,CRITICAL,Adverse Reaction
+EXT-API-26562,69,Female,Bacterial Infection,Renal Impairment,None,Warfarin,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,0,0,2,0,1,16.6,44.1,HIGH,Poor Response
+EXT-API-26563,89,Male,Mechanical Heart Valves,Hypertension,Aspirin Sensitivity,Clopidogrel,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,1,75.5,36.0,HIGH,Moderate Response
+EXT-API-26564,31,Female,GERD,Renal Impairment,Penicillin Allergy,Omeprazole,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,0,0,0,84.6,9.7,LOW,Optimal Efficacy
+EXT-API-26565,62,Female,Zollinger-Ellison,Chronic Kidney Disease,None,Aspirin,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,1,0,0,80.4,19.7,MODERATE,Optimal Efficacy
+EXT-API-26566,61,Male,Diabetes Type 2,Peptic Ulcer,Aspirin Sensitivity,Lisinopril,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,85.5,16.6,MODERATE,Optimal Efficacy
+EXT-API-26567,77,Male,Urinary Tract Infection,Liver Cirrhosis,Penicillin Allergy,Metformin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,1,1,0,1,16.0,58.9,CRITICAL,Adverse Reaction
+EXT-API-26568,43,Female,Peripheral Artery Disease,None,Penicillin Allergy,Ibuprofen,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,0,1,0,0,87.0,20.4,MODERATE,Optimal Efficacy
+EXT-API-26569,31,Male,Hypertension,Hypertension,None,Aspirin,0,None,Losartan,Angiotensin II Receptor Blocker,50,Hepatic & Renal,1,0,1,0,0,86.7,17.9,MODERATE,Optimal Efficacy
+EXT-API-26570,58,Female,Major Depressive Disorder,Chronic Kidney Disease,Sulfa Allergy,Sertraline,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,0,0,0,0,86.2,14.5,LOW,Optimal Efficacy
+EXT-API-26571,56,Male,Infectious Diarrhea,Renal Impairment,Penicillin Allergy,Aspirin,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,0,69.2,42.0,HIGH,Moderate Response
+EXT-API-26572,83,Female,Hypertension,Mild Hepatic Steatosis,NSAID Allergy,Lisinopril,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,1,1,0,1,66.9,57.3,CRITICAL,Adverse Reaction
+EXT-API-26573,40,Male,Post-PCI Stent Placement,Liver Cirrhosis,Sulfa Allergy,Sertraline,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,1,1,1,0,0,74.2,45.9,HIGH,Moderate Response
+EXT-API-26574,80,Male,Insulin Resistance,Diabetes Type 2,Aspirin Sensitivity,Sertraline,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,1,78.1,31.9,MODERATE,Optimal Efficacy
+EXT-API-26575,74,Female,Urinary Tract Infection,Peptic Ulcer,Sulfa Allergy,None,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,0,0,0,1,76.7,26.3,MODERATE,Optimal Efficacy
+EXT-API-26576,76,Female,Hypertension,Renal Impairment,Sulfa Allergy,Clopidogrel,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,1,82.2,30.9,MODERATE,Optimal Efficacy
+EXT-API-26577,23,Female,Post-MI Cardioprotection,Renal Impairment,Penicillin Allergy,Aspirin,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,1,0,0,82.3,16.1,MODERATE,Optimal Efficacy
+EXT-API-26578,29,Female,Diabetes Type 2,Peptic Ulcer,Penicillin Allergy,Potassium Supplements,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,0,0,1,0,0,38.6,18.9,MODERATE,Poor Response
+EXT-API-26579,39,Male,GERD,None,Aspirin Sensitivity,Omeprazole,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,0,0,1,0,0,35.3,18.8,MODERATE,Poor Response
+EXT-API-26580,59,Female,Coronary Artery Disease,Diabetes Type 2,None,Lisinopril,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,1,0,0,89.6,20.3,MODERATE,Optimal Efficacy
+EXT-API-26581,25,Female,Hyperlipidemia,Liver Cirrhosis,Penicillin Allergy,Lisinopril,0,None,Clopidogrel,P2Y12 Platelet Inhibitor,75,Hepatic,0,1,1,0,0,28.3,45.1,HIGH,Poor Response
+EXT-API-26582,68,Female,Obsessive-Compulsive Disorder,Mild Hepatic Steatosis,NSAID Allergy,Sertraline,0,None,Sertraline,SSRI Antidepressant,50,Hepatic,1,1,0,0,1,62.8,53.4,HIGH,Adverse Reaction
+EXT-API-26583,29,Female,Fever,Chronic Kidney Disease,NSAID Allergy,Sertraline,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,0,1,0,0,80.0,20.2,MODERATE,Optimal Efficacy
+EXT-API-26584,29,Female,Infectious Diarrhea,Renal Impairment,Aspirin Sensitivity,Metformin,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,0,72.3,40.7,HIGH,Moderate Response
+EXT-API-26585,59,Female,Streptococcal Pharyngitis,Hypertension,Sulfa Allergy,None,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,0,0,0,80.5,13.0,LOW,Optimal Efficacy
+EXT-API-26586,76,Male,Angina Pectoris,Hypertension,NSAID Allergy,None,0,None,Metoprolol,Beta-1 Selective Blocker,25,Hepatic,1,0,0,0,1,83.9,25.4,MODERATE,Optimal Efficacy
+EXT-API-26587,34,Female,Infectious Diarrhea,Renal Impairment,Sulfa Allergy,Aspirin,0,None,Ciprofloxacin,Fluoroquinolone Antibiotic,500,Renal,1,1,1,0,0,74.6,44.2,HIGH,Moderate Response
+EXT-API-26588,68,Female,Asthma,Peptic Ulcer,NSAID Allergy,Warfarin,0,None,Metformin,Biguanide,500,Renal,0,0,1,0,1,31.0,28.0,MODERATE,Poor Response
+EXT-API-26589,27,Male,Zollinger-Ellison,None,None,Omeprazole,0,None,Omeprazole,Proton Pump Inhibitor,20,Hepatic,1,0,0,0,0,88.2,15.9,LOW,Optimal Efficacy
+EXT-API-26590,34,Female,TSH Suppression,Renal Impairment,None,Warfarin,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,88.8,15.1,MODERATE,Optimal Efficacy
+EXT-API-26591,35,Male,Mild to Moderate Pain,Liver Cirrhosis,NSAID Allergy,Omeprazole,0,None,Paracetamol,Analgesic & Antipyretic,500,Hepatic,1,1,1,0,0,75.2,44.0,HIGH,Moderate Response
+EXT-API-26592,70,Female,Diabetes Type 2,Renal Impairment,Penicillin Allergy,Warfarin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,0,0,1,0,1,29.9,31.1,MODERATE,Poor Response
+EXT-API-26593,58,Male,Thyroiditis,Renal Impairment,Penicillin Allergy,Clopidogrel,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,0,86.0,19.8,MODERATE,Optimal Efficacy
+EXT-API-26594,21,Female,Streptococcal Pharyngitis,Mild Hepatic Steatosis,Sulfa Allergy,None,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,1,0,0,0,0,89.9,9.9,LOW,Optimal Efficacy
+EXT-API-26595,32,Male,Thyroiditis,Renal Impairment,Aspirin Sensitivity,None,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,0,0,0,89.9,15.5,LOW,Optimal Efficacy
+EXT-API-26596,67,Female,Angina,Liver Cirrhosis,NSAID Allergy,Warfarin,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,1,1,0,1,62.2,53.5,HIGH,Adverse Reaction
+EXT-API-26597,45,Male,Asthma,Mild Hepatic Steatosis,Aspirin Sensitivity,Aspirin,0,None,Amoxicillin,Penicillin Antibiotic,500,Renal,0,0,1,0,0,36.3,18.0,MODERATE,Poor Response
+EXT-API-26598,72,Female,Thyroiditis,Diabetes Type 2,Aspirin Sensitivity,Lisinopril,0,None,Levothyroxine,Thyroid Hormone,50,Hepatic,1,0,1,0,1,76.8,30.5,MODERATE,Optimal Efficacy
+EXT-API-26599,44,Male,Mechanical Heart Valves,Renal Impairment,Sulfa Allergy,Metformin,0,None,Warfarin,Vitamin K Antagonist,5,Hepatic,1,0,1,0,0,87.3,20.8,MODERATE,Optimal Efficacy
+EXT-API-26600,49,Male,Diabetes Type 2,Hypertension,Aspirin Sensitivity,Potassium Supplements,0,None,Metformin,Biguanide,500,Renal,1,0,1,0,0,80.6,19.3,MODERATE,Optimal Efficacy

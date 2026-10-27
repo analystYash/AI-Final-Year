@@ -314,6 +314,14 @@ export async function getPatients() {
   return await safeFetch(`${API_BASE}/patients`, {}, 'Failed to fetch patients');
 }
 
+export async function getPatientByContact(contact) {
+  return await safeFetch(
+    `${API_BASE}/patients/by-contact/${encodeURIComponent(contact)}`,
+    {},
+    'Failed to lookup patient by contact'
+  );
+}
+
 export async function addPatient(patientData) {
   return await safeFetch(
     `${API_BASE}/patients`,
@@ -517,5 +525,160 @@ export async function translateText({ text, targetLang = 'marathi' }) {
     return { original: text, translated: text, target_lang: targetLang };
   }
 }
+
+// ==========================================
+// DOCTOR PROFILE & DIRECTORY API
+// ==========================================
+
+export async function getDoctors() {
+  return await safeFetch(`${API_BASE}/doctors`, {}, 'Failed to fetch doctors catalog');
+}
+
+export async function getDoctorProfile(doctorId) {
+  const url = doctorId ? `${API_BASE}/doctor/profile?doctor_id=${doctorId}` : `${API_BASE}/doctor/profile`;
+  return await safeFetch(url, {}, 'Failed to fetch doctor profile');
+}
+
+export async function updateDoctorProfile(doctorId, profileData) {
+  return await safeFetch(
+    `${API_BASE}/doctors/${doctorId}`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profileData)
+    },
+    'Failed to update doctor profile'
+  );
+}
+
+// ==========================================
+// MULTI-DOCTOR PATIENT ASSOCIATIONS API
+// ==========================================
+
+export async function getPatientDoctors(patientId) {
+  return await safeFetch(
+    `${API_BASE}/patients/${patientId}/doctors`,
+    {},
+    'Failed to fetch patient doctors'
+  );
+}
+
+export async function associatePatientDoctor(patientId, associationData) {
+  return await safeFetch(
+    `${API_BASE}/patients/${patientId}/doctors`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(associationData)
+    },
+    'Failed to associate doctor with patient'
+  );
+}
+
+export async function updateDoctorAssociation(patientId, doctorId, updateData) {
+  return await safeFetch(
+    `${API_BASE}/patients/${patientId}/doctors/${doctorId}`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData)
+    },
+    'Failed to update doctor association'
+  );
+}
+
+export async function removeDoctorAssociation(patientId, doctorId) {
+  return await safeFetch(
+    `${API_BASE}/patients/${patientId}/doctors/${doctorId}`,
+    { method: 'DELETE' },
+    'Failed to remove doctor association'
+  );
+}
+
+// ==========================================
+// CENTRALIZED MEDICAL HISTORY & CONSULTATIONS API
+// ==========================================
+
+export async function getCentralizedMedicalHistory(patientId) {
+  return await safeFetch(
+    `${API_BASE}/patients/${patientId}/medical-history`,
+    {},
+    'Failed to fetch centralized medical history'
+  );
+}
+
+export async function recordConsultation(consultationData) {
+  return await safeFetch(
+    `${API_BASE}/consultations`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(consultationData)
+    },
+    'Failed to record consultation'
+  );
+}
+
+// ==========================================
+// ONGOING MEDICATION TRACKING API
+// ==========================================
+
+export async function getPatientMedications(patientId) {
+  return await safeFetch(
+    `${API_BASE}/patients/${patientId}/medications`,
+    {},
+    'Failed to fetch patient medications'
+  );
+}
+
+export async function updatePrescriptionStatus(prescriptionId, statusData) {
+  return await safeFetch(
+    `${API_BASE}/prescriptions/${prescriptionId}/status`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(statusData)
+    },
+    'Failed to update medication status'
+  );
+}
+
+// ==========================================
+// APPOINTMENTS MANAGEMENT API
+// ==========================================
+
+export async function getAppointments({ doctorId, patientId } = {}) {
+  let url = `${API_BASE}/appointments`;
+  const params = [];
+  if (doctorId) params.push(`doctor_id=${doctorId}`);
+  if (patientId) params.push(`patient_id=${patientId}`);
+  if (params.length > 0) url += `?${params.join('&')}`;
+  return await safeFetch(url, {}, 'Failed to fetch appointments');
+}
+
+export async function bookAppointment(appointmentData) {
+  return await safeFetch(
+    `${API_BASE}/appointments`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(appointmentData)
+    },
+    'Failed to book appointment'
+  );
+}
+
+export async function updateAppointmentStatus(appointmentId, status) {
+  return await safeFetch(
+    `${API_BASE}/appointments/${appointmentId}/status`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    },
+    'Failed to update appointment status'
+  );
+}
+
 
 

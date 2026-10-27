@@ -23,7 +23,7 @@ try:
     from backend.ml_engine import ml_engine
     from backend.multilingual import generate_multilingual_recommendation
     from backend.database import get_db_connection, init_db
-    from backend.auth_db import register_doctor, authenticate_doctor
+    from backend.auth_db import register_doctor, authenticate_doctor, get_doctor_by_id, get_all_doctors, update_doctor_profile
     from backend.train_model import train_and_evaluate, ARTIFACTS_PATH, DATASET_PATH
     from backend.external_api import (
         fetch_external_drug_research, expand_clinical_dataset_with_api,
@@ -35,7 +35,7 @@ except ImportError:
     from ml_engine import ml_engine
     from multilingual import generate_multilingual_recommendation
     from database import get_db_connection, init_db
-    from auth_db import register_doctor, authenticate_doctor
+    from auth_db import register_doctor, authenticate_doctor, get_doctor_by_id, get_all_doctors, update_doctor_profile
     from train_model import train_and_evaluate, ARTIFACTS_PATH, DATASET_PATH
     from external_api import (
         fetch_external_drug_research, expand_clinical_dataset_with_api,
@@ -130,6 +130,765 @@ def auth_login_doctor():
             "success": True,
             "message": f"Welcome, {doctor['name']}!",
             "doctor": doctor
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# DOCTOR PROFILE & DIRECTORY ENDPOINTS
+# ==========================================
+
+@app.route("/api/doctors", methods=["GET"])
+def get_doctors_catalog():
+    """Returns directory of all registered doctors across specializations."""
+    try:
+        doctors = get_all_doctors()
+        return jsonify(doctors)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/doctor/profile", methods=["GET", "PUT"])
+@app.route("/api/doctors/<int:doctor_id>", methods=["GET", "PUT"])
+def doctor_profile_endpoint(doctor_id=None):
+    """
+    GET: Returns complete professional profile of doctor including associated patients,
+    appointments, consultation history, and active prescriptions.
+    PUT: Updates permitted profile details for doctor in users.db.
+    """
+    try:
+        # Determine target doctor ID
+        if doctor_id is None:
+            doc_id_arg = request.args.get("doctor_id") or request.headers.get("X-Doctor-Id")
+            doctor_id = int(doc_id_arg) if doc_id_arg else 1
+
+        if request.method == "PUT":
+            updates = request.get_json() or {}
+            updated_profile = update_doctor_profile(doctor_id, updates)
+            if not updated_profile:
+                return jsonify({"error": f"Doctor with ID {doctor_id} not found."}), 404
+            return jsonify({
+                "success": True,
+                "message": "Doctor profile updated successfully.",
+                "doctor": updated_profile
+            })
+
+        # GET method
+        doc = get_doctor_by_id(doctor_id)
+        if not doc:
+            return jsonify({"error": f"Doctor with ID {doctor_id} not found."}), 404
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # 1. Associated Patients
+        cursor.execute("""
+            SELECT p.id, p.name, p.age, p.gender, p.contact_number, p.current_health_issue,
+                   p.existing_diseases, p.allergies, p.blood_group,
+                   a.relationship_type, a.access_permission, a.consent_status, a.notes as association_notes,
+                   a.associated_since, a.last_interaction
+            FROM patient_doctor_associations a
+            JOIN patients p ON a.patient_id = p.id
+            WHERE a.doctor_id = ?
+            ORDER BY a.last_interaction DESC
+        """, (doctor_id,))
+        associated_patients = [dict(r) for r in cursor.fetchall()]
+
+        # If no explicit associations found yet, fallback to all patients where doctor is primary
+        if not associated_patients:
+            cursor.execute("SELECT * FROM patients ORDER BY id DESC")
+            all_pts = [dict(r) for r in cursor.fetchall()]
+            associated_patients = [{
+                **pt,
+                "relationship_type": "treating",
+                "access_permission": "full",
+                "consent_status": "granted",
+                "associated_since": pt.get("created_at"),
+                "last_interaction": pt.get("created_at")
+            } for pt in all_pts]
+
+        # 2. Appointments
+        cursor.execute("""
+            SELECT * FROM appointments
+            WHERE doctor_id = ?
+            ORDER BY appointment_date DESC, appointment_time DESC
+        """, (doctor_id,))
+        appointments = [dict(r) for r in cursor.fetchall()]
+
+        # 3. Consultation History
+        cursor.execute("""
+            SELECT c.*, p.name as patient_name, p.contact_number as patient_contact
+            FROM consultations c
+            JOIN patients p ON c.patient_id = p.id
+            WHERE c.doctor_id = ?
+            ORDER BY c.consultation_date DESC, c.id DESC
+        """, (doctor_id,))
+        consultations = []
+        for c in cursor.fetchall():
+            c_dict = dict(c)
+            for jf in ["vital_signs", "medical_reports"]:
+                try:
+                    c_dict[jf] = json.loads(c_dict.get(jf) or ("{}" if jf == "vital_signs" else "[]"))
+                except Exception:
+                    pass
+            consultations.append(c_dict)
+
+        # 4. Prescriptions issued by this doctor
+        cursor.execute("""
+            SELECT p.*, pt.name as patient_name, pt.contact_number as patient_contact
+            FROM prescriptions p
+            LEFT JOIN patients pt ON p.patient_id = pt.id
+            WHERE p.doctor_id = ? OR p.doctor_name LIKE ?
+            ORDER BY p.id DESC
+        """, (doctor_id, f"%{doc['name']}%"))
+        prescriptions = []
+        for p in cursor.fetchall():
+            p_dict = dict(p)
+            for jf in ["target_organs", "clinical_alerts", "multilingual_notes"]:
+                try:
+                    p_dict[jf] = json.loads(p_dict.get(jf) or ("[]" if jf != "multilingual_notes" else "{}"))
+                except Exception:
+                    pass
+            prescriptions.append(p_dict)
+
+        conn.close()
+
+        active_rx_count = sum(1 for p in prescriptions if str(p.get("status", "")).lower() == "active")
+        upcoming_appt_count = sum(1 for a in appointments if str(a.get("status", "")).lower() == "confirmed")
+
+        return jsonify({
+            "success": True,
+            "doctor": doc,
+            "associated_patients": associated_patients,
+            "appointments": appointments,
+            "consultations": consultations,
+            "prescriptions": prescriptions,
+            "stats": {
+                "total_patients": len(associated_patients),
+                "total_consultations": len(consultations),
+                "total_prescriptions": len(prescriptions),
+                "active_prescriptions": active_rx_count,
+                "upcoming_appointments": upcoming_appt_count
+            }
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# MULTI-DOCTOR PATIENT ASSOCIATIONS
+# ==========================================
+
+@app.route("/api/patients/<int:patient_id>/doctors", methods=["GET"])
+def get_patient_doctors(patient_id):
+    """Returns all treating, consulting, and previous doctors associated with a patient."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM patient_doctor_associations
+            WHERE patient_id = ?
+            ORDER BY 
+                CASE relationship_type
+                    WHEN 'treating' THEN 1
+                    WHEN 'consulting' THEN 2
+                    WHEN 'referral' THEN 3
+                    ELSE 4
+                END,
+                last_interaction DESC
+        """, (patient_id,))
+        rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+        return jsonify(rows)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/patients/<int:patient_id>/doctors", methods=["POST"])
+def associate_patient_doctor(patient_id):
+    """Associates a doctor with a patient (treating, consulting, previous, or referral)."""
+    try:
+        data = request.get_json() or {}
+        doctor_id = data.get("doctor_id")
+        doctor_name = data.get("doctor_name", "").strip()
+        doctor_specialization = data.get("doctor_specialization", "Internal Medicine").strip()
+        doctor_hospital = data.get("doctor_hospital", "City Health Medical Center").strip()
+        relationship_type = data.get("relationship_type", "consulting").strip() # treating, consulting, previous, referral
+        access_permission = data.get("access_permission", "full").strip()     # full, view_only, emergency
+        consent_status = data.get("consent_status", "granted").strip()         # granted, pending, revoked
+        notes = data.get("notes", "").strip()
+
+        if not doctor_id:
+            return jsonify({"error": "Doctor ID is required."}), 400
+
+        # If doctor name missing, lookup in users.db
+        if not doctor_name:
+            doc = get_doctor_by_id(doctor_id)
+            if doc:
+                doctor_name = doc["name"]
+                doctor_specialization = doc["specialization"]
+                doctor_hospital = doc["hospital_name"]
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+        INSERT INTO patient_doctor_associations (
+            patient_id, doctor_id, doctor_name, doctor_specialization, doctor_hospital,
+            relationship_type, access_permission, consent_status, notes,
+            associated_since, last_interaction
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON CONFLICT(patient_id, doctor_id) DO UPDATE SET
+            doctor_name = excluded.doctor_name,
+            doctor_specialization = excluded.doctor_specialization,
+            doctor_hospital = excluded.doctor_hospital,
+            relationship_type = excluded.relationship_type,
+            access_permission = excluded.access_permission,
+            consent_status = excluded.consent_status,
+            notes = excluded.notes,
+            last_interaction = CURRENT_TIMESTAMP
+        """, (
+            patient_id, doctor_id, doctor_name, doctor_specialization, doctor_hospital,
+            relationship_type, access_permission, consent_status, notes
+        ))
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "message": f"Associated {doctor_name} as {relationship_type} doctor for patient ID {patient_id}."
+        }), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/patients/<int:patient_id>/doctors/<int:doctor_id>", methods=["PUT", "DELETE"])
+def update_or_delete_association(patient_id, doctor_id):
+    """Updates relationship type / permissions or removes association."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        if request.method == "DELETE":
+            cursor.execute("DELETE FROM patient_doctor_associations WHERE patient_id = ? AND doctor_id = ?", (patient_id, doctor_id))
+            conn.commit()
+            conn.close()
+            return jsonify({"success": True, "message": f"Doctor association removed for patient {patient_id}."})
+
+        # PUT method
+        data = request.get_json() or {}
+        relationship_type = data.get("relationship_type")
+        access_permission = data.get("access_permission")
+        consent_status = data.get("consent_status")
+        notes = data.get("notes")
+
+        updates = []
+        params = []
+        if relationship_type:
+            updates.append("relationship_type = ?")
+            params.append(relationship_type)
+        if access_permission:
+            updates.append("access_permission = ?")
+            params.append(access_permission)
+        if consent_status:
+            updates.append("consent_status = ?")
+            params.append(consent_status)
+        if notes is not None:
+            updates.append("notes = ?")
+            params.append(notes)
+
+        if updates:
+            updates.append("last_interaction = CURRENT_TIMESTAMP")
+            params.extend([patient_id, doctor_id])
+            cursor.execute(f"UPDATE patient_doctor_associations SET {', '.join(updates)} WHERE patient_id = ? AND doctor_id = ?", tuple(params))
+            conn.commit()
+
+        conn.close()
+        return jsonify({"success": True, "message": "Doctor association updated successfully."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/doctors/<int:doctor_id>/patients", methods=["GET"])
+def get_doctor_associated_patients(doctor_id):
+    """Returns all patients assigned to a specific doctor."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT p.*, a.relationship_type, a.access_permission, a.consent_status, a.last_interaction, a.notes as association_notes
+            FROM patient_doctor_associations a
+            JOIN patients p ON a.patient_id = p.id
+            WHERE a.doctor_id = ?
+            ORDER BY a.last_interaction DESC
+        """, (doctor_id,))
+        patients = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+        return jsonify(patients)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# CENTRALIZED PATIENT MEDICAL HISTORY & TIMELINE
+# ==========================================
+
+@app.route("/api/patients/<int:patient_id>/medical-history", methods=["GET"])
+def get_centralized_medical_history(patient_id):
+    """
+    Returns complete centralized medical history:
+    - Patient profile & demographic baseline
+    - Multi-doctor care team (treating, consulting, previous)
+    - Chronological consultations from all doctors (most recent first)
+    - Ongoing & historical prescriptions with statuses
+    - Unified multi-source diagnostic reports & clinical timeline
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # 1. Patient profile
+        cursor.execute("SELECT * FROM patients WHERE id = ?", (patient_id,))
+        p_row = cursor.fetchone()
+        if not p_row:
+            conn.close()
+            return jsonify({"error": f"Patient with ID {patient_id} not found."}), 404
+        patient = dict(p_row)
+
+        # 2. Associated Doctors
+        cursor.execute("""
+            SELECT * FROM patient_doctor_associations
+            WHERE patient_id = ?
+            ORDER BY 
+                CASE relationship_type
+                    WHEN 'treating' THEN 1
+                    WHEN 'consulting' THEN 2
+                    WHEN 'referral' THEN 3
+                    ELSE 4
+                END,
+                last_interaction DESC
+        """, (patient_id,))
+        doctors = [dict(r) for r in cursor.fetchall()]
+
+        # 3. Consultations (Chronological - newest first)
+        cursor.execute("""
+            SELECT * FROM consultations
+            WHERE patient_id = ?
+            ORDER BY consultation_date DESC, id DESC
+        """, (patient_id,))
+        consultations = []
+        all_medical_reports = []
+        for c in cursor.fetchall():
+            c_dict = dict(c)
+            # Parse JSON fields safely
+            try:
+                c_dict["vital_signs"] = json.loads(c_dict.get("vital_signs") or "{}")
+            except Exception:
+                c_dict["vital_signs"] = {}
+
+            try:
+                reports = json.loads(c_dict.get("medical_reports") or "[]")
+                c_dict["medical_reports"] = reports
+                for rep in reports:
+                    if isinstance(rep, dict):
+                        rep_copy = dict(rep)
+                        rep_copy["consultation_id"] = c_dict["id"]
+                        rep_copy["doctor_name"] = c_dict["doctor_name"]
+                        rep_copy["hospital_name"] = c_dict.get("hospital_name", "")
+                        all_medical_reports.append(rep_copy)
+            except Exception:
+                c_dict["medical_reports"] = []
+
+            consultations.append(c_dict)
+
+        # 4. Prescriptions (All records preserved)
+        cursor.execute("""
+            SELECT * FROM prescriptions
+            WHERE patient_id = ?
+            ORDER BY id DESC
+        """, (patient_id,))
+        all_prescriptions = []
+        for r in cursor.fetchall():
+            p_dict = dict(r)
+            for jf in ["target_organs", "clinical_alerts", "multilingual_notes", "xai_factors", "full_prediction_json"]:
+                if jf in p_dict and p_dict[jf]:
+                    try:
+                        p_dict[jf] = json.loads(p_dict[jf])
+                    except Exception:
+                        pass
+            all_prescriptions.append(p_dict)
+
+        conn.close()
+
+        # Categorize prescriptions
+        active_medications = [p for p in all_prescriptions if str(p.get("status", "")).lower() == "active"]
+        completed_medications = [p for p in all_prescriptions if str(p.get("status", "")).lower() == "completed"]
+        discontinued_medications = [p for p in all_prescriptions if str(p.get("status", "")).lower() == "discontinued"]
+        historical_medications = [p for p in all_prescriptions if str(p.get("status", "")).lower() == "historical"]
+
+        # Unified Timeline construction
+        timeline_events = []
+        for c in consultations:
+            timeline_events.append({
+                "type": "consultation",
+                "id": f"cons-{c['id']}",
+                "date": c["consultation_date"],
+                "doctor_name": c["doctor_name"],
+                "doctor_specialization": c["doctor_specialization"],
+                "hospital_name": c.get("hospital_name", ""),
+                "title": f"Consultation: {c['diagnosis']}",
+                "diagnosis": c["diagnosis"],
+                "symptoms": c.get("symptoms", ""),
+                "treatment_notes": c.get("treatment_notes", ""),
+                "clinical_summary": c.get("clinical_summary", ""),
+                "vital_signs": c.get("vital_signs", {}),
+                "medical_reports": c.get("medical_reports", []),
+                "follow_up_date": c.get("follow_up_date", "")
+            })
+
+        for p in all_prescriptions:
+            timeline_events.append({
+                "type": "prescription",
+                "id": f"rx-{p['id']}",
+                "date": p["created_at"],
+                "doctor_name": p.get("doctor_name", "Attending Doctor"),
+                "doctor_specialization": p.get("doctor_specialization", "Internal Medicine"),
+                "hospital_name": p.get("doctor_hospital", ""),
+                "title": f"Prescription: {p['drug_name']} ({p.get('dosage', '')})",
+                "drug_name": p["drug_name"],
+                "dosage": p.get("dosage", ""),
+                "frequency": p.get("frequency", ""),
+                "instructions": p.get("instructions", ""),
+                "status": p.get("status", "active"),
+                "discontinued_reason": p.get("discontinued_reason", ""),
+                "effectiveness_pct": p.get("effectiveness_pct", 80),
+                "overall_risk": p.get("overall_risk", "LOW")
+            })
+
+        # Sort timeline strictly descending (most recent first)
+        timeline_events.sort(key=lambda x: str(x.get("date", "")), reverse=True)
+
+        return jsonify({
+            "success": True,
+            "patient": patient,
+            "associated_doctors": doctors,
+            "consultations": consultations,
+            "prescriptions": all_prescriptions,
+            "medications": {
+                "active": active_medications,
+                "completed": completed_medications,
+                "discontinued": discontinued_medications,
+                "historical": historical_medications,
+                "counts": {
+                    "active": len(active_medications),
+                    "completed": len(completed_medications),
+                    "discontinued": len(discontinued_medications),
+                    "historical": len(historical_medications),
+                    "total": len(all_prescriptions)
+                }
+            },
+            "medical_reports": all_medical_reports,
+            "timeline": timeline_events
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/consultations", methods=["POST"])
+@app.route("/api/patients/<int:patient_id>/consultations", methods=["POST"])
+def record_consultation(patient_id=None):
+    """
+    Records a new clinical consultation without overwriting previous records.
+    Preserves consultation records from all treating & consulting doctors.
+    """
+    try:
+        data = request.get_json() or {}
+        p_id = patient_id or data.get("patient_id")
+        if not p_id:
+            return jsonify({"error": "Patient ID is required."}), 400
+
+        doctor_id = data.get("doctor_id") or 1
+        doctor_name = data.get("doctor_name") or "Dr. Sharma, MD"
+        doctor_specialization = data.get("doctor_specialization") or "Cardiology & Internal Medicine"
+        hospital_name = data.get("hospital_name") or "Apex Multispecialty Hospital"
+        diagnosis = data.get("diagnosis", "").strip()
+        symptoms = data.get("symptoms", "").strip()
+        treatment_notes = data.get("treatment_notes", "").strip()
+        clinical_summary = data.get("clinical_summary", "").strip()
+        vital_signs = data.get("vital_signs") or {}
+        medical_reports = data.get("medical_reports") or []
+        follow_up_date = data.get("follow_up_date", "").strip()
+        prescription_ids = data.get("prescription_ids") or []
+
+        if not diagnosis:
+            return jsonify({"error": "Diagnosis is required to record a clinical consultation."}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Verify patient exists
+        cursor.execute("SELECT id, name FROM patients WHERE id = ?", (p_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            conn.close()
+            return jsonify({"error": f"Patient with ID {p_id} not found."}), 404
+
+        # Insert consultation
+        cursor.execute("""
+        INSERT INTO consultations (
+            patient_id, doctor_id, doctor_name, doctor_specialization, hospital_name,
+            consultation_date, diagnosis, symptoms, treatment_notes, clinical_summary,
+            vital_signs, medical_reports, prescription_ids, follow_up_date
+        ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            p_id, doctor_id, doctor_name, doctor_specialization, hospital_name,
+            diagnosis, symptoms, treatment_notes, clinical_summary,
+            json.dumps(vital_signs) if isinstance(vital_signs, (dict, list)) else str(vital_signs),
+            json.dumps(medical_reports) if isinstance(medical_reports, (list, dict)) else str(medical_reports),
+            json.dumps(prescription_ids) if isinstance(prescription_ids, list) else str(prescription_ids),
+            follow_up_date
+        ))
+        new_consultation_id = cursor.lastrowid
+
+        # Maintain or update Doctor-Patient Association
+        cursor.execute("""
+        INSERT INTO patient_doctor_associations (
+            patient_id, doctor_id, doctor_name, doctor_specialization, doctor_hospital,
+            relationship_type, access_permission, consent_status, last_interaction
+        ) VALUES (?, ?, ?, ?, ?, 'treating', 'full', 'granted', CURRENT_TIMESTAMP)
+        ON CONFLICT(patient_id, doctor_id) DO UPDATE SET
+            doctor_name = excluded.doctor_name,
+            doctor_specialization = excluded.doctor_specialization,
+            doctor_hospital = excluded.doctor_hospital,
+            last_interaction = CURRENT_TIMESTAMP
+        """, (p_id, doctor_id, doctor_name, doctor_specialization, hospital_name))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "consultation_id": new_consultation_id,
+            "message": f"Consultation recorded successfully for {patient['name']} by {doctor_name}."
+        }), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# ONGOING MEDICATION MANAGEMENT ENDPOINTS
+# ==========================================
+
+@app.route("/api/patients/<int:patient_id>/medications", methods=["GET"])
+def get_patient_medications(patient_id):
+    """
+    Returns patient's ongoing and historical medications categorized into:
+    - active (Ongoing medications currently being taken)
+    - completed (Finished courses)
+    - discontinued (Stopped with recorded clinical reasons)
+    - historical (Archived prescriptions)
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id, name FROM patients WHERE id = ?", (patient_id,))
+        patient = cursor.fetchone()
+        if not patient:
+            conn.close()
+            return jsonify({"error": f"Patient with ID {patient_id} not found."}), 404
+
+        cursor.execute("""
+            SELECT * FROM prescriptions
+            WHERE patient_id = ?
+            ORDER BY 
+                CASE status
+                    WHEN 'active' THEN 1
+                    WHEN 'completed' THEN 2
+                    WHEN 'discontinued' THEN 3
+                    ELSE 4
+                END,
+                created_at DESC
+        """, (patient_id,))
+        rows = cursor.fetchall()
+        conn.close()
+
+        all_meds = []
+        for r in rows:
+            m = dict(r)
+            for jf in ["target_organs", "clinical_alerts", "multilingual_notes"]:
+                try:
+                    m[jf] = json.loads(m.get(jf) or ("[]" if jf != "multilingual_notes" else "{}"))
+                except Exception:
+                    pass
+            all_meds.append(m)
+
+        active = [m for m in all_meds if str(m.get("status", "")).lower() == "active"]
+        completed = [m for m in all_meds if str(m.get("status", "")).lower() == "completed"]
+        discontinued = [m for m in all_meds if str(m.get("status", "")).lower() == "discontinued"]
+        historical = [m for m in all_meds if str(m.get("status", "")).lower() == "historical"]
+
+        return jsonify({
+            "success": True,
+            "patient_id": patient_id,
+            "patient_name": patient["name"],
+            "active": active,
+            "completed": completed,
+            "discontinued": discontinued,
+            "historical": historical,
+            "all": all_meds,
+            "counts": {
+                "active": len(active),
+                "completed": len(completed),
+                "discontinued": len(discontinued),
+                "historical": len(historical),
+                "total": len(all_meds)
+            }
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/prescriptions/<int:prescription_id>/status", methods=["PUT"])
+def update_prescription_status(prescription_id):
+    """
+    Updates prescription status: active, completed, discontinued, or historical.
+    Allows recording reason for discontinuation, maintaining full prescription audit history.
+    """
+    try:
+        data = request.get_json() or {}
+        new_status = data.get("status", "").strip().lower()
+        discontinued_reason = data.get("discontinued_reason", "").strip()
+        doctor_notes = data.get("doctor_notes", "").strip()
+
+        valid_statuses = ["active", "completed", "discontinued", "historical"]
+        if new_status not in valid_statuses:
+            return jsonify({"error": f"Invalid status '{new_status}'. Allowed: {', '.join(valid_statuses)}."}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM prescriptions WHERE id = ?", (prescription_id,))
+        rx = cursor.fetchone()
+        if not rx:
+            conn.close()
+            return jsonify({"error": f"Prescription with ID {prescription_id} not found."}), 404
+
+        update_query = """
+        UPDATE prescriptions SET
+            status = ?,
+            discontinued_reason = CASE WHEN ? != '' THEN ? ELSE discontinued_reason END,
+            doctor_notes = CASE WHEN ? != '' THEN ? ELSE doctor_notes END,
+            status_updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """
+        cursor.execute(update_query, (
+            new_status,
+            discontinued_reason, discontinued_reason,
+            doctor_notes, doctor_notes,
+            prescription_id
+        ))
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "prescription_id": prescription_id,
+            "new_status": new_status,
+            "message": f"Prescription status updated to '{new_status}' successfully."
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# APPOINTMENTS MANAGEMENT ENDPOINTS
+# ==========================================
+
+@app.route("/api/appointments", methods=["GET", "POST"])
+def appointments_endpoint():
+    """
+    GET: Retrieves scheduled appointments by doctor_id or patient_id.
+    POST: Books a new consultation appointment with a doctor.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == "POST":
+        try:
+            data = request.get_json() or {}
+            patient_id = data.get("patient_id")
+            patient_name = data.get("patient_name", "").strip()
+            patient_contact = data.get("patient_contact", "").strip()
+            doctor_id = data.get("doctor_id") or 1
+            doctor_name = data.get("doctor_name", "Dr. Sharma, MD").strip()
+            doctor_specialization = data.get("doctor_specialization", "Cardiology & Internal Medicine").strip()
+            appointment_date = data.get("appointment_date", "").strip()
+            appointment_time = data.get("appointment_time", "").strip()
+            reason = data.get("reason", "").strip()
+            appt_type = data.get("type", "In-Person Consultation").strip()
+
+            if not patient_id or not appointment_date or not appointment_time:
+                conn.close()
+                return jsonify({"error": "Patient ID, Appointment Date, and Time are required."}), 400
+
+            # If patient name not passed, lookup from database
+            if not patient_name:
+                cursor.execute("SELECT name, contact_number FROM patients WHERE id = ?", (patient_id,))
+                p_row = cursor.fetchone()
+                if p_row:
+                    patient_name = p_row["name"]
+                    patient_contact = p_row["contact_number"]
+
+            cursor.execute("""
+            INSERT INTO appointments (
+                patient_id, patient_name, patient_contact, doctor_id, doctor_name,
+                doctor_specialization, appointment_date, appointment_time, reason, status, type
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', ?)
+            """, (
+                patient_id, patient_name, patient_contact, doctor_id, doctor_name,
+                doctor_specialization, appointment_date, appointment_time, reason, appt_type
+            ))
+            conn.commit()
+            appt_id = cursor.lastrowid
+            conn.close()
+
+            return jsonify({
+                "success": True,
+                "appointment_id": appt_id,
+                "message": f"Appointment booked with {doctor_name} for {patient_name} on {appointment_date} at {appointment_time}."
+            }), 201
+        except Exception as e:
+            conn.close()
+            return jsonify({"error": str(e)}), 500
+
+    # GET method
+    try:
+        doctor_id = request.args.get("doctor_id")
+        patient_id = request.args.get("patient_id")
+
+        if doctor_id:
+            cursor.execute("SELECT * FROM appointments WHERE doctor_id = ? ORDER BY appointment_date DESC, appointment_time DESC", (doctor_id,))
+        elif patient_id:
+            cursor.execute("SELECT * FROM appointments WHERE patient_id = ? ORDER BY appointment_date DESC, appointment_time DESC", (patient_id,))
+        else:
+            cursor.execute("SELECT * FROM appointments ORDER BY appointment_date DESC, appointment_time DESC")
+
+        appointments = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+        return jsonify(appointments)
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/appointments/<int:appointment_id>/status", methods=["PUT"])
+def update_appointment_status(appointment_id):
+    """Updates appointment status: confirmed, completed, or cancelled."""
+    try:
+        data = request.get_json() or {}
+        new_status = data.get("status", "confirmed").strip().lower()
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE appointments SET status = ? WHERE id = ?", (new_status, appointment_id))
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "appointment_id": appointment_id,
+            "status": new_status,
+            "message": f"Appointment status updated to '{new_status}'."
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -411,18 +1170,63 @@ def add_patient():
 
 @app.route("/api/patients/by-contact/<contact>", methods=["GET"])
 def get_patient_by_contact(contact):
-    """Fetches patient profile and all prescriptions by phone number."""
+    """Fetches patient profile, previous medical history, ongoing medications, and prescriptions by phone number."""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM patients WHERE contact_number = ?", (contact.strip(),))
+        clean_contact = contact.strip()
+        cursor.execute("SELECT * FROM patients WHERE contact_number = ?", (clean_contact,))
         row = cursor.fetchone()
+        
+        # If no explicit patient row yet, check if prescriptions exist for this contact
         if not row:
+            cursor.execute("SELECT * FROM prescriptions WHERE patient_contact = ? ORDER BY id DESC", (clean_contact,))
+            orphan_rx = cursor.fetchall()
+            if not orphan_rx:
+                conn.close()
+                return jsonify({"error": "Patient not found with this contact number."}), 404
+            
+            first_p = orphan_rx[0]
+            patient = {
+                "id": None,
+                "name": first_p["patient_name"] or "Patient",
+                "contact_number": clean_contact,
+                "age": 28,
+                "gender": "Other",
+                "medical_history": "",
+                "existing_diseases": "",
+                "allergies": "",
+                "current_health_issue": "",
+                "current_medications": "",
+                "is_pregnant": 0,
+                "pregnancy_trimester": "",
+                "address": ""
+            }
+            prescriptions = []
+            for p in orphan_rx:
+                p_dict = dict(p)
+                for json_field in ["target_organs", "multilingual_notes", "clinical_alerts", "xai_factors", "full_prediction_json"]:
+                    try:
+                        p_dict[json_field] = json.loads(p_dict.get(json_field, "[]" if "alerts" in json_field or "organs" in json_field or "factors" in json_field else "{}"))
+                    except Exception:
+                        p_dict[json_field] = None
+                prescriptions.append(p_dict)
             conn.close()
-            return jsonify({"error": "Patient not found with this contact number."}), 404
+            return jsonify({
+                "patient": patient,
+                "prescriptions": prescriptions,
+                "consultations": [],
+                "medications": {
+                    "active": [p for p in prescriptions if str(p.get("status", "")).lower() == "active"],
+                    "completed": [p for p in prescriptions if str(p.get("status", "")).lower() == "completed"],
+                    "discontinued": [p for p in prescriptions if str(p.get("status", "")).lower() == "discontinued"],
+                    "total": len(prescriptions)
+                },
+                "timeline": []
+            })
         
         patient = dict(row)
-        cursor.execute("SELECT * FROM prescriptions WHERE patient_id = ? ORDER BY id DESC", (patient["id"],))
+        cursor.execute("SELECT * FROM prescriptions WHERE patient_id = ? OR patient_contact = ? ORDER BY id DESC", (patient["id"], patient["contact_number"]))
         prescriptions = []
         for p in cursor.fetchall():
             p_dict = dict(p)
@@ -432,8 +1236,35 @@ def get_patient_by_contact(contact):
                 except Exception:
                     p_dict[json_field] = None
             prescriptions.append(p_dict)
+
+        # Consultations
+        cursor.execute("SELECT * FROM consultations WHERE patient_id = ? ORDER BY consultation_date DESC", (patient["id"],))
+        consultations = []
+        for c in cursor.fetchall():
+            c_dict = dict(c)
+            for jf in ["vital_signs", "medical_reports"]:
+                try:
+                    c_dict[jf] = json.loads(c_dict.get(jf) or ("{}" if jf == "vital_signs" else "[]"))
+                except Exception:
+                    pass
+            consultations.append(c_dict)
+
+        active_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "active"]
+        completed_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "completed"]
+        discontinued_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "discontinued"]
+
         conn.close()
-        return jsonify({"patient": patient, "prescriptions": prescriptions})
+        return jsonify({
+            "patient": patient,
+            "prescriptions": prescriptions,
+            "consultations": consultations,
+            "medications": {
+                "active": active_meds,
+                "completed": completed_meds,
+                "discontinued": discontinued_meds,
+                "total": len(prescriptions)
+            }
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -456,6 +1287,11 @@ def delete_patient(patient_id):
         # Delete associated prescriptions
         cursor.execute("DELETE FROM prescriptions WHERE patient_id = ? OR patient_contact = ?", (patient_id, contact))
         deleted_prescriptions = cursor.rowcount
+
+        # Delete associated multi-doctor associations, consultations, and appointments
+        cursor.execute("DELETE FROM patient_doctor_associations WHERE patient_id = ?", (patient_id,))
+        cursor.execute("DELETE FROM consultations WHERE patient_id = ?", (patient_id,))
+        cursor.execute("DELETE FROM appointments WHERE patient_id = ?", (patient_id,))
 
         # Delete OTP sessions if any
         cursor.execute("DELETE FROM otp_sessions WHERE contact_number = ?", (contact,))
@@ -730,13 +1566,20 @@ def export_patients_excel():
 @app.route("/api/prescribe", methods=["POST"])
 def prescribe():
     """Commits an AI-analyzed prescription with doctor notes and AI second opinion, tied to phone number.
-    Supports either a single medicine (drug_name) or multiple medicines (medicines list)."""
+    Supports either a single medicine (drug_name) or multiple medicines (medicines list),
+    associating the prescribing doctor and tracking ongoing/historical medication status."""
     try:
         data = request.get_json() or {}
         patient_id = data.get("patient_id")
         contact_number = str(data.get("contact_number", "")).strip()
         medicines = data.get("medicines", [])
         drug_name = data.get("drug_name")
+
+        # Doctor attribution
+        doc_id = data.get("doctor_id") or 1
+        doc_name = data.get("doctor_name") or "Dr. Sharma, MD"
+        doc_spec = data.get("doctor_specialization") or "Cardiology & Internal Medicine"
+        doc_hosp = data.get("doctor_hospital") or "Apex Multispecialty Hospital"
 
         if not drug_name and not medicines:
             return jsonify({"error": "Drug Name or medicines list is required."}), 400
@@ -759,10 +1602,7 @@ def prescribe():
         patient = dict(patient_row)
         patient_id = patient["id"]
 
-        # Check if columns exist in current table (gracefully handle migration)
-        cursor.execute("PRAGMA table_info(prescriptions)")
-        cols = [c["name"] for c in cursor.fetchall()]
-        has_new_cols = "xai_factors" in cols
+        today_str = datetime.now().strftime("%Y-%m-%d")
 
         # Standardize into a list of medicines to save
         meds_to_save = []
@@ -774,6 +1614,11 @@ def prescribe():
                         "drug_name": m_drug,
                         "dosage": m.get("dosage") or f"{m.get('dosage', 'Standard')} ({m.get('timing', '')}, {m.get('duration', '')})",
                         "doctor_notes": m.get("doctor_notes") or data.get("doctor_notes", "Standard clinical monitoring recommended."),
+                        "frequency": m.get("frequency") or m.get("timing") or "Once daily",
+                        "start_date": m.get("start_date") or today_str,
+                        "end_date": m.get("end_date") or m.get("duration") or "10 Days",
+                        "instructions": m.get("instructions") or f"Take {m.get('timing', 'as directed')} with water.",
+                        "status": m.get("status") or "active",
                         "prediction": m.get("prediction")
                     })
         elif drug_name:
@@ -781,6 +1626,11 @@ def prescribe():
                 "drug_name": drug_name,
                 "dosage": data.get("dosage", "Standard dose"),
                 "doctor_notes": data.get("doctor_notes", "Standard clinical monitoring recommended."),
+                "frequency": data.get("frequency") or data.get("timing") or "Once daily",
+                "start_date": data.get("start_date") or today_str,
+                "end_date": data.get("end_date") or data.get("duration") or "10 Days",
+                "instructions": data.get("instructions") or f"Take {data.get('timing', 'as directed')} with water.",
+                "status": data.get("status") or "active",
                 "prediction": data.get("prediction")
             })
 
@@ -789,61 +1639,88 @@ def prescribe():
             cur_drug = item["drug_name"]
             cur_dosage = item["dosage"]
             cur_notes = item["doctor_notes"]
+            cur_freq = item["frequency"]
+            cur_start = item["start_date"]
+            cur_end = item["end_date"]
+            cur_inst = item["instructions"]
+            cur_status = item["status"]
             prediction = item["prediction"]
 
             if not prediction:
                 prediction = ml_engine.predict(patient, cur_drug)
                 prediction["multilingual_recommendation"] = generate_multilingual_recommendation(prediction, patient["name"])
 
-            if has_new_cols:
-                cursor.execute("""
-                INSERT INTO prescriptions (
-                    patient_id, patient_name, patient_contact, drug_name, dosage,
-                    effectiveness_pct, side_effect_pct, ddi_pct, overall_risk,
-                    target_organs, multilingual_notes, clinical_alerts, xai_factors,
-                    dietary_warnings, full_prediction_json, doctor_notes
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    patient_id,
-                    patient["name"],
-                    patient["contact_number"],
-                    cur_drug,
-                    cur_dosage,
-                    prediction.get("effectiveness_pct", 75),
-                    prediction.get("side_effect_pct", 20),
-                    prediction.get("ddi_pct", 10),
-                    prediction.get("overall_risk_level", "LOW"),
-                    json.dumps(prediction.get("target_organs", [])),
-                    json.dumps(prediction.get("multilingual_recommendation", {})),
-                    json.dumps(prediction.get("clinical_alerts", [])),
-                    json.dumps(prediction.get("xai_factors", [])),
-                    prediction.get("dietary_warnings", ""),
-                    json.dumps(prediction),
-                    cur_notes
-                ))
-            else:
-                cursor.execute("""
-                INSERT INTO prescriptions (
-                    patient_id, patient_name, patient_contact, drug_name, dosage,
-                    effectiveness_pct, side_effect_pct, ddi_pct, overall_risk,
-                    target_organs, multilingual_notes, clinical_alerts, doctor_notes
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    patient_id,
-                    patient["name"],
-                    patient["contact_number"],
-                    cur_drug,
-                    cur_dosage,
-                    prediction.get("effectiveness_pct", 75),
-                    prediction.get("side_effect_pct", 20),
-                    prediction.get("ddi_pct", 10),
-                    prediction.get("overall_risk_level", "LOW"),
-                    json.dumps(prediction.get("target_organs", [])),
-                    json.dumps(prediction.get("multilingual_recommendation", {})),
-                    json.dumps(prediction.get("clinical_alerts", [])),
-                    cur_notes
-                ))
+            cursor.execute("""
+            INSERT INTO prescriptions (
+                patient_id, patient_name, patient_contact, drug_name, dosage,
+                effectiveness_pct, side_effect_pct, ddi_pct, overall_risk,
+                target_organs, multilingual_notes, clinical_alerts, xai_factors,
+                dietary_warnings, full_prediction_json, doctor_notes,
+                doctor_id, doctor_name, doctor_specialization, doctor_hospital,
+                frequency, start_date, end_date, instructions, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                patient_id,
+                patient["name"],
+                patient["contact_number"],
+                cur_drug,
+                cur_dosage,
+                prediction.get("effectiveness_pct", 75),
+                prediction.get("side_effect_pct", 20),
+                prediction.get("ddi_pct", 10),
+                prediction.get("overall_risk_level", "LOW"),
+                json.dumps(prediction.get("target_organs", [])),
+                json.dumps(prediction.get("multilingual_recommendation", {})),
+                json.dumps(prediction.get("clinical_alerts", [])),
+                json.dumps(prediction.get("xai_factors", [])),
+                prediction.get("dietary_warnings", ""),
+                json.dumps(prediction),
+                cur_notes,
+                doc_id,
+                doc_name,
+                doc_spec,
+                doc_hosp,
+                cur_freq,
+                cur_start,
+                cur_end,
+                cur_inst,
+                cur_status
+            ))
             saved_ids.append(cursor.lastrowid)
+
+        # Ensure doctor is associated with this patient in patient_doctor_associations
+        cursor.execute("""
+        INSERT INTO patient_doctor_associations (
+            patient_id, doctor_id, doctor_name, doctor_specialization, doctor_hospital,
+            relationship_type, access_permission, consent_status, last_interaction
+        ) VALUES (?, ?, ?, ?, ?, 'treating', 'full', 'granted', CURRENT_TIMESTAMP)
+        ON CONFLICT(patient_id, doctor_id) DO UPDATE SET
+            doctor_name = excluded.doctor_name,
+            doctor_specialization = excluded.doctor_specialization,
+            doctor_hospital = excluded.doctor_hospital,
+            last_interaction = CURRENT_TIMESTAMP
+        """, (patient_id, doc_id, doc_name, doc_spec, doc_hosp))
+
+        # If diagnosis provided, also record a consultation linking these medications
+        diag = data.get("diagnosis")
+        if diag:
+            vitals = data.get("vital_signs") or {}
+            reports = data.get("medical_reports") or []
+            cursor.execute("""
+            INSERT INTO consultations (
+                patient_id, doctor_id, doctor_name, doctor_specialization, hospital_name,
+                consultation_date, diagnosis, symptoms, treatment_notes, clinical_summary,
+                vital_signs, medical_reports, prescription_ids, follow_up_date
+            ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                patient_id, doc_id, doc_name, doc_spec, doc_hosp,
+                diag, data.get("symptoms", ""), data.get("doctor_notes", "Prescription dispensed."),
+                f"Evaluation for {diag}. Prescribed {len(meds_to_save)} medication(s).",
+                json.dumps(vitals) if isinstance(vitals, (dict, list)) else str(vitals),
+                json.dumps(reports) if isinstance(reports, (list, dict)) else str(reports),
+                json.dumps(saved_ids),
+                data.get("follow_up_date", "")
+            ))
 
         conn.commit()
         prescription_id = saved_ids[0] if saved_ids else None
@@ -852,9 +1729,11 @@ def prescribe():
         return jsonify({
             "success": True,
             "prescription_id": prescription_id,
+            "prescription_ids": saved_ids,
             "patient_contact": patient["contact_number"],
             "patient_name": patient["name"],
-            "message": f"Prescription for {drug_name} saved successfully for {patient['name']} (Phone: {patient['contact_number']})."
+            "doctor_name": doc_name,
+            "message": f"Prescription successfully saved for {patient['name']} by {doc_name}."
         }), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -965,8 +1844,24 @@ def send_otp():
         cursor.execute("SELECT id, name FROM patients WHERE contact_number = ?", (contact,))
         patient = cursor.fetchone()
         if not patient:
-            conn.close()
-            return jsonify({"error": f"No patient record found associated with mobile number {contact}. Please ask your doctor to register your profile first."}), 404
+            # Check if any prescriptions exist with this contact number
+            cursor.execute("SELECT patient_name, patient_id FROM prescriptions WHERE patient_contact = ? ORDER BY id DESC LIMIT 1", (contact,))
+            rx_match = cursor.fetchone()
+            if rx_match and rx_match["patient_name"]:
+                # Auto-pick previous info from database and link patient record
+                p_name = rx_match["patient_name"]
+                cursor.execute("""
+                INSERT INTO patients (
+                    name, age, gender, contact_number, medical_history,
+                    existing_diseases, allergies, current_health_issue, current_medications
+                ) VALUES (?, 28, 'Other', ?, 'Previous Clinic Prescriptions & Records', 'Documented in Database', 'None', 'Follow-up Medical Intake', 'Ongoing medications on file')
+                """, (p_name, contact))
+                conn.commit()
+                cursor.execute("SELECT id, name FROM patients WHERE contact_number = ?", (contact,))
+                patient = cursor.fetchone()
+            else:
+                conn.close()
+                return jsonify({"error": f"No patient record found associated with mobile number {contact}. Please register your profile or enter an existing patient phone number."}), 404
 
         # Fixed convenient OTP for demonstration / viva evaluation: "1234"
         otp = "1234"
@@ -1050,12 +1945,57 @@ def verify_otp():
 
             prescriptions.append(p_dict)
 
+        # Fetch associated multi-doctor care team
+        cursor.execute("""
+            SELECT * FROM patient_doctor_associations
+            WHERE patient_id = ?
+            ORDER BY 
+                CASE relationship_type
+                    WHEN 'treating' THEN 1
+                    WHEN 'consulting' THEN 2
+                    ELSE 3
+                END,
+                last_interaction DESC
+        """, (patient["id"],))
+        associated_doctors = [dict(r) for r in cursor.fetchall()]
+
+        # Fetch consultations history
+        cursor.execute("""
+            SELECT * FROM consultations
+            WHERE patient_id = ?
+            ORDER BY consultation_date DESC, id DESC
+        """, (patient["id"],))
+        consultations = []
+        for c in cursor.fetchall():
+            c_dict = dict(c)
+            for jf in ["vital_signs", "medical_reports"]:
+                try:
+                    c_dict[jf] = json.loads(c_dict.get(jf) or ("{}" if jf == "vital_signs" else "[]"))
+                except Exception:
+                    pass
+            consultations.append(c_dict)
+
+        # Categorize ongoing medications
+        active_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "active"]
+        completed_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "completed"]
+        discontinued_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "discontinued"]
+        historical_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "historical"]
+
         conn.close()
 
         return jsonify({
             "success": True,
             "patient": patient,
-            "prescriptions": prescriptions
+            "prescriptions": prescriptions,
+            "doctors": associated_doctors,
+            "consultations": consultations,
+            "medications": {
+                "active": active_meds,
+                "completed": completed_meds,
+                "discontinued": discontinued_meds,
+                "historical": historical_meds,
+                "total": len(prescriptions)
+            }
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

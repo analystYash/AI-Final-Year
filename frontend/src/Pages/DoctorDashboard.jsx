@@ -14,11 +14,15 @@ import EffectCharts from '../components/EffectCharts';
 import DrugComparison from '../components/DrugComparison';
 import AiRecommendation from '../components/AiRecommendation';
 import MedicalReport from '../components/MedicalReport';
+import DoctorProfileView from '../components/DoctorProfileView';
+import CentralizedMedicalHistory from '../components/CentralizedMedicalHistory';
+import OngoingMedicationsTracker from '../components/OngoingMedicationsTracker';
 import {
   getPatients, getDrugs, addPatient, deletePatient, deletePrescription, predictDrugEffect,
   compareThreeDrugs, prescribeDrug, getMlDatasetStats, retrainModel,
   getDrugResearch, expandDatasetWithApi, getPrescriptions, getDashboardStats,
-  checkAllergyConflict, getGeminiMedicineRecommendation, getConditionMatchingDrugs
+  checkAllergyConflict, getGeminiMedicineRecommendation, getConditionMatchingDrugs,
+  getPatientByContact
 } from '../services/api';
 import { exportPatientsExcelFile } from '../utils/excelExport';
 import { useLanguage } from '../context/LanguageContext';
@@ -100,6 +104,66 @@ export default function DoctorDashboard() {
   const [newPatient, setNewPatient] = useState(initialPatientState);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
+  const [directorySubTab, setDirectorySubTab] = useState('list'); // 'list' | 'history' | 'medications'
+  const [existingRecordFound, setExistingRecordFound] = useState(null);
+  const [isLookingUpPatient, setIsLookingUpPatient] = useState(false);
+
+  // Automatically lookup and pick previous patient information from the database
+  const handleContactLookup = async (contactVal) => {
+    const clean = String(contactVal || '').trim();
+    if (clean.length < 10) {
+      setExistingRecordFound(null);
+      return;
+    }
+
+    // 1. Check local patients state
+    const localMatch = patients.find(p => String(p.contact_number).trim() === clean);
+    if (localMatch) {
+      setExistingRecordFound(localMatch);
+      setNewPatient(prev => ({
+        ...prev,
+        name: prev.name || localMatch.name || '',
+        age: prev.age || localMatch.age || '',
+        gender: localMatch.gender || prev.gender,
+        address: prev.address || localMatch.address || '',
+        medical_history: prev.medical_history || localMatch.medical_history || '',
+        existing_diseases: prev.existing_diseases || localMatch.existing_diseases || '',
+        allergies: prev.allergies || localMatch.allergies || '',
+        current_health_issue: prev.current_health_issue || localMatch.current_health_issue || '',
+        current_medications: prev.current_medications || localMatch.current_medications || '',
+        is_pregnant: localMatch.is_pregnant ? true : prev.is_pregnant
+      }));
+      return;
+    }
+
+    // 2. Query backend by contact
+    setIsLookingUpPatient(true);
+    try {
+      const data = await getPatientByContact(clean);
+      if (data && data.patient) {
+        setExistingRecordFound(data.patient);
+        setNewPatient(prev => ({
+          ...prev,
+          name: prev.name || data.patient.name || '',
+          age: prev.age || data.patient.age || '',
+          gender: data.patient.gender || prev.gender,
+          address: prev.address || data.patient.address || '',
+          medical_history: prev.medical_history || data.patient.medical_history || '',
+          existing_diseases: prev.existing_diseases || data.patient.existing_diseases || '',
+          allergies: prev.allergies || data.patient.allergies || '',
+          current_health_issue: prev.current_health_issue || data.patient.current_health_issue || '',
+          current_medications: prev.current_medications || data.patient.current_medications || '',
+          is_pregnant: data.patient.is_pregnant ? true : prev.is_pregnant
+        }));
+      } else {
+        setExistingRecordFound(null);
+      }
+    } catch {
+      setExistingRecordFound(null);
+    } finally {
+      setIsLookingUpPatient(false);
+    }
+  };
 
   const handlePrefillDemoPatient = () => {
     setNewPatient({
@@ -320,9 +384,20 @@ export default function DoctorDashboard() {
         await prescribeDrug({
           patient_id: selectedPatient.id,
           contact_number: selectedPatient.contact_number,
+          doctor_id: doctorProfile.id || 1,
+          doctor_name: doctorProfile.name || 'Dr. Sharma, MD',
+          doctor_specialization: doctorProfile.specialization || 'Cardiology & Internal Medicine',
+          doctor_hospital: doctorProfile.hospital_name || 'Apex Multispecialty Hospital',
           medicines: prescribedMedicines.map(m => ({
             drug_name: m.drug,
             dosage: `${m.dosage} (${m.timing}, ${m.duration})`,
+            timing: m.timing || 'Once daily',
+            duration: m.duration || '10 Days',
+            frequency: m.timing || 'Once daily',
+            start_date: new Date().toISOString().slice(0, 10),
+            end_date: m.duration || '10 Days',
+            instructions: `Take ${m.timing || 'as directed'} with water.`,
+            status: 'active',
             doctor_notes: doctorNotes || 'Take as advised with water.'
           })),
           doctor_notes: doctorNotes || 'Prescription confirmed.'
@@ -351,8 +426,17 @@ export default function DoctorDashboard() {
         await prescribeDrug({
           patient_id: selectedPatient.id,
           contact_number: selectedPatient.contact_number,
+          doctor_id: doctorProfile.id || 1,
+          doctor_name: doctorProfile.name || 'Dr. Sharma, MD',
+          doctor_specialization: doctorProfile.specialization || 'Cardiology & Internal Medicine',
+          doctor_hospital: doctorProfile.hospital_name || 'Apex Multispecialty Hospital',
           drug_name: targetDrug,
           dosage: `${customDosage} (${timing}, ${duration})`,
+          frequency: timing || 'Once daily',
+          start_date: new Date().toISOString().slice(0, 10),
+          end_date: duration || '10 Days',
+          instructions: `Take ${timing} with water.`,
+          status: 'active',
           prediction: pred,
           doctor_notes: doctorNotes || 'Take before breakfast with water.'
         });
@@ -543,11 +627,24 @@ export default function DoctorDashboard() {
             </button>
           </div>
 
-          <div className="hidden md:flex flex-col text-right">
-            <span className="text-xs font-bold text-white flex items-center gap-1.5 justify-end">
-              <Stethoscope size={13} className="text-cyan-400" /> {doctorProfile.name}
+          <div
+            onClick={() => setActiveView('doctor-profile')}
+            className={`hidden md:flex flex-col text-right cursor-pointer group px-3 py-1.5 rounded-xl border transition ${
+              activeView === 'doctor-profile'
+                ? 'bg-blue-600/25 border-blue-500 shadow-md shadow-blue-500/20'
+                : 'bg-slate-950 border-slate-800 hover:border-cyan-500/40 hover:bg-slate-900'
+            }`}
+            title="Click to view and edit your Doctor Profile"
+          >
+            <span className="text-xs font-bold text-white group-hover:text-cyan-300 transition flex items-center gap-1.5 justify-end">
+              <Stethoscope size={13} className={activeView === 'doctor-profile' ? 'text-cyan-300' : 'text-cyan-400'} /> {doctorProfile.name}
+              <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase ${
+                activeView === 'doctor-profile' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-cyan-300 border border-slate-700'
+              }`}>
+                Profile
+              </span>
             </span>
-            <span className="text-[11px] text-slate-400 font-mono">
+            <span className="text-[11px] text-slate-400 font-mono group-hover:text-slate-300 transition">
               {doctorProfile.hospital_name}
             </span>
           </div>
@@ -557,7 +654,7 @@ export default function DoctorDashboard() {
               localStorage.removeItem('drugai_doctor');
               navigate('/login');
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-red-500/20 hover:text-red-400 text-slate-400 text-xs font-semibold border border-slate-800 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-red-500/20 hover:text-red-400 text-slate-400 text-xs font-semibold border border-slate-800 transition cursor-pointer"
             title="Logout"
           >
             <LogOut size={14} /> <span className="hidden sm:inline">{t('exit')}</span>
@@ -569,14 +666,43 @@ export default function DoctorDashboard() {
       <div className="flex-1 flex overflow-hidden">
         {/* LEFT NAVIGATION SIDEBAR */}
         <aside className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col shrink-0 overflow-y-auto">
-          <div className="p-4 border-b border-slate-800">
+          {/* INITIAL DOCTOR'S NAME TAB (Opens Doctor Profile) */}
+          <div
+            onClick={() => setActiveView('doctor-profile')}
+            className={`p-4 border-b border-slate-800 cursor-pointer transition group ${
+              activeView === 'doctor-profile'
+                ? 'bg-blue-600/20 border-l-4 border-l-blue-500 shadow-inner'
+                : 'hover:bg-slate-900/80 hover:border-cyan-500/30'
+            }`}
+            title="Click to view and manage your Doctor Profile"
+          >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-cyan-400 font-bold">
-                DS
+              <div className={`w-10 h-10 rounded-full border flex items-center justify-center font-bold transition ${
+                activeView === 'doctor-profile'
+                  ? 'bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-500/30 scale-105'
+                  : 'bg-blue-600/20 border-blue-500/30 text-cyan-400 group-hover:scale-105'
+              }`}>
+                {doctorProfile.name?.replace('Dr. ', '').slice(0, 2).toUpperCase() || 'DS'}
               </div>
-              <div className="overflow-hidden">
-                <h4 className="text-xs font-bold text-white truncate">{doctorProfile.name}</h4>
-                <p className="text-[10px] text-slate-400 truncate">{doctorProfile.specialization}</p>
+              <div className="overflow-hidden flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className={`text-xs font-bold truncate transition ${
+                    activeView === 'doctor-profile' ? 'text-cyan-300 font-extrabold' : 'text-white group-hover:text-cyan-300'
+                  }`}>
+                    {doctorProfile.name}
+                  </h4>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase transition ${
+                    activeView === 'doctor-profile'
+                      ? 'bg-blue-500 text-white shadow'
+                      : 'bg-slate-900 text-slate-400 border border-slate-800 group-hover:border-cyan-500/40 group-hover:text-cyan-300'
+                  }`}>
+                    Profile
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-400 truncate mt-0.5">{doctorProfile.specialization}</p>
+                <span className="text-[10px] text-cyan-400/80 font-medium flex items-center gap-1 mt-1 group-hover:text-cyan-300">
+                  <Award size={11} className="text-cyan-400" /> Click to view Profile →
+                </span>
               </div>
             </div>
           </div>
@@ -584,7 +710,7 @@ export default function DoctorDashboard() {
           <nav className="p-3 space-y-1 text-xs flex-1">
             <button
               onClick={() => setActiveView('dashboard')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition cursor-pointer ${
                 activeView === 'dashboard'
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -594,63 +720,66 @@ export default function DoctorDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveView('patients')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition ${
+              onClick={() => {
+                setActiveView('patients');
+                setDirectorySubTab('list');
+              }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition cursor-pointer ${
                 activeView === 'patients'
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
-              <Users size={17} /> Patients
-            </button>
-
-            <button
-              onClick={() => setActiveView('new-patient')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition ${
-                activeView === 'new-patient'
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
-              }`}
-            >
-              <UserPlus size={17} /> New Patient
+              <Users size={17} /> Patients Directory
             </button>
 
             <button
               onClick={() => setActiveView('prescriptions')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition cursor-pointer ${
                 activeView === 'prescriptions'
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
-              <Pill size={17} /> Prescriptions
+              <Stethoscope size={17} /> Prescribe & Analyze
+            </button>
+
+            <button
+              onClick={() => setActiveView('new-patient')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition cursor-pointer ${
+                activeView === 'new-patient'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <UserPlus size={17} /> Register New Patient
             </button>
 
             <button
               onClick={() => setActiveView('ml-analysis')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition cursor-pointer ${
                 activeView === 'ml-analysis'
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
-              <Activity size={17} /> Machine Analysis & 3D View
+              <Activity size={17} /> 3D Organ Simulation
             </button>
 
             <button
               onClick={() => setActiveView('comparisons')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition cursor-pointer ${
                 activeView === 'comparisons'
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
-              <Sliders size={17} /> 2D Comparison & AI Analysis
+              <Sliders size={17} /> 2D Drug Comparison
             </button>
 
             <button
               onClick={() => setActiveView('report')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition cursor-pointer ${
                 activeView === 'report'
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -665,7 +794,7 @@ export default function DoctorDashboard() {
               </span>
               <button
                 onClick={() => setActiveView('ml-model')}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition ${
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition cursor-pointer ${
                   activeView === 'ml-model'
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25'
                     : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -677,15 +806,47 @@ export default function DoctorDashboard() {
           </nav>
 
           {selectedPatient && (
-            <div className="p-3 m-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] space-y-1">
+            <div className="p-3 m-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] space-y-2">
               <div className="flex items-center justify-between text-slate-400">
-                <span className="font-bold text-slate-200">Active Patient</span>
+                <span className="font-bold text-slate-200">Selected Patient</span>
                 <span className="text-cyan-400 font-mono">{selectedPatient.contact_number}</span>
               </div>
               <p className="font-semibold text-white truncate">{selectedPatient.name} ({selectedPatient.age}y)</p>
               <p className="text-slate-400 truncate text-[10px]">
                 {selectedPatient.current_health_issue || selectedPatient.existing_diseases || 'Standard Intake'}
               </p>
+              <div className="flex items-center gap-1.5 pt-1 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDirectorySubTab('history');
+                    setActiveView('patients');
+                  }}
+                  className="flex-1 py-1 rounded bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white font-bold text-[10px] text-center transition cursor-pointer"
+                >
+                  History
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDirectorySubTab('medications');
+                    setActiveView('patients');
+                  }}
+                  className="flex-1 py-1 rounded bg-cyan-600/20 hover:bg-cyan-600 text-cyan-400 hover:text-white font-bold text-[10px] text-center transition cursor-pointer"
+                >
+                  Meds
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPrescriptionTabMode('new');
+                    setActiveView('prescriptions');
+                  }}
+                  className="flex-1 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white font-bold text-[10px] text-center transition cursor-pointer"
+                >
+                  Rx
+                </button>
+              </div>
             </div>
           )}
         </aside>
@@ -1073,15 +1234,44 @@ export default function DoctorDashboard() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-300">Contact Number (Phone ID) *</label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-slate-300">Contact Number (Phone ID) *</label>
+                        {isLookingUpPatient && (
+                          <span className="text-[10px] text-cyan-400 flex items-center gap-1 font-mono">
+                            <RefreshCw size={10} className="animate-spin" /> Checking database...
+                          </span>
+                        )}
+                      </div>
                       <input
                         type="tel"
                         required
                         value={newPatient.contact_number}
-                        onChange={(e) => setNewPatient({ ...newPatient, contact_number: e.target.value })}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setNewPatient({ ...newPatient, contact_number: val });
+                          if (val.replace(/\D/g, '').length >= 10) {
+                            handleContactLookup(val);
+                          } else {
+                            setExistingRecordFound(null);
+                          }
+                        }}
+                        onBlur={(e) => handleContactLookup(e.target.value)}
                         placeholder="10-digit mobile (e.g. 9876543210)"
                         className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-cyan-400 font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500 transition"
                       />
+                      {existingRecordFound ? (
+                        <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-[11px] text-emerald-300 flex items-start gap-2">
+                          <CheckCircle size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                          <div>
+                            <strong className="text-white font-bold">Auto-picked from database:</strong> Found existing record for{' '}
+                            <span className="text-cyan-300 font-semibold">{existingRecordFound.name}</span>. Previous medical history, existing conditions, allergies & ongoing medications have been automatically loaded!
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 block">
+                          Tip: Entering a registered mobile number automatically retrieves existing history, conditions, and ongoing medications from the database.
+                        </span>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -1882,25 +2072,77 @@ export default function DoctorDashboard() {
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
                 <div>
-                  <h1 className="text-xl font-black text-white flex items-center gap-2">
-                    <Users size={22} className="text-blue-500" /> Patient Directory
-                  </h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-xl font-black text-white flex items-center gap-2">
+                      <Users size={22} className="text-blue-500" /> Patient Directory
+                    </h1>
+                    {selectedPatient && (
+                      <span className="px-2 py-0.5 rounded-full bg-blue-600/20 text-cyan-300 border border-blue-500/30 text-[10px] font-mono">
+                        Active: {selectedPatient.name}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-slate-400">
-                    {patients.length} Registered Patients • Count & Clinical Records Maintained
+                    {patients.length} Registered Patients • Ongoing Medications, Timeline &amp; Medical History Integrated
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
-                  <div className="relative">
-                    <Search size={14} className="absolute left-3 top-3 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="Search patient name, phone..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
+                  {/* Internal Directory View Mode Selector */}
+                  <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setDirectorySubTab('list')}
+                      className={`px-3 py-1.5 rounded-lg font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                        directorySubTab === 'list'
+                          ? 'bg-blue-600 text-white shadow'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <Users size={13} /> All Patients ({patients.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!selectedPatient && patients.length > 0) setSelectedPatient(patients[0]);
+                        setDirectorySubTab('history');
+                      }}
+                      className={`px-3 py-1.5 rounded-lg font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                        directorySubTab === 'history'
+                          ? 'bg-violet-600 text-white shadow'
+                          : 'text-slate-400 hover:text-violet-300'
+                      }`}
+                    >
+                      <Activity size={13} /> Medical History &amp; Timeline
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!selectedPatient && patients.length > 0) setSelectedPatient(patients[0]);
+                        setDirectorySubTab('medications');
+                      }}
+                      className={`px-3 py-1.5 rounded-lg font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                        directorySubTab === 'medications'
+                          ? 'bg-cyan-600 text-white shadow'
+                          : 'text-slate-400 hover:text-cyan-300'
+                      }`}
+                    >
+                      <Pill size={13} /> Ongoing Medications
+                    </button>
                   </div>
+
+                  {directorySubTab === 'list' && (
+                    <div className="relative">
+                      <Search size={14} className="absolute left-3 top-3 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Search patient name, phone..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  )}
 
                   {/* Export to Excel & Download Button */}
                   <button
@@ -1929,133 +2171,323 @@ export default function DoctorDashboard() {
                 </div>
               </div>
 
-              {filteredPatients.length === 0 ? (
-                <div className="p-8 rounded-2xl bg-slate-950 border border-slate-800 text-center text-slate-400 space-y-3">
-                  <Users size={32} className="mx-auto text-slate-600" />
-                  <p className="text-xs">
-                    {patients.length === 0
-                      ? 'No patients registered yet in the database.'
-                      : `No patients found matching "${searchQuery}".`}
-                  </p>
-                  <button
-                    onClick={() => setActiveView('new-patient')}
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs cursor-pointer inline-flex items-center gap-1.5"
-                  >
-                    <UserPlus size={14} /> Add New Patient
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {filteredPatients.map(p => {
-                    const patPrescriptions = prescriptions.filter(
-                      pr => pr.patient_id === p.id || pr.patient_contact === p.contact_number
-                    );
-                    return (
-                      <div
-                        key={p.id}
-                        onClick={() => {
-                          setSelectedPatient(p);
-                          setPrescriptionTabMode('new');
-                          setActiveView('prescriptions');
-                        }}
-                        className={`p-4 rounded-2xl border cursor-pointer transition flex flex-col justify-between ${
-                          selectedPatient?.id === p.id
-                            ? 'bg-slate-950 border-blue-500 shadow-md shadow-blue-500/10'
-                            : 'bg-slate-950 border-slate-800 hover:border-slate-700'
-                        }`}
+              {/* SUBTAB: MEDICAL HISTORY & TIMELINE DIRECTLY IN DIRECTORY */}
+              {directorySubTab === 'history' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setDirectorySubTab('list')}
+                        className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
                       >
-                        <div>
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h4 className="font-bold text-white text-sm">{p.name}</h4>
-                              <span className="text-[10px] text-cyan-400 font-mono">PAT-{String(p.id).padStart(3, '0')}</span>
+                        ← Back to All Patients
+                      </button>
+                      <span className="text-slate-500">|</span>
+                      <span className="text-xs text-slate-300">
+                        Patient: <strong className="text-white">{selectedPatient?.name || 'No Patient Selected'}</strong>
+                        {selectedPatient && <span className="text-cyan-400 font-mono ml-1.5">({selectedPatient.contact_number})</span>}
+                      </span>
+                    </div>
+
+                    {selectedPatient && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setDirectorySubTab('medications')}
+                          className="px-3 py-1.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                        >
+                          <Pill size={13} /> View Ongoing Medications
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPrescriptionTabMode('new');
+                            setActiveView('prescriptions');
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                        >
+                          <Stethoscope size={13} /> Prescribe
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedPatient ? (
+                    <CentralizedMedicalHistory
+                      patient={selectedPatient}
+                      currentDoctor={doctorProfile}
+                      onNavigateToPrescribe={() => {
+                        setPrescriptionTabMode('new');
+                        setActiveView('prescriptions');
+                      }}
+                      onPatientUpdated={loadInitialData}
+                    />
+                  ) : (
+                    <div className="p-8 rounded-2xl bg-slate-950 border border-slate-800 text-center text-slate-400 space-y-3">
+                      <Activity size={32} className="mx-auto text-slate-600" />
+                      <p className="text-xs">Please select a patient from the directory to view their Medical History &amp; Timeline.</p>
+                      <button
+                        onClick={() => setDirectorySubTab('list')}
+                        className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs cursor-pointer inline-flex items-center gap-1.5"
+                      >
+                        <Users size={14} /> Browse Patient Directory
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* SUBTAB: ONGOING MEDICATIONS DIRECTLY IN DIRECTORY */}
+              {directorySubTab === 'medications' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setDirectorySubTab('list')}
+                        className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                      >
+                        ← Back to All Patients
+                      </button>
+                      <span className="text-slate-500">|</span>
+                      <span className="text-xs text-slate-300">
+                        Patient: <strong className="text-white">{selectedPatient?.name || 'No Patient Selected'}</strong>
+                        {selectedPatient && <span className="text-cyan-400 font-mono ml-1.5">({selectedPatient.contact_number})</span>}
+                      </span>
+                    </div>
+
+                    {selectedPatient && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setDirectorySubTab('history')}
+                          className="px-3 py-1.5 rounded-xl bg-violet-600/20 hover:bg-violet-600 text-violet-300 hover:text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                        >
+                          <Activity size={13} /> View Medical History &amp; Timeline
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPrescriptionTabMode('new');
+                            setActiveView('prescriptions');
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                        >
+                          <Stethoscope size={13} /> Prescribe
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedPatient ? (
+                    <OngoingMedicationsTracker
+                      patient={selectedPatient}
+                      currentDoctor={doctorProfile}
+                      onNavigateToPrescribe={() => {
+                        setPrescriptionTabMode('new');
+                        setActiveView('prescriptions');
+                      }}
+                    />
+                  ) : (
+                    <div className="p-8 rounded-2xl bg-slate-950 border border-slate-800 text-center text-slate-400 space-y-3">
+                      <Pill size={32} className="mx-auto text-slate-600" />
+                      <p className="text-xs">Please select a patient from the directory to track their Ongoing Medications.</p>
+                      <button
+                        onClick={() => setDirectorySubTab('list')}
+                        className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs cursor-pointer inline-flex items-center gap-1.5"
+                      >
+                        <Users size={14} /> Browse Patient Directory
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* SUBTAB: ALL PATIENTS DIRECTORY CARDS WITH INTEGRATED MEDICAL INFO */}
+              {directorySubTab === 'list' && (
+                filteredPatients.length === 0 ? (
+                  <div className="p-8 rounded-2xl bg-slate-950 border border-slate-800 text-center text-slate-400 space-y-3">
+                    <Users size={32} className="mx-auto text-slate-600" />
+                    <p className="text-xs">
+                      {patients.length === 0
+                        ? 'No patients registered yet in the database.'
+                        : `No patients found matching "${searchQuery}".`}
+                    </p>
+                    <button
+                      onClick={() => setActiveView('new-patient')}
+                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <UserPlus size={14} /> Add New Patient
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {filteredPatients.map(p => {
+                      const patPrescriptions = prescriptions.filter(
+                        pr => pr.patient_id === p.id || pr.patient_contact === p.contact_number
+                      );
+                      const activeMeds = patPrescriptions.filter(pr => (pr.status || 'active').toLowerCase() === 'active');
+                      return (
+                        <div
+                          key={p.id}
+                          onClick={() => {
+                            setSelectedPatient(p);
+                          }}
+                          className={`p-4 rounded-2xl border cursor-pointer transition flex flex-col justify-between ${
+                            selectedPatient?.id === p.id
+                              ? 'bg-slate-950 border-blue-500 shadow-md shadow-blue-500/10'
+                              : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h4 className="font-bold text-white text-sm">{p.name}</h4>
+                                <span className="text-[10px] text-cyan-400 font-mono">PAT-{String(p.id).padStart(3, '0')}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-300 text-[11px]">
+                                  {p.age}y • {p.gender}
+                                </span>
+                                <button
+                                  type="button"
+                                  title={`Remove ${p.name} from list`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePromptDeletePatient(p);
+                                  }}
+                                  className="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-300 text-[11px]">
-                                {p.age}y • {p.gender}
-                              </span>
+
+                            <div className="space-y-1.5 text-xs text-slate-400 mb-3">
+                              <div>
+                                Phone: <strong className="text-cyan-400 font-mono">{p.contact_number}</strong>
+                              </div>
+                              <div>
+                                Symptoms: <span className="text-slate-300">{p.current_health_issue || 'General Health'}</span>
+                              </div>
+                              <div>
+                                Allergies: <span className={p.allergies && p.allergies.toLowerCase() !== 'none' ? 'text-amber-400 font-semibold' : 'text-slate-300'}>{p.allergies || 'None'}</span>
+                              </div>
+
+                              {/* Ongoing Medications Section */}
+                              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800/80 space-y-1 mt-2">
+                                <div className="flex items-center justify-between text-[11px]">
+                                  <span className="text-slate-300 font-semibold flex items-center gap-1">
+                                    <Pill size={11} className="text-cyan-400" /> Ongoing Medications:
+                                  </span>
+                                  <span className="font-mono text-cyan-300 font-bold">
+                                    {activeMeds.length} Active
+                                  </span>
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  {activeMeds.slice(0, 2).map((rx, rIdx) => (
+                                    <span key={rIdx} className="px-1.5 py-0.5 rounded bg-cyan-950/50 text-cyan-300 border border-cyan-800/40 text-[10px] font-medium truncate max-w-[130px]">
+                                      {rx.drug_name}
+                                    </span>
+                                  ))}
+                                  {activeMeds.length === 0 && (
+                                    <span className="text-[10px] text-slate-500 italic">No ongoing medications</span>
+                                  )}
+                                  {activeMeds.length > 2 && (
+                                    <span className="text-[10px] text-slate-400 font-mono">+{activeMeds.length - 2} more</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Medical History & Timeline Section */}
+                              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800/80 space-y-1">
+                                <div className="flex items-center justify-between text-[11px]">
+                                  <span className="text-slate-300 font-semibold flex items-center gap-1">
+                                    <Activity size={11} className="text-violet-400" /> Medical History &amp; Timeline:
+                                  </span>
+                                  <span className="font-mono text-violet-300 font-bold text-[10px]">
+                                    {patPrescriptions.length} Records
+                                  </span>
+                                </div>
+                                <p className="text-[10px] text-slate-300 truncate">
+                                  {p.existing_diseases || p.medical_history || 'No chronic conditions on file'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Direct Actions in Patient Directory */}
+                          <div className="flex flex-wrap items-center justify-between gap-1.5 pt-2 border-t border-slate-800/80 mt-2">
+                            <div className="flex items-center gap-1 flex-wrap">
                               <button
                                 type="button"
-                                title={`Remove ${p.name} from list`}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handlePromptDeletePatient(p);
+                                  setSelectedPatient(p);
+                                  setDirectorySubTab('history');
                                 }}
-                                className="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                                className="px-2.5 py-1.5 rounded-lg bg-violet-600/20 hover:bg-violet-600 text-violet-300 hover:text-white font-bold text-[10px] transition flex items-center gap-1 cursor-pointer"
+                                title="View Medical History & Timeline inside Patient Directory"
                               >
-                                <Trash2 size={13} />
+                                <Activity size={11} /> History &amp; Timeline
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedPatient(p);
+                                  setDirectorySubTab('medications');
+                                }}
+                                className="px-2.5 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-white font-bold text-[10px] transition flex items-center gap-1 cursor-pointer"
+                                title="Track Ongoing Medications inside Patient Directory"
+                              >
+                                <Pill size={11} /> Ongoing Meds
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedPatient(p);
+                                  setPrescriptionTabMode('new');
+                                  setActiveView('prescriptions');
+                                }}
+                                className="px-2 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[10px] transition flex items-center gap-1 cursor-pointer"
+                              >
+                                <Stethoscope size={11} /> Prescribe
+                              </button>
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedPatient(p);
+                                  setActiveView('ml-analysis');
+                                }}
+                                className="px-2 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-slate-800 text-[10px] font-semibold transition cursor-pointer"
+                              >
+                                3D Sim
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedPatient(p);
+                                  setActiveView('report');
+                                }}
+                                className="px-2 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-[10px] font-semibold transition cursor-pointer"
+                              >
+                                Report
                               </button>
                             </div>
                           </div>
-                          <div className="space-y-1 text-xs text-slate-400 mb-3">
-                            <div>
-                              Phone: <strong className="text-cyan-400 font-mono">{p.contact_number}</strong>
-                            </div>
-                            <div>
-                              Symptoms: <span className="text-slate-300">{p.current_health_issue || p.existing_diseases || 'General Health'}</span>
-                            </div>
-                            <div>
-                              Allergies: <span className={p.allergies ? 'text-amber-400' : 'text-slate-300'}>{p.allergies || 'None'}</span>
-                            </div>
-                            <div className="text-[11px] text-slate-500 pt-1">
-                              Prescriptions on file: <strong className="text-slate-300">{patPrescriptions.length}</strong>
-                            </div>
-                          </div>
                         </div>
-
-                        <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 mt-2">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedPatient(p);
-                              setPrescriptionTabMode('new');
-                              setActiveView('prescriptions');
-                            }}
-                            className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[11px] transition flex items-center gap-1 cursor-pointer"
-                          >
-                            <Pill size={12} /> Prescribe
-                          </button>
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedPatient(p);
-                                setActiveView('ml-analysis');
-                              }}
-                              className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-slate-800 text-[11px] font-semibold transition cursor-pointer"
-                            >
-                              3D Sim
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedPatient(p);
-                                setActiveView('report');
-                              }}
-                              className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-[11px] font-semibold transition cursor-pointer"
-                            >
-                              Report
-                            </button>
-                            <button
-                              type="button"
-                              title={`Remove ${p.name} from list`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handlePromptDeletePatient(p);
-                              }}
-                              className="p-1 rounded-lg bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/20 text-[11px] font-semibold transition flex items-center justify-center cursor-pointer"
-                            >
-                              <Trash2 size={12} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )
               )}
             </div>
           )}
@@ -2194,6 +2626,46 @@ export default function DoctorDashboard() {
                 )}
               </div>
             </div>
+          )}
+
+          {/* TAB: DOCTOR PROFILE MANAGEMENT */}
+          {activeView === 'doctor-profile' && (
+            <DoctorProfileView
+              doctor={doctorProfile}
+              onProfileUpdated={(updatedDoc) => {
+                setDoctorProfile(prev => ({ ...prev, ...updatedDoc }));
+                showToast('Doctor profile updated successfully!', 'success');
+              }}
+              onSelectPatient={(p) => {
+                setSelectedPatient(p);
+                setActiveView('medical-history');
+              }}
+            />
+          )}
+
+          {/* TAB: CENTRALIZED PATIENT MEDICAL HISTORY & MULTI-DOCTOR TIMELINE */}
+          {activeView === 'medical-history' && (
+            <CentralizedMedicalHistory
+              patient={selectedPatient}
+              currentDoctor={doctorProfile}
+              onNavigateToPrescribe={() => {
+                setPrescriptionTabMode('new');
+                setActiveView('prescriptions');
+              }}
+              onPatientUpdated={loadInitialData}
+            />
+          )}
+
+          {/* TAB: ONGOING & HISTORICAL MEDICATION MANAGEMENT */}
+          {activeView === 'medications' && (
+            <OngoingMedicationsTracker
+              patient={selectedPatient}
+              currentDoctor={doctorProfile}
+              onNavigateToPrescribe={() => {
+                setPrescriptionTabMode('new');
+                setActiveView('prescriptions');
+              }}
+            />
           )}
         </main>
         </div>

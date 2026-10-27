@@ -5,7 +5,7 @@ import {
   CheckCircle2, Pill, Sparkles, Laptop
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { sendPatientOtp, verifyPatientOtp, loginDoctor, registerDoctor } from '../services/api';
+import { sendPatientOtp, verifyPatientOtp, loginDoctor, registerDoctor, addPatient, getPatientByContact } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Login() {
@@ -28,12 +28,107 @@ export default function Login() {
   const [regLicense, setRegLicense] = useState('');
   const [regHospital, setRegHospital] = useState('Apex Multispecialty Hospital');
 
-  // Patient OTP states
+  // Patient states
+  const [patientAuthMode, setPatientAuthMode] = useState('login'); // 'login' | 'register'
   const [mobileNumber, setMobileNumber] = useState('9876543210');
+  const [patientRegName, setPatientRegName] = useState('');
+  const [patientRegAge, setPatientRegAge] = useState('28');
+  const [patientRegGender, setPatientRegGender] = useState('Male');
+  const [existingPatientPreview, setExistingPatientPreview] = useState(null);
+  const [isCheckingPatient, setIsCheckingPatient] = useState(false);
   const [otpDigits, setOtpDigits] = useState(['2', '4', '6', '8', '3', '7']);
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [verifiedPatientData, setVerifiedPatientData] = useState(null);
+
+  // Auto-detect previous database records for patient mobile number
+  const handleCheckPatientMobile = async (num) => {
+    const clean = String(num || '').trim();
+    if (clean.length < 10) {
+      setExistingPatientPreview(null);
+      return;
+    }
+    setIsCheckingPatient(true);
+    try {
+      const data = await getPatientByContact(clean);
+      if (data && data.patient) {
+        setExistingPatientPreview(data);
+        if (!patientRegName) setPatientRegName(data.patient.name || '');
+        if (data.patient.age) setPatientRegAge(String(data.patient.age));
+        if (data.patient.gender) setPatientRegGender(data.patient.gender);
+      } else {
+        setExistingPatientPreview(null);
+      }
+    } catch {
+      setExistingPatientPreview(null);
+    } finally {
+      setIsCheckingPatient(false);
+    }
+  };
+
+  // Helper to persist all patient session data to localStorage
+  const persistPatientSession = (data) => {
+    if (!data) return;
+    try {
+      if (data.patient)       localStorage.setItem('drugai_patient',       JSON.stringify(data.patient));
+      if (data.prescriptions) localStorage.setItem('drugai_prescriptions', JSON.stringify(data.prescriptions));
+      if (data.consultations) localStorage.setItem('drugai_consultations', JSON.stringify(data.consultations));
+      if (data.doctors)       localStorage.setItem('drugai_doctors',       JSON.stringify(data.doctors));
+      if (data.medications)   localStorage.setItem('drugai_medications',   JSON.stringify(data.medications));
+      if (data.timeline)      localStorage.setItem('drugai_timeline',      JSON.stringify(data.timeline));
+    } catch (e) {
+      console.warn('Could not persist patient session to localStorage:', e);
+    }
+  };
+
+  // Handle Patient Registration (automatically picking up previous records if exist)
+  const handlePatientRegister = async (e) => {
+    e.preventDefault();
+    if (!patientRegName || !mobileNumber) {
+      setErrorMessage('Full name and mobile number are required.');
+      return;
+    }
+    setLoading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    try {
+      const res = await addPatient({
+        name: patientRegName,
+        age: parseInt(patientRegAge || '28'),
+        gender: patientRegGender,
+        contact_number: mobileNumber,
+        current_health_issue: 'General Health & Portal Registration'
+      });
+      
+      // Auto-fetch the full linked database record (prescriptions, consultations, medications)
+      const fullRecord = await getPatientByContact(mobileNumber).catch(() => null);
+      if (fullRecord) {
+        persistPatientSession(fullRecord);
+      } else {
+        persistPatientSession({
+          patient: {
+            id: res.id,
+            name: patientRegName,
+            age: parseInt(patientRegAge || '28'),
+            gender: patientRegGender,
+            contact_number: mobileNumber
+          },
+          prescriptions: [],
+          consultations: [],
+          medications: { active: [], completed: [], discontinued: [], total: 0 }
+        });
+      }
+
+      setSuccessMessage('Registration successful! Automatically loaded previous database history. Opening your dashboard...');
+      setTimeout(() => {
+        navigate('/patient');
+      }, 900);
+    } catch (err) {
+      setErrorMessage(err.message || 'Failed to register patient profile.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -132,23 +227,41 @@ export default function Login() {
     const otpCode = otpDigits.join('');
     setLoading(true);
     setErrorMessage('');
+
+    /**
+     * Persists all patient data returned by the OTP-verify endpoint to localStorage
+     * so the PatientDashboard can pre-populate Medical History, Timeline, and
+     * Ongoing Medications immediately without a separate API call.
+     */
+    function persistPatientSession(data) {
+      if (!data) return;
+      try {
+        if (data.patient)       localStorage.setItem('drugai_patient',       JSON.stringify(data.patient));
+        if (data.prescriptions) localStorage.setItem('drugai_prescriptions', JSON.stringify(data.prescriptions));
+        if (data.consultations) localStorage.setItem('drugai_consultations', JSON.stringify(data.consultations));
+        if (data.doctors)       localStorage.setItem('drugai_doctors',       JSON.stringify(data.doctors));
+        if (data.medications)   localStorage.setItem('drugai_medications',   JSON.stringify(data.medications));
+        if (data.timeline)      localStorage.setItem('drugai_timeline',      JSON.stringify(data.timeline));
+      } catch (e) {
+        console.warn('Could not persist patient session to localStorage:', e);
+      }
+    }
+
     try {
       // Backend accepts 1234 or matching OTP session
       const data = await verifyPatientOtp(mobileNumber, otpCode.slice(0, 4) || '1234');
       setOtpVerified(true);
       setVerifiedPatientData(data);
-      localStorage.setItem('drugai_patient', JSON.stringify(data.patient));
-      localStorage.setItem('drugai_prescriptions', JSON.stringify(data.prescriptions));
-      setSuccessMessage('Verified Successfully');
+      persistPatientSession(data);
+      setSuccessMessage('Verified Successfully — Loading your medical records...');
     } catch (err) {
       // Fallback verification for demo
       try {
         const fallback = await verifyPatientOtp(mobileNumber, '1234');
         setOtpVerified(true);
         setVerifiedPatientData(fallback);
-        localStorage.setItem('drugai_patient', JSON.stringify(fallback.patient));
-        localStorage.setItem('drugai_prescriptions', JSON.stringify(fallback.prescriptions));
-        setSuccessMessage('Verified Successfully');
+        persistPatientSession(fallback);
+        setSuccessMessage('Verified Successfully — Loading your medical records...');
       } catch (e2) {
         setErrorMessage(err.message || 'Invalid verification code.');
       }
@@ -429,96 +542,234 @@ export default function Login() {
             )}
 
             {/* ========================================================================= */}
-            {/* PATIENT LOGIN (SCREEN 7 LEFT: MOBILE + 6-DIGIT OTP VERIFICATION)          */}
+            {/* PATIENT LOGIN & REGISTRATION                                              */}
             {/* ========================================================================= */}
             {role === 'patient' && (
               <div className="space-y-4">
-                {!otpSent ? (
-                  <form onSubmit={handleSendOtp} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700">
-                        Enter Registered Mobile Number
-                      </label>
+                {patientAuthMode === 'login' ? (
+                  !otpSent ? (
+                    <form onSubmit={handleSendOtp} className="space-y-4">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-700">
+                            Enter Registered Mobile Number
+                          </label>
+                          {isCheckingPatient && (
+                            <span className="text-[10px] text-blue-600 font-mono">Checking database...</span>
+                          )}
+                        </div>
+                        <input
+                          type="tel"
+                          value={mobileNumber}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setMobileNumber(val);
+                            if (val.replace(/\D/g, '').length >= 10) {
+                              handleCheckPatientMobile(val);
+                            } else {
+                              setExistingPatientPreview(null);
+                            }
+                          }}
+                          onBlur={(e) => handleCheckPatientMobile(e.target.value)}
+                          placeholder="Enter your 10-digit mobile number"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-mono text-center tracking-wider text-base focus:outline-none focus:border-blue-500 focus:bg-white"
+                        />
+                        {existingPatientPreview ? (
+                          <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-[11px] text-emerald-700 flex items-start gap-2">
+                            <Sparkles size={14} className="text-emerald-600 shrink-0 mt-0.5" />
+                            <div>
+                              <strong>Medical Record Found:</strong> Patient profile for{' '}
+                              <span className="font-bold text-emerald-900">{existingPatientPreview.patient.name}</span> is on file. Verifying OTP will automatically load your previous medical history, timeline &amp; ongoing medications!
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] text-slate-400 block text-center">
+                            Demo mobile: <code className="text-blue-600 font-bold">9876543210</code> (Rahul Verma)
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition cursor-pointer"
+                      >
+                        {loading ? 'Sending OTP...' : 'Send OTP'}
+                      </button>
+
+                      <div className="text-center text-xs text-slate-500 pt-1">
+                        First time visiting?{' '}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPatientAuthMode('register');
+                            setErrorMessage('');
+                            setSuccessMessage('');
+                          }}
+                          className="text-blue-600 font-bold hover:underline"
+                        >
+                          Register New Patient
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="text-center space-y-1">
+                        <h4 className="text-xs font-bold text-slate-700">Verify OTP</h4>
+                        <p className="text-[11px] text-slate-500">
+                          Enter 6 digit OTP sent to <strong className="text-slate-800">{mobileNumber}</strong>
+                        </p>
+                      </div>
+
+                      {/* 6-box OTP input */}
+                      <div className="flex justify-center gap-2">
+                        {otpDigits.map((digit, idx) => (
+                          <input
+                            key={idx}
+                            id={`otp-input-${idx}`}
+                            type="text"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) => handleDigitChange(idx, e.target.value)}
+                            className="w-10 h-12 text-center text-lg font-bold font-mono bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-sm"
+                          />
+                        ))}
+                      </div>
+
+                      {otpVerified ? (
+                        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 flex items-center justify-center gap-2 font-bold">
+                          <CheckCircle2 size={16} className="text-emerald-600" />
+                          <span>Verified Successfully</span>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleVerifyOtp}
+                          disabled={loading}
+                          className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer"
+                        >
+                          {loading ? 'Verifying...' : 'Verify OTP Code'}
+                        </button>
+                      )}
+
+                      {otpVerified && (
+                        <button
+                          type="button"
+                          onClick={handlePatientFinalLogin}
+                          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer"
+                        >
+                          Login to Patient Dashboard <ArrowRight size={16} />
+                        </button>
+                      )}
+
+                      <div className="text-center">
+                        <button
+                          type="button"
+                          onClick={() => { setOtpSent(false); setOtpVerified(false); }}
+                          className="text-xs text-slate-500 hover:text-blue-600 underline"
+                        >
+                          Change mobile number
+                        </button>
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  /* PATIENT REGISTRATION FORM (Auto-picks previous records if exist in DB) */
+                  <form onSubmit={handlePatientRegister} className="space-y-3.5">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-700">Mobile Number *</label>
+                        {isCheckingPatient && (
+                          <span className="text-[10px] text-blue-600 font-mono">Checking records...</span>
+                        )}
+                      </div>
                       <input
                         type="tel"
+                        required
                         value={mobileNumber}
-                        onChange={(e) => setMobileNumber(e.target.value)}
-                        placeholder="Enter your 10-digit mobile number"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-mono text-center tracking-wider text-base focus:outline-none focus:border-blue-500 focus:bg-white"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setMobileNumber(val);
+                          if (val.replace(/\D/g, '').length >= 10) {
+                            handleCheckPatientMobile(val);
+                          } else {
+                            setExistingPatientPreview(null);
+                          }
+                        }}
+                        onBlur={(e) => handleCheckPatientMobile(e.target.value)}
+                        placeholder="10-digit mobile number"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:border-blue-500"
                       />
-                      <span className="text-[11px] text-slate-400 block text-center">
-                        Demo mobile: <code className="text-blue-600 font-bold">9876543210</code> (Rahul Verma)
-                      </span>
+                      {existingPatientPreview && (
+                        <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-xl text-[10px] text-emerald-800 flex items-start gap-1.5">
+                          <Sparkles size={12} className="text-emerald-600 shrink-0 mt-0.5" />
+                          <span>
+                            <strong>Previous Records Found:</strong> We detected existing clinical records for this phone number. Submitting will automatically pick and link your previous medical history, timeline &amp; ongoing medications!
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Full Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={patientRegName}
+                        onChange={(e) => setPatientRegName(e.target.value)}
+                        placeholder="e.g. Rahul Verma"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">Age</label>
+                        <input
+                          type="number"
+                          value={patientRegAge}
+                          onChange={(e) => setPatientRegAge(e.target.value)}
+                          placeholder="28"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">Gender</label>
+                        <select
+                          value={patientRegGender}
+                          onChange={(e) => setPatientRegGender(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
+                        >
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
                     </div>
 
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition"
+                      className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer"
                     >
-                      {loading ? 'Sending OTP...' : 'Send OTP'}
+                      {loading ? 'Registering & Loading Records...' : 'Register & Load Medical History'}
                     </button>
+
+                    <div className="text-center text-xs text-slate-500">
+                      Already registered?{' '}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPatientAuthMode('login');
+                          setErrorMessage('');
+                          setSuccessMessage('');
+                        }}
+                        className="text-blue-600 font-bold hover:underline"
+                      >
+                        Login with OTP
+                      </button>
+                    </div>
                   </form>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="text-center space-y-1">
-                      <h4 className="text-xs font-bold text-slate-700">Verify OTP</h4>
-                      <p className="text-[11px] text-slate-500">
-                        Enter 6 digit OTP sent to <strong className="text-slate-800">{mobileNumber}</strong>
-                      </p>
-                    </div>
-
-                    {/* 6-box OTP input */}
-                    <div className="flex justify-center gap-2">
-                      {otpDigits.map((digit, idx) => (
-                        <input
-                          key={idx}
-                          id={`otp-input-${idx}`}
-                          type="text"
-                          maxLength={1}
-                          value={digit}
-                          onChange={(e) => handleDigitChange(idx, e.target.value)}
-                          className="w-10 h-12 text-center text-lg font-bold font-mono bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-sm"
-                        />
-                      ))}
-                    </div>
-
-                    {otpVerified ? (
-                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 flex items-center justify-center gap-2 font-bold">
-                        <CheckCircle2 size={16} className="text-emerald-600" />
-                        <span>Verified Successfully</span>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleVerifyOtp}
-                        disabled={loading}
-                        className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition"
-                      >
-                        {loading ? 'Verifying...' : 'Verify OTP Code'}
-                      </button>
-                    )}
-
-                    {otpVerified && (
-                      <button
-                        type="button"
-                        onClick={handlePatientFinalLogin}
-                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition active:scale-95"
-                      >
-                        Login to Patient Dashboard <ArrowRight size={16} />
-                      </button>
-                    )}
-
-                    <div className="text-center">
-                      <button
-                        type="button"
-                        onClick={() => { setOtpSent(false); setOtpVerified(false); }}
-                        className="text-xs text-slate-500 hover:text-blue-600 underline"
-                      >
-                        Change mobile number
-                      </button>
-                    </div>
-                  </div>
                 )}
               </div>
             )}
