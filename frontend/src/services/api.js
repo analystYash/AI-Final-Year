@@ -680,5 +680,119 @@ export async function updateAppointmentStatus(appointmentId, status) {
   );
 }
 
+// =========================================================================
+// ENHANCED BIOMETRIC & DUAL-PORTAL AUTHENTICATION API SERVICES
+// =========================================================================
+
+/**
+ * Validates patient full name and registered mobile number against database records.
+ */
+export async function validatePatientAuth({ name, contact_number }) {
+  return await safeFetch(
+    `${API_BASE}/patient/auth/validate`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, contact_number })
+    },
+    'Patient validation failed'
+  );
+}
+
+/**
+ * Sends a secure PBKDF2-hashed OTP to the patient's registered mobile number.
+ */
+export async function sendPatientSecureOtp({ name, contact_number }) {
+  return await safeFetch(
+    `${API_BASE}/patient/auth/send-otp`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, contact_number })
+    },
+    'Failed to send patient OTP'
+  );
+}
+
+/**
+ * Verifies patient OTP, enforces attempt limit, and creates authenticated patient session.
+ */
+export async function verifyPatientSecureOtp({ patient_id, contact_number, otp }) {
+  return await safeFetch(
+    `${API_BASE}/patient/auth/verify-otp`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ patient_id, contact_number, otp })
+    },
+    'OTP verification failed'
+  );
+}
+
+/**
+ * Validates doctor full name and Doctor ID / Registered Email against active doctor accounts.
+ */
+export async function validateDoctorAuth({ name, identifier }) {
+  return await safeFetch(
+    `${API_BASE}/doctor/auth/validate`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, identifier })
+    },
+    'Doctor validation failed'
+  );
+}
+
+/**
+ * Verifies doctor password or PIN against users.db.
+ */
+export async function verifyDoctorPassword({ doctor_id, password }) {
+  return await safeFetch(
+    `${API_BASE}/doctor/auth/verify-password`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ doctor_id, password })
+    },
+    'Doctor password verification failed'
+  );
+}
+
+/**
+ * Validates active session token.
+ */
+export async function getAuthSession(token) {
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return await safeFetch(`${API_BASE}/auth/session`, { headers }, 'Session check failed');
+}
+
+/**
+ * Logs out user and records audit log.
+ */
+export async function logoutUser(userId = null, role = 'user') {
+  try {
+    return await safeFetch(
+      `${API_BASE}/auth/logout`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, role })
+      },
+      'Logout failed'
+    );
+  } catch {
+    return { success: true };
+  }
+}
+
+/**
+ * Fetches security audit trail logs.
+ */
+export async function getAuthAuditLogs(limit = 50) {
+  return await safeFetch(`${API_BASE}/auth/audit-logs?limit=${limit}`, {}, 'Failed to fetch audit logs');
+}
+
 
 

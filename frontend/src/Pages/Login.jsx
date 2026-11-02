@@ -1,794 +1,524 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Brain, ShieldCheck, ShieldAlert, Mail, Lock, Phone, KeyRound, ArrowRight,
-  Activity, Stethoscope, User, UserPlus, Building2, Award, Eye, EyeOff,
-  CheckCircle2, Pill, Sparkles, Laptop
+  ShieldCheck, ShieldAlert, Lock, Phone, User, Stethoscope,
+  KeyRound, ArrowRight, Activity, CheckCircle2, AlertTriangle, RefreshCw,
+  Eye, EyeOff, Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { sendPatientOtp, verifyPatientOtp, loginDoctor, registerDoctor, addPatient, getPatientByContact } from '../services/api';
+import {
+  validatePatientAuth, sendPatientSecureOtp, verifyPatientSecureOtp,
+  validateDoctorAuth, verifyDoctorPassword
+} from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { lang, setLang, t } = useLanguage();
+  const { t } = useLanguage();
 
-  const [role, setRole] = useState('doctor'); // 'doctor' | 'patient'
-  const [doctorAuthMode, setDoctorAuthMode] = useState('login'); // 'login' | 'register'
-  const [showPassword, setShowPassword] = useState(false);
+  // Active top-level selection: 'patient' or 'doctor'
+  const [selectedRole, setSelectedRole] = useState('doctor');
 
-  // Doctor Sign In states
-  const [email, setEmail] = useState('dr.sharma@hospital.org');
-  const [password, setPassword] = useState('doctor123');
-
-  // Doctor Sign Up states
-  const [regName, setRegName] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPassword, setRegPassword] = useState('');
-  const [regSpecialization, setRegSpecialization] = useState('Cardiology & Internal Medicine');
-  const [regLicense, setRegLicense] = useState('');
-  const [regHospital, setRegHospital] = useState('Apex Multispecialty Hospital');
-
-  // Patient states
-  const [patientAuthMode, setPatientAuthMode] = useState('login'); // 'login' | 'register'
-  const [mobileNumber, setMobileNumber] = useState('9876543210');
-  const [patientRegName, setPatientRegName] = useState('');
-  const [patientRegAge, setPatientRegAge] = useState('28');
-  const [patientRegGender, setPatientRegGender] = useState('Male');
-  const [existingPatientPreview, setExistingPatientPreview] = useState(null);
-  const [isCheckingPatient, setIsCheckingPatient] = useState(false);
-  const [otpDigits, setOtpDigits] = useState(['2', '4', '6', '8', '3', '7']);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [verifiedPatientData, setVerifiedPatientData] = useState(null);
-
-  // Auto-detect previous database records for patient mobile number
-  const handleCheckPatientMobile = async (num) => {
-    const clean = String(num || '').trim();
-    if (clean.length < 10) {
-      setExistingPatientPreview(null);
-      return;
-    }
-    setIsCheckingPatient(true);
-    try {
-      const data = await getPatientByContact(clean);
-      if (data && data.patient) {
-        setExistingPatientPreview(data);
-        if (!patientRegName) setPatientRegName(data.patient.name || '');
-        if (data.patient.age) setPatientRegAge(String(data.patient.age));
-        if (data.patient.gender) setPatientRegGender(data.patient.gender);
-      } else {
-        setExistingPatientPreview(null);
-      }
-    } catch {
-      setExistingPatientPreview(null);
-    } finally {
-      setIsCheckingPatient(false);
-    }
-  };
-
-  // Helper to persist all patient session data to localStorage
-  const persistPatientSession = (data) => {
-    if (!data) return;
-    try {
-      if (data.patient)       localStorage.setItem('drugai_patient',       JSON.stringify(data.patient));
-      if (data.prescriptions) localStorage.setItem('drugai_prescriptions', JSON.stringify(data.prescriptions));
-      if (data.consultations) localStorage.setItem('drugai_consultations', JSON.stringify(data.consultations));
-      if (data.doctors)       localStorage.setItem('drugai_doctors',       JSON.stringify(data.doctors));
-      if (data.medications)   localStorage.setItem('drugai_medications',   JSON.stringify(data.medications));
-      if (data.timeline)      localStorage.setItem('drugai_timeline',      JSON.stringify(data.timeline));
-    } catch (e) {
-      console.warn('Could not persist patient session to localStorage:', e);
-    }
-  };
-
-  // Handle Patient Registration (automatically picking up previous records if exist)
-  const handlePatientRegister = async (e) => {
-    e.preventDefault();
-    if (!patientRegName || !mobileNumber) {
-      setErrorMessage('Full name and mobile number are required.');
-      return;
-    }
-    setLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const res = await addPatient({
-        name: patientRegName,
-        age: parseInt(patientRegAge || '28'),
-        gender: patientRegGender,
-        contact_number: mobileNumber,
-        current_health_issue: 'General Health & Portal Registration'
-      });
-      
-      // Auto-fetch the full linked database record (prescriptions, consultations, medications)
-      const fullRecord = await getPatientByContact(mobileNumber).catch(() => null);
-      if (fullRecord) {
-        persistPatientSession(fullRecord);
-      } else {
-        persistPatientSession({
-          patient: {
-            id: res.id,
-            name: patientRegName,
-            age: parseInt(patientRegAge || '28'),
-            gender: patientRegGender,
-            contact_number: mobileNumber
-          },
-          prescriptions: [],
-          consultations: [],
-          medications: { active: [], completed: [], discontinued: [], total: 0 }
-        });
-      }
-
-      setSuccessMessage('Registration successful! Automatically loaded previous database history. Opening your dashboard...');
-      setTimeout(() => {
-        navigate('/patient');
-      }, 900);
-    } catch (err) {
-      setErrorMessage(err.message || 'Failed to register patient profile.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const [loading, setLoading] = useState(false);
+  // Common notification banners
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Handle Doctor Login
-  const handleDoctorLogin = async (e) => {
-    e.preventDefault();
-    if (!email || !password) {
-      setErrorMessage('Please enter email and password.');
-      return;
-    }
-    setLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const res = await loginDoctor({ email, password });
-      localStorage.setItem('drugai_doctor', JSON.stringify(res.doctor));
-      navigate('/doctor');
-    } catch (err) {
-      setErrorMessage(err.message || 'Login failed. Please verify your credentials.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // =========================================================================
+  // PATIENT AUTHENTICATION STATE
+  // =========================================================================
+  const [patientName, setPatientName] = useState('Rahul Verma');
+  const [patientMobile, setPatientMobile] = useState('9876543210');
+  const [patientId, setPatientId] = useState(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpDigits, setOtpDigits] = useState(['1', '2', '3', '4', '5', '6']);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [devOtpNotice, setDevOtpNotice] = useState('123456');
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
 
-  // Handle Doctor Registration
-  const handleDoctorRegister = async (e) => {
-    e.preventDefault();
-    if (!regName || !regEmail || !regPassword) {
-      setErrorMessage('Full name, email, and password are required.');
-      return;
-    }
-    setLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const res = await registerDoctor({
-        name: regName,
-        email: regEmail,
-        password: regPassword,
-        specialization: regSpecialization,
-        license_number: regLicense,
-        hospital_name: regHospital
-      });
-      setSuccessMessage('Doctor registration successful! Logging you in...');
-      localStorage.setItem('drugai_doctor', JSON.stringify(res.doctor));
-      setTimeout(() => {
-        navigate('/doctor');
+  // =========================================================================
+  // DOCTOR AUTHENTICATION STATE
+  // =========================================================================
+  const [doctorName, setDoctorName] = useState('Dr. Sharma, MD');
+  const [doctorIdentifier, setDoctorIdentifier] = useState('dr.sharma@hospital.org');
+  const [doctorPassword, setDoctorPassword] = useState('doctor123');
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Cooldown timer countdown
+  useEffect(() => {
+    let timer;
+    if (cooldownRemaining > 0) {
+      timer = setInterval(() => {
+        setCooldownRemaining((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
-    } catch (err) {
-      setErrorMessage(err.message || 'Doctor registration failed.');
-    } finally {
-      setLoading(false);
     }
-  };
+    return () => clearInterval(timer);
+  }, [cooldownRemaining]);
 
-  // Handle Send Patient OTP
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
-    if (!mobileNumber || mobileNumber.length < 10) {
-      setErrorMessage('Please enter a valid 10-digit mobile number.');
-      return;
-    }
-    setLoading(true);
+  // =========================================================================
+  // PATIENT AUTHENTICATION WORKFLOW HANDLERS
+  // =========================================================================
+  const handlePatientSendOtp = async (e) => {
+    if (e) e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
+
+    if (!patientName.trim()) {
+      setErrorMessage('Patient Full Name is required.');
+      return;
+    }
+    if (!patientMobile.trim() || patientMobile.replace(/\D/g, '').length < 10) {
+      setErrorMessage('Mobile number does not match our registered patient records.');
+      return;
+    }
+
+    setLoading(true);
     try {
-      const data = await sendPatientOtp(mobileNumber);
+      const res = await sendPatientSecureOtp({
+        name: patientName,
+        contact_number: patientMobile
+      });
+
+      setPatientId(res.patient_id);
       setOtpSent(true);
-      setSuccessMessage(data.message || 'OTP sent successfully! (Demo OTP: 1234 or 246837)');
+      setDevOtpNotice(res.test_otp || '123456');
+      setCooldownRemaining(60);
+      setSuccessMessage(res.message || `Verification code sent to registered mobile ${patientMobile}.`);
     } catch (err) {
-      setErrorMessage(err.message || 'Failed to send OTP. Ensure mobile number is registered.');
+      setErrorMessage(err.message || 'Mobile number does not match our registered patient records.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle OTP digit change
-  const handleDigitChange = (index, val) => {
+  const handlePatientDigitChange = (index, val) => {
     if (val.length > 1) val = val.slice(-1);
     const newDigits = [...otpDigits];
     newDigits[index] = val;
     setOtpDigits(newDigits);
 
-    // Auto focus next input
     if (val && index < 5) {
-      const nextInput = document.getElementById(`otp-input-${index + 1}`);
+      const nextInput = document.getElementById(`patient-otp-${index + 1}`);
       if (nextInput) nextInput.focus();
     }
   };
 
-  // Handle Verify Patient OTP
-  const handleVerifyOtp = async (e) => {
+  const handlePatientVerifyAndLogin = async (e) => {
     if (e) e.preventDefault();
-    const otpCode = otpDigits.join('');
-    setLoading(true);
     setErrorMessage('');
+    setSuccessMessage('');
+    const enteredOtp = otpDigits.join('');
 
-    /**
-     * Persists all patient data returned by the OTP-verify endpoint to localStorage
-     * so the PatientDashboard can pre-populate Medical History, Timeline, and
-     * Ongoing Medications immediately without a separate API call.
-     */
-    function persistPatientSession(data) {
-      if (!data) return;
-      try {
-        if (data.patient)       localStorage.setItem('drugai_patient',       JSON.stringify(data.patient));
-        if (data.prescriptions) localStorage.setItem('drugai_prescriptions', JSON.stringify(data.prescriptions));
-        if (data.consultations) localStorage.setItem('drugai_consultations', JSON.stringify(data.consultations));
-        if (data.doctors)       localStorage.setItem('drugai_doctors',       JSON.stringify(data.doctors));
-        if (data.medications)   localStorage.setItem('drugai_medications',   JSON.stringify(data.medications));
-        if (data.timeline)      localStorage.setItem('drugai_timeline',      JSON.stringify(data.timeline));
-      } catch (e) {
-        console.warn('Could not persist patient session to localStorage:', e);
-      }
+    if (enteredOtp.length < 4) {
+      setErrorMessage('Please enter the full verification OTP code.');
+      return;
     }
 
+    setLoading(true);
     try {
-      // Backend accepts 1234 or matching OTP session
-      const data = await verifyPatientOtp(mobileNumber, otpCode.slice(0, 4) || '1234');
+      const res = await verifyPatientSecureOtp({
+        patient_id: patientId,
+        contact_number: patientMobile,
+        otp: enteredOtp
+      });
+
       setOtpVerified(true);
-      setVerifiedPatientData(data);
-      persistPatientSession(data);
-      setSuccessMessage('Verified Successfully — Loading your medical records...');
+      setSuccessMessage('Patient identity verified! Opening your personalized clinical dashboard...');
+
+      // Persist authenticated session
+      if (res.session_token) localStorage.setItem('drugai_session_token', res.session_token);
+      if (res.patient)       localStorage.setItem('drugai_patient',       JSON.stringify(res.patient));
+      if (res.prescriptions) localStorage.setItem('drugai_prescriptions', JSON.stringify(res.prescriptions));
+      if (res.consultations) localStorage.setItem('drugai_consultations', JSON.stringify(res.consultations));
+      if (res.doctors)       localStorage.setItem('drugai_doctors',       JSON.stringify(res.doctors));
+      if (res.medications)   localStorage.setItem('drugai_medications',   JSON.stringify(res.medications));
+
+      setTimeout(() => {
+        navigate('/patient');
+      }, 700);
     } catch (err) {
-      // Fallback verification for demo
-      try {
-        const fallback = await verifyPatientOtp(mobileNumber, '1234');
-        setOtpVerified(true);
-        setVerifiedPatientData(fallback);
-        persistPatientSession(fallback);
-        setSuccessMessage('Verified Successfully — Loading your medical records...');
-      } catch (e2) {
-        setErrorMessage(err.message || 'Invalid verification code.');
-      }
+      setErrorMessage(err.message || 'OTP verification failed. Access denied.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePatientFinalLogin = () => {
-    navigate('/patient');
+  // =========================================================================
+  // DOCTOR AUTHENTICATION WORKFLOW HANDLER
+  // =========================================================================
+  const handleDoctorLogin = async (e) => {
+    if (e) e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    if (!doctorName.trim() || !doctorIdentifier.trim()) {
+      setErrorMessage('Doctor Full Name and Doctor ID/Email are required.');
+      return;
+    }
+    if (!doctorPassword.trim()) {
+      setErrorMessage('Please enter your password or PIN.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 1. Validate Doctor Profile
+      const docVal = await validateDoctorAuth({
+        name: doctorName,
+        identifier: doctorIdentifier
+      });
+      const activeDoc = docVal.doctor;
+
+      // 2. Validate Password & Create Session
+      const pwdRes = await verifyDoctorPassword({
+        doctor_id: activeDoc.id,
+        password: doctorPassword
+      });
+
+      setSuccessMessage(`Welcome, ${activeDoc.name}! Logging in to Doctor Console...`);
+
+      if (pwdRes.session_token) localStorage.setItem('drugai_session_token', pwdRes.session_token);
+      localStorage.setItem('drugai_doctor', JSON.stringify({
+        ...activeDoc,
+        last_login_at: pwdRes.last_login || new Date().toISOString()
+      }));
+
+      setTimeout(() => {
+        navigate('/doctor');
+      }, 500);
+    } catch (err) {
+      setErrorMessage(err.message || 'Doctor login failed. Please verify your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-4 sm:p-8 font-sans selection:bg-blue-500 selection:text-white">
-      {/* MAIN CONTAINER (SCREEN 1: WEBSITE LOGIN) */}
-      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col md:flex-row">
-        {/* ========================================================================= */}
-        {/* LEFT BRANDING PANEL WITH MEDICAL ILLUSTRATION MOCKUP                     */}
-        {/* ========================================================================= */}
-        <div className="md:w-1/2 p-8 sm:p-12 bg-gradient-to-br from-blue-50/80 via-indigo-50/50 to-white flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 relative overflow-hidden">
-          {/* Subtle Ambient Shapes */}
-          <div className="absolute -top-24 -left-24 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none"></div>
-
-          {/* Logo Header */}
-          <div className="flex items-center gap-3.5 relative z-10">
-            <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 text-white">
-              <Pill size={24} className="rotate-45" />
-            </div>
-            <div>
-              <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-                Smart Drug <span className="text-blue-600">Effect System</span>
-              </h1>
-              <p className="text-xs font-semibold text-slate-500">
-                AI Powered Drug Analysis & Personalized Health Visualization
-              </p>
-            </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between p-4 sm:p-8 font-sans selection:bg-blue-600 selection:text-white">
+      
+      {/* TOP PORTAL NAV */}
+      <header className="max-w-6xl w-full mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-slate-800">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
+            <Stethoscope size={26} />
           </div>
-
-          {/* Hero Illustration / Laptop 3D Mockup Card */}
-          <div className="my-8 relative z-10">
-            <div className="bg-slate-900 rounded-2xl p-5 shadow-2xl border border-slate-800 text-white space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-xs text-slate-400 font-mono ml-2">Personalized-DrugAI.v2</span>
-                </div>
-                <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 text-[10px] font-bold">
-                  LIVE VISUALIZATION
-                </span>
-              </div>
-
-              {/* Holographic Body Preview */}
-              <div className="flex items-center justify-around py-3">
-                <div className="space-y-2 text-xs">
-                  <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700">
-                    <span className="text-slate-400 block text-[10px]">Predicted Efficacy</span>
-                    <span className="text-base font-black text-emerald-400">87% SAFE</span>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700">
-                    <span className="text-slate-400 block text-[10px]">Target Organ</span>
-                    <span className="text-xs font-bold text-cyan-400">Stomach & Heart</span>
-                  </div>
-                </div>
-
-                <div className="w-28 h-36 bg-gradient-to-t from-blue-950 via-slate-900 to-slate-800 rounded-xl border border-blue-500/30 flex items-center justify-center relative overflow-hidden shadow-inner">
-                  <Activity size={48} className="text-blue-400 animate-pulse" />
-                  <div className="absolute bottom-2 text-[9px] text-blue-300 font-mono font-bold">
-                    3D Transparent Body
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Academic & Clinical Credentials */}
-          <div className="space-y-2 relative z-10 pt-4 border-t border-slate-200">
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <span>Clinical Pharmacological AI Engine</span>
-              <span className="font-mono text-blue-600 font-bold">Academic v2.0</span>
-            </div>
-            <p className="text-[11px] text-slate-500 leading-snug">
-              ⚠️ <strong>Notice:</strong> This tool is for informational and academic purposes only. It does not replace doctors or certified healthcare consultations.
+          <div>
+            <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
+              Drug AI <span className="text-blue-400">Health Portal</span>
+            </h1>
+            <p className="text-xs text-slate-400 font-medium">
+              Clinical Decision Support, Drug Safety &amp; Multilingual Patient Care
             </p>
           </div>
         </div>
+      </header>
 
-        {/* ========================================================================= */}
-        {/* RIGHT AUTH CARD: DOCTOR & PATIENT LOGIN (MATCHING DESIGN CONCEPT)        */}
-        {/* ========================================================================= */}
-        <div className="md:w-1/2 p-8 sm:p-12 flex flex-col justify-center bg-white">
-          <div className="w-full max-w-sm mx-auto space-y-6">
-            {/* Header */}
-            <div className="text-center space-y-1">
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-                Welcome Back!
-              </h2>
-              <p className="text-xs text-slate-500 font-medium">
-                Login to your account
-              </p>
-            </div>
+      {/* HERO BANNER & ROLE SELECTOR */}
+      <main className="max-w-6xl w-full mx-auto my-6 space-y-6">
+        <div className="text-center space-y-1">
+          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Welcome to Drug AI Health Portal
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-400">
+            Select your portal to proceed with verified authentication
+          </p>
+        </div>
 
-            {/* Role Toggle Switch [ Doctor | Patient ] */}
-            <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200">
-              <button
-                type="button"
-                onClick={() => { setRole('doctor'); setErrorMessage(''); setSuccessMessage(''); }}
-                className={`py-2 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition ${
-                  role === 'doctor'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Stethoscope size={15} /> Doctor
-              </button>
-              <button
-                type="button"
-                onClick={() => { setRole('patient'); setErrorMessage(''); setSuccessMessage(''); }}
-                className={`py-2 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition ${
-                  role === 'patient'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <User size={15} /> Patient
-              </button>
-            </div>
+        {/* Global Notifications */}
+        {errorMessage && (
+          <div className="max-w-2xl mx-auto p-4 bg-red-950/60 border border-red-500/50 rounded-2xl text-xs sm:text-sm text-red-300 flex items-start gap-3 shadow-lg">
+            <AlertTriangle size={18} className="text-red-400 shrink-0 mt-0.5" />
+            <span className="font-semibold">{errorMessage}</span>
+          </div>
+        )}
+        {successMessage && (
+          <div className="max-w-2xl mx-auto p-4 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl text-xs sm:text-sm text-emerald-300 flex items-start gap-3 shadow-lg">
+            <CheckCircle2 size={18} className="text-emerald-400 shrink-0 mt-0.5" />
+            <span className="font-semibold">{successMessage}</span>
+          </div>
+        )}
 
-            {/* Notifications */}
-            {errorMessage && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 flex items-start gap-2">
-                <ShieldCheck size={16} className="shrink-0 mt-0.5" />
-                <span>{errorMessage}</span>
+        {/* ROLE SELECTION TABS [ Patient Login | Doctor Login ] */}
+        <div className="max-w-md mx-auto grid grid-cols-2 gap-2 p-1.5 bg-slate-900 rounded-2xl border border-slate-800">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedRole('doctor');
+              setErrorMessage('');
+              setSuccessMessage('');
+            }}
+            className={`py-3 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer ${
+              selectedRole === 'doctor'
+                ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Stethoscope size={18} />
+            <span>Doctor Login</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedRole('patient');
+              setErrorMessage('');
+              setSuccessMessage('');
+            }}
+            className={`py-3 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer ${
+              selectedRole === 'patient'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <User size={18} />
+            <span>Patient Login (Mobile OTP)</span>
+          </button>
+        </div>
+
+        {/* AUTHENTICATION CARDS CONTAINER */}
+        <div className="max-w-3xl mx-auto">
+          {/* ========================================================================= */}
+          {/* CARD 1: PATIENT LOGIN (NAME + MOBILE + 6-DIGIT OTP)                      */}
+          {/* ========================================================================= */}
+          {selectedRole === 'patient' && (
+            <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-10 shadow-2xl space-y-6">
+              <div className="space-y-1 border-b border-slate-800 pb-4">
+                <div className="flex items-center gap-2 text-blue-400 font-bold text-xs uppercase tracking-wider">
+                  <User size={14} /> Secure Patient Access
+                </div>
+                <h3 className="text-xl font-black text-white">Patient Authentication</h3>
+                <p className="text-xs text-slate-400">
+                  Verify your identity using your registered full name and phone number.
+                </p>
               </div>
-            )}
-            {successMessage && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 flex items-start gap-2">
-                <CheckCircle2 size={16} className="shrink-0 mt-0.5" />
-                <span>{successMessage}</span>
-              </div>
-            )}
 
-            {/* ========================================================================= */}
-            {/* DOCTOR LOGIN FORM                                                         */}
-            {/* ========================================================================= */}
-            {role === 'doctor' && doctorAuthMode === 'login' && (
+              {!otpSent ? (
+                <form onSubmit={handlePatientSendOtp} className="space-y-4">
+                  {/* Patient Name */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300">Patient Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={patientName}
+                      onChange={(e) => setPatientName(e.target.value)}
+                      placeholder="e.g. Rahul Verma"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Registered Mobile Number */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-300">Registered Mobile Number</label>
+                      <span className="text-[11px] text-slate-500 font-mono">10 digits required</span>
+                    </div>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 text-xs font-mono font-bold text-slate-500">+91</span>
+                      <input
+                        type="tel"
+                        required
+                        value={patientMobile}
+                        onChange={(e) => setPatientMobile(e.target.value)}
+                        placeholder="9876543210"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-xs sm:text-sm text-white font-mono tracking-wider focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                    <span className="text-[11px] text-slate-400 block pt-0.5">
+                      Registered demo patients: <strong className="text-blue-400">Rahul Verma (9876543210)</strong> or <strong className="text-blue-400">Anjali Deshmukh (9811223344)</strong>
+                    </span>
+                  </div>
+
+                  {/* Send OTP button */}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <>
+                        <RefreshCw size={16} className="animate-spin" />
+                        <span>Verifying Registered Records...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Phone size={16} />
+                        <span>Send OTP to Registered Mobile</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <div className="space-y-5">
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center space-y-1">
+                    <span className="text-xs text-slate-400">Enter 6-digit OTP verification code sent to</span>
+                    <div className="font-mono font-bold text-base text-blue-400">+91 {patientMobile}</div>
+                    {devOtpNotice && (
+                      <div className="inline-block px-3 py-1 bg-amber-500/10 border border-amber-500/30 rounded-full text-[11px] font-mono font-bold text-amber-400 mt-1">
+                        [TEST OTP MODE: {devOtpNotice}]
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 6 Digit OTP input */}
+                  <div className="flex justify-center gap-2 sm:gap-3">
+                    {otpDigits.map((digit, idx) => (
+                      <input
+                        key={idx}
+                        id={`patient-otp-${idx}`}
+                        type="text"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handlePatientDigitChange(idx, e.target.value)}
+                        className="w-11 h-14 text-center text-xl font-bold font-mono bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-slate-900 transition shadow-inner text-white"
+                      />
+                    ))}
+                  </div>
+
+                  {/* Verify and Login button */}
+                  <button
+                    onClick={handlePatientVerifyAndLogin}
+                    disabled={loading}
+                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <>
+                        <RefreshCw size={16} className="animate-spin" />
+                        <span>Verifying Security Hash...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 size={16} />
+                        <span>Verify and Login to Patient Dashboard</span>
+                      </>
+                    )}
+                  </button>
+
+                  <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setOtpSent(false)}
+                      className="hover:text-blue-400 underline cursor-pointer"
+                    >
+                      ← Change details
+                    </button>
+                    <div>
+                      {cooldownRemaining > 0 ? (
+                        <span className="font-mono text-slate-500">Resend in {cooldownRemaining}s</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handlePatientSendOtp}
+                          className="text-blue-400 hover:underline font-bold cursor-pointer"
+                        >
+                          Resend OTP
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* CARD 2: DOCTOR LOGIN (NAME + ID/EMAIL + PASSWORD)                        */}
+          {/* ========================================================================= */}
+          {selectedRole === 'doctor' && (
+            <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-10 shadow-2xl space-y-6">
+              <div className="space-y-1 border-b border-slate-800 pb-4">
+                <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs uppercase tracking-wider">
+                  <Stethoscope size={14} /> Clinical Practitioner Portal
+                </div>
+                <h3 className="text-xl font-black text-white">Doctor Authentication</h3>
+                <p className="text-xs text-slate-400">
+                  Enter registered doctor credentials to access the Doctor Console.
+                </p>
+              </div>
+
               <form onSubmit={handleDoctorLogin} className="space-y-4">
+                {/* Doctor Name */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Email Address</label>
+                  <label className="text-xs font-bold text-slate-300">Doctor Full Name</label>
                   <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter email"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition"
+                    type="text"
+                    required
+                    value={doctorName}
+                    onChange={(e) => setDoctorName(e.target.value)}
+                    placeholder="e.g. Dr. Sharma, MD"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
+                {/* Doctor ID or Registered Email */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Password</label>
+                  <label className="text-xs font-bold text-slate-300">Doctor ID or Registered Email</label>
+                  <input
+                    type="text"
+                    required
+                    value={doctorIdentifier}
+                    onChange={(e) => setDoctorIdentifier(e.target.value)}
+                    placeholder="dr.sharma@hospital.org or Doctor ID: 1"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Password / PIN */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300">Password / PIN</label>
                   <div className="relative flex items-center">
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter password"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3.5 pr-10 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition"
+                      required
+                      value={doctorPassword}
+                      onChange={(e) => setDoctorPassword(e.target.value)}
+                      placeholder="Enter doctor password"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-11 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 text-slate-400 hover:text-slate-600"
+                      className="absolute right-3.5 text-slate-400 hover:text-white cursor-pointer"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
 
-                <div className="flex justify-end">
-                  <span className="text-xs text-blue-600 hover:underline cursor-pointer font-medium">
-                    Forgot Password?
-                  </span>
-                </div>
-
+                {/* Login to Doctor Dashboard button */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition active:scale-95 disabled:opacity-50"
+                  className="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer bg-cyan-600 hover:bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25 active:scale-95 disabled:opacity-50 mt-2"
                 >
-                  {loading ? 'Logging in...' : 'Login'}
-                </button>
-
-                <div className="text-center text-xs text-slate-500 pt-2">
-                  Don't have an account?{' '}
-                  <button
-                    type="button"
-                    onClick={() => setDoctorAuthMode('register')}
-                    className="text-blue-600 font-bold hover:underline"
-                  >
-                    Sign up
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* DOCTOR REGISTRATION */}
-            {role === 'doctor' && doctorAuthMode === 'register' && (
-              <form onSubmit={handleDoctorRegister} className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Doctor Full Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    placeholder="Dr. Amit Sharma, MBBS, MD"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Email</label>
-                    <input
-                      type="email"
-                      required
-                      value={regEmail}
-                      onChange={(e) => setRegEmail(e.target.value)}
-                      placeholder="dr.amit@hospital.org"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Password</label>
-                    <input
-                      type="password"
-                      required
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      placeholder="Password"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Specialization</label>
-                  <input
-                    type="text"
-                    value={regSpecialization}
-                    onChange={(e) => setRegSpecialization(e.target.value)}
-                    placeholder="Cardiology / Internal Medicine"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition"
-                >
-                  {loading ? 'Creating Doctor Record...' : 'Register Account'}
-                </button>
-
-                <div className="text-center text-xs text-slate-500">
-                  Already registered?{' '}
-                  <button
-                    type="button"
-                    onClick={() => setDoctorAuthMode('login')}
-                    className="text-blue-600 font-bold hover:underline"
-                  >
-                    Login
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* ========================================================================= */}
-            {/* PATIENT LOGIN & REGISTRATION                                              */}
-            {/* ========================================================================= */}
-            {role === 'patient' && (
-              <div className="space-y-4">
-                {patientAuthMode === 'login' ? (
-                  !otpSent ? (
-                    <form onSubmit={handleSendOtp} className="space-y-4">
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs font-bold text-slate-700">
-                            Enter Registered Mobile Number
-                          </label>
-                          {isCheckingPatient && (
-                            <span className="text-[10px] text-blue-600 font-mono">Checking database...</span>
-                          )}
-                        </div>
-                        <input
-                          type="tel"
-                          value={mobileNumber}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setMobileNumber(val);
-                            if (val.replace(/\D/g, '').length >= 10) {
-                              handleCheckPatientMobile(val);
-                            } else {
-                              setExistingPatientPreview(null);
-                            }
-                          }}
-                          onBlur={(e) => handleCheckPatientMobile(e.target.value)}
-                          placeholder="Enter your 10-digit mobile number"
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-mono text-center tracking-wider text-base focus:outline-none focus:border-blue-500 focus:bg-white"
-                        />
-                        {existingPatientPreview ? (
-                          <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-[11px] text-emerald-700 flex items-start gap-2">
-                            <Sparkles size={14} className="text-emerald-600 shrink-0 mt-0.5" />
-                            <div>
-                              <strong>Medical Record Found:</strong> Patient profile for{' '}
-                              <span className="font-bold text-emerald-900">{existingPatientPreview.patient.name}</span> is on file. Verifying OTP will automatically load your previous medical history, timeline &amp; ongoing medications!
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-[11px] text-slate-400 block text-center">
-                            Demo mobile: <code className="text-blue-600 font-bold">9876543210</code> (Rahul Verma)
-                          </span>
-                        )}
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition cursor-pointer"
-                      >
-                        {loading ? 'Sending OTP...' : 'Send OTP'}
-                      </button>
-
-                      <div className="text-center text-xs text-slate-500 pt-1">
-                        First time visiting?{' '}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPatientAuthMode('register');
-                            setErrorMessage('');
-                            setSuccessMessage('');
-                          }}
-                          className="text-blue-600 font-bold hover:underline"
-                        >
-                          Register New Patient
-                        </button>
-                      </div>
-                    </form>
+                  {loading ? (
+                    <>
+                      <RefreshCw size={16} className="animate-spin" />
+                      <span>Verifying Credentials...</span>
+                    </>
                   ) : (
-                    <div className="space-y-4">
-                      <div className="text-center space-y-1">
-                        <h4 className="text-xs font-bold text-slate-700">Verify OTP</h4>
-                        <p className="text-[11px] text-slate-500">
-                          Enter 6 digit OTP sent to <strong className="text-slate-800">{mobileNumber}</strong>
-                        </p>
-                      </div>
-
-                      {/* 6-box OTP input */}
-                      <div className="flex justify-center gap-2">
-                        {otpDigits.map((digit, idx) => (
-                          <input
-                            key={idx}
-                            id={`otp-input-${idx}`}
-                            type="text"
-                            maxLength={1}
-                            value={digit}
-                            onChange={(e) => handleDigitChange(idx, e.target.value)}
-                            className="w-10 h-12 text-center text-lg font-bold font-mono bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-sm"
-                          />
-                        ))}
-                      </div>
-
-                      {otpVerified ? (
-                        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 flex items-center justify-center gap-2 font-bold">
-                          <CheckCircle2 size={16} className="text-emerald-600" />
-                          <span>Verified Successfully</span>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={handleVerifyOtp}
-                          disabled={loading}
-                          className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer"
-                        >
-                          {loading ? 'Verifying...' : 'Verify OTP Code'}
-                        </button>
-                      )}
-
-                      {otpVerified && (
-                        <button
-                          type="button"
-                          onClick={handlePatientFinalLogin}
-                          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer"
-                        >
-                          Login to Patient Dashboard <ArrowRight size={16} />
-                        </button>
-                      )}
-
-                      <div className="text-center">
-                        <button
-                          type="button"
-                          onClick={() => { setOtpSent(false); setOtpVerified(false); }}
-                          className="text-xs text-slate-500 hover:text-blue-600 underline"
-                        >
-                          Change mobile number
-                        </button>
-                      </div>
-                    </div>
-                  )
-                ) : (
-                  /* PATIENT REGISTRATION FORM (Auto-picks previous records if exist in DB) */
-                  <form onSubmit={handlePatientRegister} className="space-y-3.5">
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold text-slate-700">Mobile Number *</label>
-                        {isCheckingPatient && (
-                          <span className="text-[10px] text-blue-600 font-mono">Checking records...</span>
-                        )}
-                      </div>
-                      <input
-                        type="tel"
-                        required
-                        value={mobileNumber}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setMobileNumber(val);
-                          if (val.replace(/\D/g, '').length >= 10) {
-                            handleCheckPatientMobile(val);
-                          } else {
-                            setExistingPatientPreview(null);
-                          }
-                        }}
-                        onBlur={(e) => handleCheckPatientMobile(e.target.value)}
-                        placeholder="10-digit mobile number"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:border-blue-500"
-                      />
-                      {existingPatientPreview && (
-                        <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-xl text-[10px] text-emerald-800 flex items-start gap-1.5">
-                          <Sparkles size={12} className="text-emerald-600 shrink-0 mt-0.5" />
-                          <span>
-                            <strong>Previous Records Found:</strong> We detected existing clinical records for this phone number. Submitting will automatically pick and link your previous medical history, timeline &amp; ongoing medications!
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Full Name *</label>
-                      <input
-                        type="text"
-                        required
-                        value={patientRegName}
-                        onChange={(e) => setPatientRegName(e.target.value)}
-                        placeholder="e.g. Rahul Verma"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-700">Age</label>
-                        <input
-                          type="number"
-                          value={patientRegAge}
-                          onChange={(e) => setPatientRegAge(e.target.value)}
-                          placeholder="28"
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-700">Gender</label>
-                        <select
-                          value={patientRegGender}
-                          onChange={(e) => setPatientRegGender(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
-                        >
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer"
-                    >
-                      {loading ? 'Registering & Loading Records...' : 'Register & Load Medical History'}
-                    </button>
-
-                    <div className="text-center text-xs text-slate-500">
-                      Already registered?{' '}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPatientAuthMode('login');
-                          setErrorMessage('');
-                          setSuccessMessage('');
-                        }}
-                        className="text-blue-600 font-bold hover:underline"
-                      >
-                        Login with OTP
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </div>
-            )}
-
-            {/* Medical Disclaimer */}
-            <div className="pt-4 border-t border-slate-200">
-              <div className="p-3 bg-amber-50 rounded-xl border border-amber-200/80 text-center space-y-1">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-amber-900">
-                  <ShieldAlert size={15} className="text-amber-600 shrink-0" />
-                  <span>Medical Disclaimer</span>
-                </div>
-                <p className="text-[11px] text-amber-800 leading-relaxed">
-                  This system is for <strong>informational purposes only</strong> and <strong>does not replace doctors</strong> or professional medical advice. Always consult a certified healthcare professional for medical diagnoses and prescriptions.
-                </p>
-              </div>
+                    <>
+                      <CheckCircle2 size={18} />
+                      <span>Login to Doctor Dashboard</span>
+                      <ArrowRight size={16} />
+                    </>
+                  )}
+                </button>
+              </form>
             </div>
-          </div>
+          )}
         </div>
-      </div>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="max-w-6xl w-full mx-auto pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+        <div className="flex items-center gap-2">
+          <ShieldCheck size={14} className="text-blue-400" />
+          <span>Apex Multispecialty Hospital • Clinical Consultation &amp; Machine Learning Drug Safety Portal</span>
+        </div>
+        <div className="font-mono text-[11px] text-slate-400">
+          Secure Multi-Doctor &amp; Patient Portal
+        </div>
+      </footer>
     </div>
   );
 }

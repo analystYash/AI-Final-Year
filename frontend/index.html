@@ -5,10 +5,10 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DrugAI — Personalized Drug Effect Prediction & 3D Visualization</title>
-    <!-- Fonts -->
+    <!-- Fonts: Times New Roman & Arial -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&family=Arimo:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS Script -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -16,15 +16,19 @@
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['JetBrains Mono', 'monospace'],
+              sans: ['Arial', 'Arimo', 'Helvetica', 'sans-serif'],
+              serif: ['"Times New Roman"', 'Tinos', 'Times', 'serif'],
+              heading: ['"Times New Roman"', 'Tinos', 'Times', 'serif'],
+              times: ['"Times New Roman"', 'Tinos', 'Times', 'serif'],
+              arial: ['Arial', 'Arimo', 'Helvetica', 'sans-serif'],
+              mono: ['JetBrains Mono', 'Consolas', 'monospace'],
             }
           }
         }
       }
     </script>
   </head>
-  <body class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-slate-950">
+  <body class="bg-white text-slate-900 antialiased selection:bg-blue-600 selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

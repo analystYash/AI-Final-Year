@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Dedicated User Authentication & Doctor Credentials Database
-Stores real doctor registrations, hashed passwords, and login audit logs in a separate users.db database.
+Stores doctor registrations, hashed passwords, encrypted biometric credentials, and security audit logs in users.db.
 """
 
 import sqlite3
@@ -33,7 +33,7 @@ def init_auth_db():
     conn = get_auth_db_connection()
     cursor = conn.cursor()
 
-    # Doctors Table
+    # 1. Doctors Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS doctors (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,6 +52,8 @@ def init_auth_db():
         profile_picture TEXT DEFAULT '',
         bio TEXT DEFAULT 'Senior Clinical Consultant specializing in internal medicine, cardiac therapeutics, and evidence-based personalized treatment.',
         department TEXT DEFAULT 'Cardiology & Internal Medicine',
+        status TEXT DEFAULT 'active',
+        last_login_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
@@ -67,7 +69,9 @@ def init_auth_db():
         "availability": "TEXT DEFAULT 'Mon - Fri, 09:00 AM - 04:00 PM'",
         "profile_picture": "TEXT DEFAULT ''",
         "bio": "TEXT DEFAULT 'Specialist clinical practitioner.'",
-        "department": "TEXT DEFAULT 'Internal Medicine'"
+        "department": "TEXT DEFAULT 'Internal Medicine'",
+        "status": "TEXT DEFAULT 'active'",
+        "last_login_at": "TIMESTAMP"
     }
     for col, col_def in needed_doc_cols.items():
         if col not in existing_doc_cols:
@@ -76,7 +80,22 @@ def init_auth_db():
             except Exception:
                 pass
 
-    # Login Activity Audit Table
+    # 2. Comprehensive Authentication Audit Logs Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS authentication_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        user_role TEXT NOT NULL,
+        authentication_method TEXT NOT NULL,
+        authentication_status TEXT NOT NULL,
+        failure_reason TEXT,
+        device_information TEXT DEFAULT 'Clinical Console',
+        ip_address TEXT DEFAULT '127.0.0.1',
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
+    # 4. Login Activity Audit Table (legacy preserved)
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS login_logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -147,8 +166,8 @@ def init_auth_db():
             INSERT INTO doctors (
                 name, email, password_hash, salt, specialization, license_number,
                 hospital_name, qualifications, experience_years, phone,
-                clinic_address, availability, bio, department
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                clinic_address, availability, bio, department, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
             """, (
                 doc["name"], doc["email"], pwd_hash, salt,
                 doc["specialization"], doc["license_number"], doc["hospital_name"],
@@ -165,7 +184,8 @@ def init_auth_db():
                 clinic_address = COALESCE(NULLIF(clinic_address, ''), ?),
                 availability = COALESCE(NULLIF(availability, ''), ?),
                 bio = COALESCE(NULLIF(bio, ''), ?),
-                department = COALESCE(NULLIF(department, ''), ?)
+                department = COALESCE(NULLIF(department, ''), ?),
+                status = COALESCE(NULLIF(status, ''), 'active')
             WHERE id = ?
             """, (
                 doc["qualifications"], doc["experience_years"], doc["phone"],
@@ -185,7 +205,8 @@ def init_auth_db():
             clinic_address = COALESCE(NULLIF(clinic_address, ''), 'Department of Medicine, Apex Multispecialty Hospital, Mumbai'),
             availability = COALESCE(NULLIF(availability, ''), 'Mon - Sat, 08:30 AM - 02:00 PM'),
             bio = COALESCE(NULLIF(bio, ''), 'Consultant Physician managing chronic multisystem disorders, pharmacotherapy optimization, and patient-centered longitudinal care.'),
-            department = COALESCE(NULLIF(department, ''), 'General & Internal Medicine')
+            department = COALESCE(NULLIF(department, ''), 'General & Internal Medicine'),
+            status = 'active'
         WHERE id = ?
         """, (yash_doc["id"],))
 
@@ -199,7 +220,6 @@ def register_doctor(name, email, password, specialization="Internal Medicine", l
     cursor = conn.cursor()
     email_clean = email.strip().lower()
 
-    # Check if email exists
     cursor.execute("SELECT id FROM doctors WHERE email = ?", (email_clean,))
     if cursor.fetchone():
         conn.close()
@@ -209,8 +229,8 @@ def register_doctor(name, email, password, specialization="Internal Medicine", l
     cursor.execute("""
     INSERT INTO doctors (
         name, email, password_hash, salt, specialization, license_number, hospital_name,
-        qualifications, experience_years, phone, clinic_address, availability, bio, department
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        qualifications, experience_years, phone, clinic_address, availability, bio, department, status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
     """, (
         name.strip(),
         email_clean,
@@ -244,7 +264,8 @@ def register_doctor(name, email, password, specialization="Internal Medicine", l
         "clinic_address": clinic_address.strip(),
         "availability": availability.strip(),
         "bio": bio.strip(),
-        "department": department.strip()
+        "department": department.strip(),
+        "status": "active"
     }
 
 def get_doctor_by_id(doctor_id):
@@ -281,7 +302,7 @@ def update_doctor_profile(doctor_id, updates):
     allowed_fields = [
         "name", "specialization", "hospital_name", "license_number",
         "qualifications", "experience_years", "phone", "clinic_address",
-        "availability", "profile_picture", "bio", "department"
+        "availability", "profile_picture", "bio", "department", "status"
     ]
     set_clauses = []
     values = []
@@ -324,7 +345,6 @@ def authenticate_doctor(email, password):
         cursor.execute("INSERT INTO login_logs (user_type, identifier, status) VALUES ('doctor', ?, 'SUCCESS')", (email_clean,))
         conn.commit()
         conn.close()
-        # Return doctor profile without sensitive hash/salt
         del doctor_dict["password_hash"]
         del doctor_dict["salt"]
         return doctor_dict
@@ -333,6 +353,46 @@ def authenticate_doctor(email, password):
         conn.commit()
         conn.close()
         return None
+
+def update_doctor_last_login(doctor_id):
+    """Updates the last_login_at timestamp for a doctor."""
+    conn = get_auth_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE doctors SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?", (doctor_id,))
+    conn.commit()
+    conn.close()
+
+def log_auth_event(user_id, user_role, method, status, failure_reason="", device_info="Safran Morpho MSO 1300 E3", ip_address="127.0.0.1"):
+    """
+    Persists structured security audit entry in authentication_logs.
+    Never stores plaintext passwords, raw fingerprint templates, or OTP values.
+    """
+    try:
+        conn = get_auth_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+        INSERT INTO authentication_logs (
+            user_id, user_role, authentication_method, authentication_status,
+            failure_reason, device_information, ip_address, timestamp
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """, (user_id, user_role, method, status, failure_reason, device_info, ip_address))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Warning: Failed to write audit log: {e}")
+
+def get_auth_logs(limit=100):
+    """Returns recent authentication audit logs."""
+    conn = get_auth_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT * FROM authentication_logs
+        ORDER BY timestamp DESC, id DESC
+        LIMIT ?
+    """, (limit,))
+    rows = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+    return rows
 
 # Initialize upon module load
 init_auth_db()

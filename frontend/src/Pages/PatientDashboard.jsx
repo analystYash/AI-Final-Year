@@ -185,21 +185,21 @@ export default function PatientDashboard() {
   const activeCondition = patient?.current_health_issue || patient?.existing_diseases || 'Gastritis & Acid Peptic Disease';
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
       {/* TOP HEADER */}
-      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 px-4 lg:px-6 py-3.5 flex items-center justify-between print:hidden backdrop-blur-md">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 px-4 lg:px-6 py-3.5 flex items-center justify-between print:hidden shadow-xs backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20">
             <User size={22} className="text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-base font-black tracking-tight text-white">DrugAI Health Portal</span>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono font-bold">
+              <span className="text-base font-black tracking-tight text-slate-900 font-times">DrugAI Health Portal</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
                 Patient View
               </span>
             </div>
-            <span className="text-[11px] text-slate-300 hidden sm:block">
+            <span className="text-[11px] text-slate-500 hidden sm:block">
               Personalized Medicine, 3D Anatomy Mapping & Multilingual Clinical Guidance
             </span>
           </div>
@@ -208,23 +208,23 @@ export default function PatientDashboard() {
         {/* Right Controls */}
         <div className="flex items-center gap-3">
           {/* Multilingual Switcher: English, Hinglish, Marathi */}
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
-            <Languages size={14} className="text-slate-400 ml-1 mr-1" />
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+            <Languages size={14} className="text-slate-500 ml-1 mr-1" />
             <button
               onClick={() => setLang('english')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${lang === 'english' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${lang === 'english' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
             >
               English
             </button>
             <button
               onClick={() => setLang('hinglish')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${lang === 'hinglish' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${lang === 'hinglish' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
             >
               Hinglish
             </button>
             <button
               onClick={() => setLang('marathi')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${lang === 'marathi' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${lang === 'marathi' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
             >
               मराठी
             </button>
@@ -234,27 +234,27 @@ export default function PatientDashboard() {
             onClick={() => setActiveTab('doctors')}
             className={`hidden md:flex flex-col text-right cursor-pointer group px-3 py-1 rounded-xl border transition ${
               activeTab === 'doctors'
-                ? 'bg-blue-600/20 border-blue-500/40 shadow-sm'
-                : 'bg-slate-950 border-slate-800 hover:border-cyan-500/40 hover:bg-slate-900'
+                ? 'bg-blue-50 border-blue-300 shadow-xs'
+                : 'bg-slate-50 border-slate-200 hover:border-blue-300 hover:bg-slate-100'
             }`}
             title="Click to view My Doctor Care Team profile"
           >
-            <span className="text-xs font-bold text-white group-hover:text-cyan-300 transition flex items-center gap-1.5 justify-end">
-              <Stethoscope size={13} className={activeTab === 'doctors' ? 'text-cyan-300' : 'text-cyan-400'} /> Dr. Sharma, MD
+            <span className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition flex items-center gap-1.5 justify-end font-times">
+              <Stethoscope size={13} className={activeTab === 'doctors' ? 'text-blue-600' : 'text-blue-500'} /> Dr. Sharma, MD
               <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase ${
-                activeTab === 'doctors' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-cyan-300 border border-slate-700'
+                activeTab === 'doctors' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700 border border-slate-300'
               }`}>
                 Doctor Team
               </span>
             </span>
-            <span className="text-[11px] text-slate-400 font-mono group-hover:text-slate-300 transition">
+            <span className="text-[11px] text-slate-500 group-hover:text-slate-700 transition">
               Apex Multispecialty Hospital
             </span>
           </div>
 
           <button
             onClick={handleLogout}
-            className="p-2 bg-slate-950 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 rounded-xl border border-slate-800 transition cursor-pointer"
+            className="p-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-xl border border-slate-200 transition cursor-pointer"
             title="Logout"
           >
             <LogOut size={16} />
@@ -263,35 +263,35 @@ export default function PatientDashboard() {
       </header>
 
       {/* PATIENT PROFILE HEADER CARD */}
-      <div className="bg-slate-900 border-b border-slate-800 px-4 lg:px-6 py-3 print:hidden">
+      <div className="bg-white border-b border-slate-200 px-4 lg:px-6 py-3 print:hidden shadow-xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-600/20 border border-blue-500/40 flex items-center justify-center font-bold text-cyan-400 text-sm">
+            <div className="w-10 h-10 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center font-bold text-blue-700 text-sm font-times">
               {patient?.name?.charAt(0) || 'R'}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-extrabold text-white text-sm">{patient?.name || 'Rahul Verma'}</h2>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-cyan-300 font-mono">
+                <h2 className="font-extrabold text-slate-900 text-sm font-times">{patient?.name || 'Rahul Verma'}</h2>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-mono font-medium">
                   {ageGroup} • {patient?.age || 28}y
                 </span>
                 {patient?.allergies && patient.allergies.toLowerCase() !== 'none' && (
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">
                     ⚠ Allergies: {patient.allergies}
                   </span>
                 )}
               </div>
-              <p className="text-slate-300 text-[11px]">
-                Health Issue: <strong className="text-white">{activeCondition}</strong> • Phone ID: <span className="text-cyan-400 font-mono font-bold">{patient?.contact_number || '9876543210'}</span>
+              <p className="text-slate-600 text-[11px]">
+                Health Issue: <strong className="text-slate-900">{activeCondition}</strong> • Phone ID: <span className="text-blue-700 font-mono font-bold">{patient?.contact_number || '9876543210'}</span>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs overflow-x-auto">
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs overflow-x-auto">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`px-3 py-1.5 rounded-lg font-bold transition cursor-pointer whitespace-nowrap ${activeTab === 'overview' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                className={`px-3 py-1.5 rounded-lg font-bold transition cursor-pointer whitespace-nowrap ${activeTab === 'overview' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'}`}
               >
                 Clinical Dashboard
               </button>
@@ -299,10 +299,10 @@ export default function PatientDashboard() {
               {/* ─── Medical History Button ─── */}
               <button
                 onClick={() => setActiveTab('history')}
-                className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${activeTab === 'history' ? 'bg-violet-600 text-white shadow shadow-violet-500/30' : 'text-slate-400 hover:text-violet-300 hover:bg-violet-500/10'}`}
+                className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${activeTab === 'history' ? 'bg-violet-600 text-white shadow-sm shadow-violet-500/20' : 'text-slate-600 hover:text-violet-700 hover:bg-violet-50'}`}
               >
                 <ClipboardList size={13} /> Medical History
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${activeTab === 'history' ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'}`}>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${activeTab === 'history' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
                   {consultations.length}
                 </span>
               </button>
@@ -310,10 +310,10 @@ export default function PatientDashboard() {
               {/* ─── Timeline Button ─── */}
               <button
                 onClick={() => setActiveTab('timeline')}
-                className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${activeTab === 'timeline' ? 'bg-cyan-600 text-white shadow shadow-cyan-500/30' : 'text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10'}`}
+                className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${activeTab === 'timeline' ? 'bg-cyan-600 text-white shadow-sm shadow-cyan-500/20' : 'text-slate-600 hover:text-cyan-700 hover:bg-cyan-50'}`}
               >
                 <TrendingUp size={13} /> Timeline
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${activeTab === 'timeline' ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'}`}>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${activeTab === 'timeline' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
                   {timeline.length > 0 ? timeline.length : consultations.length + prescriptions.length}
                 </span>
               </button>
@@ -321,23 +321,23 @@ export default function PatientDashboard() {
               {/* ─── Ongoing Medications Button ─── */}
               <button
                 onClick={() => setActiveTab('medications')}
-                className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${activeTab === 'medications' ? 'bg-emerald-600 text-white shadow shadow-emerald-500/30' : 'text-slate-400 hover:text-emerald-300 hover:bg-emerald-500/10'}`}
+                className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${activeTab === 'medications' ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/20' : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'}`}
               >
                 <Pill size={13} /> Ongoing Medications
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${activeTab === 'medications' ? 'bg-white/20 text-white' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${activeTab === 'medications' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}`}>
                   {medications?.active?.length || 0}
                 </span>
               </button>
 
               <button
                 onClick={() => setActiveTab('doctors')}
-                className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${activeTab === 'doctors' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${activeTab === 'doctors' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'}`}
               >
                 <Users size={13} /> My Doctor Team ({careTeam.length})
               </button>
               <button
                 onClick={() => setActiveTab('report')}
-                className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${activeTab === 'report' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${activeTab === 'report' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'}`}
               >
                 <FileText size={13} /> Official Medical Report
               </button>
@@ -345,7 +345,7 @@ export default function PatientDashboard() {
 
             <button
               onClick={() => window.print()}
-              className="px-3.5 py-1.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-bold border border-slate-800 flex items-center gap-1.5 transition cursor-pointer shrink-0"
+              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 flex items-center gap-1.5 transition cursor-pointer shrink-0 shadow-xs"
             >
               <Printer size={13} /> Print
             </button>
@@ -358,23 +358,23 @@ export default function PatientDashboard() {
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Top Status Banner */}
-            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-md">
+            <div className="p-4 rounded-2xl bg-white border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <div className="p-2.5 rounded-xl bg-emerald-100 text-emerald-700 border border-emerald-200">
                   <ShieldCheck size={22} />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-white text-sm">Prescription Active & Medical API Verified Safe</h3>
-                  <p className="text-slate-300">
-                    Pharmacological compatibility verified for <strong className="text-cyan-300">{activeDrugName}</strong> • Target Indication Match
+                  <h3 className="font-extrabold text-slate-900 text-sm font-times">Prescription Active & Medical API Verified Safe</h3>
+                  <p className="text-slate-600">
+                    Pharmacological compatibility verified for <strong className="text-blue-700">{activeDrugName}</strong> • Target Indication Match
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-blue-600/20 text-cyan-300 border border-blue-500/40 font-mono font-bold text-xs">
+                <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-mono font-bold text-xs">
                   {activeDrugName}
                 </span>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold text-xs">
+                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-bold text-xs">
                   87% Safe
                 </span>
               </div>
@@ -382,13 +382,13 @@ export default function PatientDashboard() {
 
             {/* Multi-Medicine Tablet Switcher Banner (if multiple medicines are prescribed) */}
             {prescriptions.length > 1 && (
-              <div className="p-4 rounded-2xl bg-slate-900 border border-cyan-500/30 space-y-2.5 shadow-sm">
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-2.5 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-cyan-400 uppercase tracking-wider flex items-center gap-2">
-                    <Layers size={14} /> Your Prescribed Medicines ({prescriptions.length}) — Click to switch 3D organ view:
+                  <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2 font-times">
+                    <Layers size={14} className="text-blue-600" /> Your Prescribed Medicines ({prescriptions.length}) — Click to switch 3D organ view:
                   </span>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    Currently Viewing: <strong className="text-white">{activeDrugName}</strong>
+                  <span className="text-[10px] text-slate-500 font-mono">
+                    Currently Viewing: <strong className="text-slate-900">{activeDrugName}</strong>
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -400,13 +400,13 @@ export default function PatientDashboard() {
                         onClick={() => setSelectedPrescription(pr)}
                         className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-2 cursor-pointer ${
                           isSelected
-                            ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-md shadow-cyan-500/20'
-                            : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-cyan-500 hover:text-white'
+                            ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
+                            : 'bg-slate-100 text-slate-700 border-slate-200 hover:border-blue-400 hover:text-blue-700 hover:bg-white'
                         }`}
                       >
-                        <Pill size={13} className={isSelected ? 'text-slate-950' : 'text-cyan-400'} />
+                        <Pill size={13} className={isSelected ? 'text-white' : 'text-blue-600'} />
                         <span>{pr.drug_name}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${isSelected ? 'bg-slate-900/30 text-slate-950' : 'bg-slate-900 text-slate-400'}`}>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
                           {pr.dosage || 'Daily'}
                         </span>
                       </button>
@@ -424,8 +424,8 @@ export default function PatientDashboard() {
               {/* ─────────────────────────────────────────────────────────────── */}
               {/* BOX 1: 3D HUMAN ANATOMY & TARGET ORGAN SIMULATION              */}
               {/* ─────────────────────────────────────────────────────────────── */}
-              <div className="bg-slate-900 rounded-2xl border border-emerald-500/40 overflow-hidden shadow-lg flex flex-col">
-                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 flex items-center justify-between text-white">
+              <div className="bg-white rounded-2xl border border-emerald-200 overflow-hidden shadow-sm flex flex-col">
+                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 flex items-center justify-between text-white font-times">
                   <span className="font-black text-xs uppercase tracking-wider flex items-center gap-2">
                     <Eye size={16} /> 1. Real 3D Human Anatomy & Drug Pharmacokinetics
                   </span>
@@ -435,7 +435,7 @@ export default function PatientDashboard() {
                 </div>
 
                 <div className="p-3 flex-1 flex flex-col space-y-3">
-                  <div className="h-80 sm:h-96 w-full rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                  <div className="h-80 sm:h-96 w-full rounded-xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner">
                     <HumanBody3D
                       targetOrgans={
                         selectedPrescription?.target_organs ||
@@ -446,9 +446,9 @@ export default function PatientDashboard() {
                       riskLevel={selectedPrescription?.overall_risk || 'LOW'}
                     />
                   </div>
-                  <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-[11px] text-slate-300 flex items-center justify-between">
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between">
                     <span>✨ Rotate 360°, inspect organ glow aura, and monitor pharmacokinetic particle flow.</span>
-                    <span className="font-mono text-cyan-400 font-bold shrink-0 ml-2">{activeDrugName}</span>
+                    <span className="font-mono text-blue-700 font-bold shrink-0 ml-2">{activeDrugName}</span>
                   </div>
                 </div>
               </div>
@@ -456,8 +456,8 @@ export default function PatientDashboard() {
               {/* ─────────────────────────────────────────────────────────────── */}
               {/* BOX 2: AI DOCTOR ADVICE & MULTILINGUAL CARE PLAN              */}
               {/* ─────────────────────────────────────────────────────────────── */}
-              <div className="bg-slate-900 rounded-2xl border border-amber-500/40 overflow-hidden shadow-lg flex flex-col">
-                <div className="bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-3 flex items-center justify-between text-white">
+              <div className="bg-white rounded-2xl border border-amber-200 overflow-hidden shadow-sm flex flex-col">
+                <div className="bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-3 flex items-center justify-between text-white font-times">
                   <span className="font-black text-xs uppercase tracking-wider flex items-center gap-2">
                     <Sparkles size={16} /> 2. AI Doctor Advice & Multilingual Instructions
                   </span>
@@ -468,11 +468,11 @@ export default function PatientDashboard() {
 
                 <div className="p-5 space-y-4 flex-1 text-xs">
                   {/* Doctor Notes Box */}
-                  <div className="p-4 rounded-xl bg-amber-950/25 border border-amber-500/30 space-y-2">
-                    <span className="text-amber-300 font-extrabold text-xs flex items-center gap-1.5">
-                      <Stethoscope size={14} /> Doctor's Clinical Instruction:
+                  <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200 space-y-2">
+                    <span className="text-amber-900 font-extrabold text-xs flex items-center gap-1.5 font-times">
+                      <Stethoscope size={14} className="text-amber-700" /> Doctor's Clinical Instruction:
                     </span>
-                    <p className="text-white leading-relaxed text-xs font-medium">
+                    <p className="text-slate-800 leading-relaxed text-xs font-medium">
                       {clinicalAnalysis?.advisory?.[lang] || clinicalAnalysis?.advisory?.english || (
                         lang === 'marathi'
                           ? `${patient?.name} यांच्या ${activeCondition} त्रासासाठी ${activeDrugName} अत्यंत गुणकारी ठरले आहे. डॉक्टरांच्या सल्ल्यानुसार हे औषध पाण्यासोबत घ्यावे आणि पथ्य पाळावे.`
@@ -484,19 +484,19 @@ export default function PatientDashboard() {
                   </div>
 
                   {/* Dosage schedule */}
-                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
-                    <span className="text-slate-400 block text-[11px] font-semibold">Prescription Schedule:</span>
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <span className="text-slate-500 block text-[11px] font-semibold">Prescription Schedule:</span>
                     <div className="flex items-center justify-between">
-                      <span className="text-white font-bold text-sm">{activeDosage}</span>
-                      <span className="text-cyan-400 font-mono text-[11px] bg-slate-900 px-2 py-0.5 rounded">Regular Course</span>
+                      <span className="text-slate-900 font-bold text-sm">{activeDosage}</span>
+                      <span className="text-blue-700 font-mono text-[11px] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">Regular Course</span>
                     </div>
                   </div>
 
                   {/* Allergy Alert */}
                   {patient?.allergies && patient.allergies.toLowerCase() !== 'none' && (
-                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                      <span className="text-slate-400">Allergy Verification:</span>
-                      <span className="text-emerald-400 font-bold flex items-center gap-1">
+                    <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                      <span className="text-slate-700">Allergy Verification:</span>
+                      <span className="text-emerald-700 font-bold flex items-center gap-1">
                         <Check size={13} /> Checked for {patient.allergies} (Safe)
                       </span>
                     </div>
@@ -507,31 +507,31 @@ export default function PatientDashboard() {
               {/* ─────────────────────────────────────────────────────────────── */}
               {/* BOX 3: PERSONALIZED NUTRITION (WHAT TO EAT vs WHAT TO AVOID)    */}
               {/* ─────────────────────────────────────────────────────────────── */}
-              <div className="bg-slate-900 rounded-2xl border border-emerald-500/40 p-5 space-y-4 shadow-lg lg:col-span-2">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="bg-white rounded-2xl border border-emerald-200 p-5 space-y-4 shadow-sm lg:col-span-2">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700 border border-emerald-200">
                       <Utensils size={16} />
                     </div>
                     <div>
-                      <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider font-times">
                         3. Personalized Nutrition & Dietary Plan
                       </h3>
-                      <p className="text-[11px] text-slate-400">
-                        Tailored for <strong className="text-white">{activeCondition}</strong> in <strong className="text-cyan-300">{ageGroup}</strong>
+                      <p className="text-[11px] text-slate-500">
+                        Tailored for <strong className="text-slate-900">{activeCondition}</strong> in <strong className="text-blue-700">{ageGroup}</strong>
                       </p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                     Multilingual: {lang.toUpperCase()}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* GREEN: Recommended Foods */}
-                  <div className="p-4 rounded-xl bg-emerald-950/25 border border-emerald-500/40 space-y-2.5">
-                    <span className="text-xs font-black text-emerald-300 flex items-center gap-2">
-                      <Check size={16} className="text-emerald-400" />
+                  <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2.5">
+                    <span className="text-xs font-black text-emerald-900 flex items-center gap-2 font-times">
+                      <Check size={16} className="text-emerald-600" />
                       {lang === 'marathi' ? 'खाण्यासाठी शिफारस केलेले अन्न (Foods to Eat):' :
                        lang === 'hinglish' ? 'Yeh Khana Chahiye (Recommended Foods):' :
                        'Recommended Foods to Eat (High Benefit):'}
@@ -542,8 +542,8 @@ export default function PatientDashboard() {
                         clinicalAnalysis?.personalizedDiet?.foods_to_eat?.english ||
                         ['Tender coconut water & fresh buttermilk', 'Cold milk & boiled oatmeal', 'Bland khichdi with mild turmeric', 'Non-citrus ripe bananas & papaya']
                       ).map((item, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-xs text-slate-100">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
+                        <div key={idx} className="flex items-start gap-2 text-xs text-slate-800">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1.5 shrink-0" />
                           <span className="font-medium">{item}</span>
                         </div>
                       ))}
@@ -551,9 +551,9 @@ export default function PatientDashboard() {
                   </div>
 
                   {/* RED: Strictly Avoid Foods */}
-                  <div className="p-4 rounded-xl bg-rose-950/25 border border-rose-500/40 space-y-2.5">
-                    <span className="text-xs font-black text-rose-300 flex items-center gap-2">
-                      <AlertTriangle size={16} className="text-rose-400" />
+                  <div className="p-4 rounded-xl bg-rose-50/70 border border-rose-200 space-y-2.5">
+                    <span className="text-xs font-black text-rose-900 flex items-center gap-2 font-times">
+                      <AlertTriangle size={16} className="text-rose-600" />
                       {lang === 'marathi' ? 'काटेकोरपणे टाळायचे पदार्थ (Foods to Avoid):' :
                        lang === 'hinglish' ? 'Yeh Bilkul Na Khayein (Strictly Avoid):' :
                        'Strictly Harmful Foods to Avoid:'}
@@ -564,8 +564,8 @@ export default function PatientDashboard() {
                         clinicalAnalysis?.personalizedDiet?.foods_to_avoid?.english ||
                         ['Deep-fried snacks & oily red gravies', 'Empty stomach black tea & strong coffee', 'Sour citrus juices (lemon, orange)', 'Late-night heavy meals & raw chilies']
                       ).map((item, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-xs text-rose-100">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
+                        <div key={idx} className="flex items-start gap-2 text-xs text-rose-950">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
                           <span className="font-medium">{item}</span>
                         </div>
                       ))}
@@ -575,10 +575,10 @@ export default function PatientDashboard() {
 
                 {/* Clinical Rationale */}
                 {(clinicalAnalysis?.personalizedDiet?.clinical_reason?.[lang] || clinicalAnalysis?.personalizedDiet?.clinical_reason?.english) && (
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 flex items-start gap-2">
-                    <Info size={14} className="text-cyan-400 shrink-0 mt-0.5" />
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-start gap-2">
+                    <Info size={14} className="text-blue-600 shrink-0 mt-0.5" />
                     <span>
-                      <strong className="text-white">
+                      <strong className="text-slate-900 font-times">
                         {lang === 'marathi' ? 'वैद्यकीय कारण:' : lang === 'hinglish' ? 'Doctor ki Salah:' : 'Clinical Rationale:'}
                       </strong>{' '}
                       {clinicalAnalysis.personalizedDiet.clinical_reason[lang] || clinicalAnalysis.personalizedDiet.clinical_reason.english}
@@ -590,29 +590,29 @@ export default function PatientDashboard() {
               {/* ─────────────────────────────────────────────────────────────── */}
               {/* BOX 4: WHY THIS MEDICINE WAS CHOSEN (COMPARISON MATRIX)        */}
               {/* ─────────────────────────────────────────────────────────────── */}
-              <div className="bg-slate-900 rounded-2xl border border-purple-500/40 p-5 space-y-4 shadow-lg lg:col-span-2">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="bg-white rounded-2xl border border-purple-200 p-5 space-y-4 shadow-sm lg:col-span-2">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                    <div className="p-1.5 rounded-lg bg-purple-100 text-purple-700 border border-purple-200">
                       <Award size={16} />
                     </div>
                     <div>
-                      <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider font-times">
                         4. Pharmacological Comparison: Why This Medicine Was Chosen
                       </h3>
-                      <p className="text-[11px] text-slate-400">
-                        Evaluated across 4 candidate treatments for <strong className="text-white">{activeCondition}</strong> using Medical API
+                      <p className="text-[11px] text-slate-500">
+                        Evaluated across 4 candidate treatments for <strong className="text-slate-900">{activeCondition}</strong> using Medical API
                       </p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
                     4-Drug Matrix
                   </span>
                 </div>
 
-                <div className="overflow-x-auto rounded-xl border border-slate-800">
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-950 text-slate-400 uppercase text-[10px] font-bold">
+                    <thead className="bg-slate-100 text-slate-700 uppercase text-[10px] font-bold">
                       <tr>
                         <th className="p-3">Medicine</th>
                         <th className="p-3">Therapeutic Action</th>
@@ -622,7 +622,7 @@ export default function PatientDashboard() {
                         <th className="p-3">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800 bg-slate-950">
+                    <tbody className="divide-y divide-slate-200 bg-white">
                       {(medicineComparison?.candidateDrugs && medicineComparison.candidateDrugs.length > 0
                         ? medicineComparison.candidateDrugs
                         : [
@@ -634,18 +634,18 @@ export default function PatientDashboard() {
                       ).map((cd, idx) => {
                         const isChosen = cd.drug_name.toLowerCase().includes(activeDrugName.toLowerCase()) || cd.recommendation_badge === 'Recommended' || idx === 0;
                         return (
-                          <tr key={idx} className={isChosen ? 'bg-blue-950/30 font-bold' : 'hover:bg-slate-900/50'}>
+                          <tr key={idx} className={isChosen ? 'bg-blue-50/70 font-bold' : 'hover:bg-slate-50'}>
                             <td className="p-3 flex items-center gap-2">
-                              <Pill size={13} className={isChosen ? 'text-cyan-400' : 'text-slate-400'} />
-                              <span className={isChosen ? 'text-white' : 'text-slate-300'}>{cd.drug_name}</span>
+                              <Pill size={13} className={isChosen ? 'text-blue-600' : 'text-slate-400'} />
+                              <span className={isChosen ? 'text-slate-900 font-bold' : 'text-slate-700'}>{cd.drug_name}</span>
                             </td>
-                            <td className="p-3 text-slate-300">{cd.drug_class || 'Pharmacotherapy'}</td>
-                            <td className="p-3 text-emerald-400 font-mono font-bold">{cd.safety_score_pct || 87}% Safe</td>
-                            <td className="p-3 text-slate-300">{cd.recovery_time || '3 - 5 Days'}</td>
-                            <td className="p-3 font-mono text-cyan-400 font-bold">₹{cd.monthly_cost_inr || 120}</td>
+                            <td className="p-3 text-slate-600">{cd.drug_class || 'Pharmacotherapy'}</td>
+                            <td className="p-3 text-emerald-700 font-mono font-bold">{cd.safety_score_pct || 87}% Safe</td>
+                            <td className="p-3 text-slate-600">{cd.recovery_time || '3 - 5 Days'}</td>
+                            <td className="p-3 font-mono text-blue-700 font-bold">₹{cd.monthly_cost_inr || 120}</td>
                             <td className="p-3">
                               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                                isChosen ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'
+                                isChosen ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 border border-slate-200'
                               }`}>
                                 {isChosen ? '★ Chosen' : 'Alternative'}
                               </span>
@@ -658,8 +658,8 @@ export default function PatientDashboard() {
                 </div>
 
                 {/* Patient-friendly explanation */}
-                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200">
-                  <span className="text-cyan-400 font-bold block mb-1">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700">
+                  <span className="text-blue-700 font-bold block mb-1 font-times">
                     {lang === 'marathi' ? 'डॉक्टरांचे स्पष्टीकरण:' : lang === 'hinglish' ? 'Doctor ki Salah:' : 'Why this medicine is right for you:'}
                   </span>
                   <p>
@@ -677,85 +677,85 @@ export default function PatientDashboard() {
         {/* TAB: CENTRALIZED MEDICAL HISTORY & TIMELINE */}
         {activeTab === 'history' && (
           <div className="space-y-6">
-            <div className="p-6 rounded-3xl bg-slate-900 border border-violet-500/30 shadow-xl space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+            <div className="p-6 rounded-3xl bg-white border border-violet-200 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
                 <div>
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                    <ClipboardList size={20} className="text-violet-400" /> Centralized Medical History & Consultations
+                  <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 font-times">
+                    <ClipboardList size={20} className="text-violet-600" /> Centralized Medical History & Consultations
                   </h2>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500">
                     Comprehensive multi-doctor records automatically loaded from your patient database at login
                   </p>
                   {/* DB sync indicator */}
                   <div className="flex items-center gap-1.5 mt-2">
-                    <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse inline-block" />
-                    <span className="text-[10px] text-violet-400 font-semibold">
+                    <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse inline-block" />
+                    <span className="text-[10px] text-violet-700 font-semibold">
                       Auto-loaded from database &middot; {consultations.length} consultation record{consultations.length !== 1 ? 's' : ''}
                     </span>
                   </div>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1.5 w-fit">
+                <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-1.5 w-fit">
                   <ShieldCheck size={14} /> Full Record Integration
                 </span>
               </div>
 
               {/* Baseline Summary Strip */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                  <span className="text-slate-400 text-[10px] uppercase font-bold block mb-1">Documented Allergies</span>
-                  <span className={patient?.allergies && patient.allergies.toLowerCase() !== 'none' ? 'text-amber-400 font-bold' : 'text-emerald-400 font-bold'}>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                  <span className="text-slate-500 text-[10px] uppercase font-bold block mb-1">Documented Allergies</span>
+                  <span className={patient?.allergies && patient.allergies.toLowerCase() !== 'none' ? 'text-amber-800 font-bold' : 'text-emerald-700 font-bold'}>
                     {patient?.allergies || 'No known allergies reported'}
                   </span>
                 </div>
-                <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                  <span className="text-slate-400 text-[10px] uppercase font-bold block mb-1">Existing Medical Conditions</span>
-                  <span className="text-slate-200 font-semibold">{patient?.existing_diseases || 'None documented'}</span>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                  <span className="text-slate-500 text-[10px] uppercase font-bold block mb-1">Existing Medical Conditions</span>
+                  <span className="text-slate-800 font-semibold">{patient?.existing_diseases || 'None documented'}</span>
                 </div>
-                <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                  <span className="text-slate-400 text-[10px] uppercase font-bold block mb-1">Primary Treating Doctor</span>
-                  <span className="text-cyan-300 font-bold">{careTeam.find(d => d.relationship_type === 'treating')?.doctor_name || 'Dr. Sharma, MD'}</span>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                  <span className="text-slate-500 text-[10px] uppercase font-bold block mb-1">Primary Treating Doctor</span>
+                  <span className="text-blue-700 font-bold font-times">{careTeam.find(d => d.relationship_type === 'treating')?.doctor_name || 'Dr. Sharma, MD'}</span>
                 </div>
               </div>
             </div>
 
             {/* Consultations List */}
             {consultations.length === 0 ? (
-              <div className="text-center py-12 bg-slate-900 rounded-3xl border border-slate-800 text-slate-400 text-xs">
+              <div className="text-center py-12 bg-white rounded-3xl border border-slate-200 text-slate-500 text-xs shadow-sm">
                 No previous consultations found on file.
               </div>
             ) : (
               <div className="space-y-4">
                 {consultations.map((c) => (
-                  <div key={c.id} className="bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl space-y-3.5">
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                  <div key={c.id} className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-3.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-white text-base">{c.diagnosis}</span>
-                          <span className="px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-400 text-[10px] font-bold border border-blue-500/30">
+                          <span className="font-bold text-slate-900 text-base font-times">{c.diagnosis}</span>
+                          <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-200">
                             Consultation #{c.id}
                           </span>
                         </div>
-                        <div className="text-xs text-cyan-300 font-semibold flex items-center gap-1.5 mt-0.5">
-                          <Stethoscope size={13} className="text-cyan-400" />
-                          <span>{c.doctor_name}</span>
-                          <span className="text-slate-500">|</span>
-                          <span className="text-slate-400">{c.doctor_specialization}</span>
+                        <div className="text-xs text-blue-700 font-semibold flex items-center gap-1.5 mt-0.5">
+                          <Stethoscope size={13} className="text-blue-600" />
+                          <span className="font-times">{c.doctor_name}</span>
+                          <span className="text-slate-300">|</span>
+                          <span className="text-slate-600 font-normal">{c.doctor_specialization}</span>
                           {c.hospital_name && (
                             <>
-                              <span className="text-slate-500">|</span>
-                              <span className="text-slate-400 font-normal">{c.hospital_name}</span>
+                              <span className="text-slate-300">|</span>
+                              <span className="text-slate-500 font-normal">{c.hospital_name}</span>
                             </>
                           )}
                         </div>
                       </div>
 
                       <div className="text-right">
-                        <span className="text-xs font-mono text-slate-400 flex items-center gap-1 justify-end">
-                          <Calendar size={13} className="text-blue-400" />
+                        <span className="text-xs font-mono text-slate-500 flex items-center gap-1 justify-end">
+                          <Calendar size={13} className="text-blue-600" />
                           {String(c.consultation_date).slice(0, 16)}
                         </span>
                         {c.follow_up_date && (
-                          <span className="text-[11px] text-amber-300 block mt-0.5 font-medium">
+                          <span className="text-[11px] text-amber-800 block mt-0.5 font-medium">
                             Follow-up: {c.follow_up_date}
                           </span>
                         )}
@@ -763,14 +763,14 @@ export default function PatientDashboard() {
                     </div>
 
                     {c.symptoms && (
-                      <div className="text-xs text-slate-300">
-                        <strong className="text-slate-400">Symptoms Discussed: </strong>
+                      <div className="text-xs text-slate-700">
+                        <strong className="text-slate-900 font-times">Symptoms Discussed: </strong>
                         {c.symptoms}
                       </div>
                     )}
 
-                    <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80 text-xs text-slate-200">
-                      <strong className="text-slate-400 block mb-1">Doctor's Treatment Plan & Advice:</strong>
+                    <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs text-slate-800">
+                      <strong className="text-slate-900 block mb-1 font-times">Doctor's Treatment Plan & Advice:</strong>
                       <p className="leading-relaxed">{c.treatment_notes || c.clinical_summary || 'Standard clinical guidance provided.'}</p>
                     </div>
 
@@ -778,8 +778,8 @@ export default function PatientDashboard() {
                     {c.vital_signs && Object.keys(c.vital_signs).length > 0 && (
                       <div className="flex flex-wrap gap-2 pt-1">
                         {Object.entries(c.vital_signs).map(([k, v]) => (
-                          <span key={k} className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 font-mono">
-                            <span className="text-slate-500 uppercase">{k}:</span> <strong className="text-white">{v}</strong>
+                          <span key={k} className="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[11px] text-slate-700 font-mono">
+                            <span className="text-slate-500 uppercase">{k}:</span> <strong className="text-slate-900">{v}</strong>
                           </span>
                         ))}
                       </div>
@@ -787,18 +787,18 @@ export default function PatientDashboard() {
 
                     {/* Medical Reports */}
                     {c.medical_reports && c.medical_reports.length > 0 && (
-                      <div className="space-y-2 pt-2 border-t border-slate-800/80">
-                        <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                      <div className="space-y-2 pt-2 border-t border-slate-200">
+                        <span className="text-xs font-bold text-amber-800 flex items-center gap-1.5 font-times">
                           <FileSpreadsheet size={13} /> Attached Diagnostic Investigations
                         </span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                           {c.medical_reports.map((rep, idx) => (
-                            <div key={idx} className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs space-y-1">
-                              <div className="flex items-center justify-between font-bold text-white">
+                            <div key={idx} className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
+                              <div className="flex items-center justify-between font-bold text-slate-900 font-times">
                                 <span>{rep.title}</span>
-                                <span className="text-[10px] text-slate-400 font-mono">{rep.date}</span>
+                                <span className="text-[10px] text-slate-500 font-mono">{rep.date}</span>
                               </div>
-                              <p className="text-slate-300 text-[11px]">{rep.findings}</p>
+                              <p className="text-slate-600 text-[11px]">{rep.findings}</p>
                             </div>
                           ))}
                         </div>
@@ -814,29 +814,29 @@ export default function PatientDashboard() {
         {/* TAB: ONGOING MEDICATIONS TRACKER */}
         {activeTab === 'medications' && (
           <div className="space-y-6">
-            <div className="p-6 rounded-3xl bg-slate-900 border border-emerald-500/30 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-6 rounded-3xl bg-white border border-emerald-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Pill size={20} className="text-emerald-400 rotate-45" /> Ongoing Medications & Prescription History
+                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 font-times">
+                  <Pill size={20} className="text-emerald-600 rotate-45" /> Ongoing Medications & Prescription History
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   Tracking active treatments, completed courses, and discontinued medications from all your doctors
                 </p>
                 {/* DB auto-sync badge */}
                 <div className="flex items-center gap-1.5 mt-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block" />
-                  <span className="text-[10px] text-emerald-400 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                  <span className="text-[10px] text-emerald-700 font-semibold">
                     Auto-synced from your patient record &middot; {medications?.active?.length || 0} active course{(medications?.active?.length || 0) !== 1 ? 's' : ''}
                   </span>
                 </div>
               </div>
 
               {/* Status Filter Pills */}
-              <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
                 <button
                   onClick={() => setMedFilter('active')}
                   className={`px-3 py-1.5 rounded-lg font-bold transition cursor-pointer ${
-                    medFilter === 'active' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                    medFilter === 'active' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Active ({medications.active?.length || 0})
@@ -844,7 +844,7 @@ export default function PatientDashboard() {
                 <button
                   onClick={() => setMedFilter('completed')}
                   className={`px-3 py-1.5 rounded-lg font-bold transition cursor-pointer ${
-                    medFilter === 'completed' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                    medFilter === 'completed' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Completed ({medications.completed?.length || 0})
@@ -852,7 +852,7 @@ export default function PatientDashboard() {
                 <button
                   onClick={() => setMedFilter('discontinued')}
                   className={`px-3 py-1.5 rounded-lg font-bold transition cursor-pointer ${
-                    medFilter === 'discontinued' ? 'bg-red-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                    medFilter === 'discontinued' ? 'bg-red-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Discontinued ({medications.discontinued?.length || 0})
@@ -860,7 +860,7 @@ export default function PatientDashboard() {
                 <button
                   onClick={() => setMedFilter('all')}
                   className={`px-3 py-1.5 rounded-lg font-bold transition cursor-pointer ${
-                    medFilter === 'all' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
+                    medFilter === 'all' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   All ({prescriptions.length})
@@ -881,7 +881,7 @@ export default function PatientDashboard() {
 
               if (listToDisplay.length === 0) {
                 return (
-                  <div className="text-center py-12 bg-slate-900 rounded-3xl border border-slate-800 text-slate-400 text-xs">
+                  <div className="text-center py-12 bg-white rounded-3xl border border-slate-200 text-slate-500 text-xs shadow-sm">
                     No medications found in the <strong>'{medFilter}'</strong> category.
                   </div>
                 );
@@ -896,47 +896,47 @@ export default function PatientDashboard() {
                     return (
                       <div
                         key={med.id || idx}
-                        className={`bg-slate-900 rounded-3xl p-5 sm:p-6 border transition shadow-xl space-y-3.5 ${
+                        className={`bg-white rounded-3xl p-5 sm:p-6 border transition shadow-sm space-y-3.5 ${
                           isActive
-                            ? 'border-emerald-500/30 bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/20'
+                            ? 'border-emerald-300'
                             : isDiscontinued
-                            ? 'border-red-500/30 bg-gradient-to-r from-slate-900 via-slate-900 to-red-950/20'
-                            : 'border-slate-800'
+                            ? 'border-red-300'
+                            : 'border-slate-200'
                         }`}
                       >
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
                           <div className="space-y-1">
                             <div className="flex flex-wrap items-center gap-2.5">
-                              <span className="text-base font-black text-white">{med.drug_name}</span>
-                              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/15 border border-cyan-500/30 text-cyan-300">
+                              <span className="text-base font-black text-slate-900 font-times">{med.drug_name}</span>
+                              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 border border-blue-200 text-blue-700">
                                 {med.dosage}
                               </span>
                               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                                 isActive
-                                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                   : isCompleted
-                                  ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
                                   : isDiscontinued
-                                  ? 'bg-red-500/15 text-red-400 border border-red-500/30'
-                                  : 'bg-slate-800 text-slate-400'
+                                  ? 'bg-red-50 text-red-700 border border-red-200'
+                                  : 'bg-slate-100 text-slate-600 border border-slate-200'
                               }`}>
                                 {med.status || 'Active'}
                               </span>
                             </div>
 
-                            <div className="text-xs text-slate-300 flex items-center gap-1.5">
-                              <Stethoscope size={13} className="text-blue-400" />
-                              <span>Prescribing Doctor: <strong className="text-white">{med.doctor_name || 'Attending Physician'}</strong></span>
-                              <span className="text-slate-500">|</span>
-                              <span className="text-slate-400">{med.doctor_specialization || 'Internal Medicine'}</span>
+                            <div className="text-xs text-slate-600 flex items-center gap-1.5">
+                              <Stethoscope size={13} className="text-blue-600" />
+                              <span>Prescribing Doctor: <strong className="text-slate-900 font-times">{med.doctor_name || 'Attending Physician'}</strong></span>
+                              <span className="text-slate-300">|</span>
+                              <span className="text-slate-500">{med.doctor_specialization || 'Internal Medicine'}</span>
                             </div>
                           </div>
 
                           <div className="text-right text-xs">
-                            <span className="text-slate-400 font-mono text-[11px] block">
+                            <span className="text-slate-500 font-mono text-[11px] block">
                               Prescribed on: {String(med.created_at).slice(0, 10)}
                             </span>
-                            <span className="text-emerald-400 font-bold text-xs">
+                            <span className="text-emerald-700 font-bold text-xs">
                               AI Safety Score: {100 - (med.side_effect_pct || 15)}%
                             </span>
                           </div>
@@ -944,29 +944,29 @@ export default function PatientDashboard() {
 
                         {/* Details row */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                          <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Frequency & Timing</span>
-                            <span className="font-semibold text-white">{med.frequency || 'Once daily'}</span>
+                          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                            <span className="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">Frequency & Timing</span>
+                            <span className="font-semibold text-slate-900">{med.frequency || 'Once daily'}</span>
                           </div>
 
-                          <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Duration / Dates</span>
-                            <span className="font-semibold text-slate-200">
+                          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                            <span className="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">Duration / Dates</span>
+                            <span className="font-semibold text-slate-800">
                               {med.start_date || 'Start Date'} → {med.end_date || 'Ongoing'}
                             </span>
                           </div>
 
-                          <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Instructions</span>
-                            <span className="font-medium text-cyan-300">{med.instructions || 'Take with water as directed.'}</span>
+                          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                            <span className="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">Instructions</span>
+                            <span className="font-medium text-blue-700">{med.instructions || 'Take with water as directed.'}</span>
                           </div>
                         </div>
 
                         {isDiscontinued && med.discontinued_reason && (
-                          <div className="text-xs bg-red-950/40 p-3 rounded-2xl border border-red-500/30 text-red-200 flex items-start gap-2">
-                            <ShieldAlert size={15} className="text-red-400 shrink-0 mt-0.5" />
+                          <div className="text-xs bg-red-50 p-3 rounded-2xl border border-red-200 text-red-900 flex items-start gap-2">
+                            <ShieldAlert size={15} className="text-red-600 shrink-0 mt-0.5" />
                             <div>
-                              <strong className="text-red-300">Discontinued Reason: </strong>
+                              <strong className="text-red-800 font-times">Discontinued Reason: </strong>
                               {med.discontinued_reason}
                             </div>
                           </div>
@@ -1008,44 +1008,44 @@ export default function PatientDashboard() {
           return (
             <div className="space-y-6">
               {/* Header */}
-              <div className="p-6 rounded-3xl bg-slate-900 border border-cyan-500/30 shadow-xl space-y-3">
+              <div className="p-6 rounded-3xl bg-white border border-cyan-200 shadow-sm space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                      <TrendingUp size={20} className="text-cyan-400" /> Health Timeline
+                    <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 font-times">
+                      <TrendingUp size={20} className="text-cyan-600" /> Health Timeline
                     </h2>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-500 mt-0.5">
                       Chronological view of all consultations, prescriptions &amp; medical events for{' '}
-                      <strong className="text-white">{patient?.name}</strong>
+                      <strong className="text-slate-900 font-times">{patient?.name}</strong>
                     </p>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
+                  <span className="px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 text-xs font-bold">
                     {builtTimeline.length} Events
                   </span>
                 </div>
 
                 {/* Quick summary chips */}
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 rounded-full bg-violet-500/15 border border-violet-500/30 text-violet-300 text-[11px] font-semibold">
+                  <span className="px-3 py-1 rounded-full bg-violet-50 border border-violet-200 text-violet-800 text-[11px] font-semibold">
                     🩺 {consultations.length} Consultations
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold">
+                  <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold">
                     💊 {medications?.active?.length || 0} Active Medications
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 text-[11px] font-semibold">
+                  <span className="px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-[11px] font-semibold">
                     📋 {prescriptions.length} Total Prescriptions
                   </span>
                 </div>
               </div>
 
               {builtTimeline.length === 0 ? (
-                <div className="text-center py-16 bg-slate-900 rounded-3xl border border-slate-800 text-slate-400 text-xs">
+                <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 text-slate-500 text-xs shadow-sm">
                   No timeline events found. Your health events will appear here as records are added.
                 </div>
               ) : (
                 <div className="relative">
                   {/* Vertical connector line */}
-                  <div className="absolute left-5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-cyan-500/30 via-slate-700 to-slate-800 hidden sm:block" />
+                  <div className="absolute left-5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-cyan-400 via-slate-300 to-slate-200 hidden sm:block" />
 
                   <div className="space-y-4">
                     {builtTimeline.map((event, idx) => {
@@ -1053,74 +1053,74 @@ export default function PatientDashboard() {
                       const isRx      = event.type === 'prescription';
                       const isActiveRx = event.status === 'active';
 
-                      const dotColor  = isConsult ? 'bg-violet-500 border-violet-400 shadow-violet-500/30'
-                                      : isRx && isActiveRx ? 'bg-emerald-500 border-emerald-400 shadow-emerald-500/30'
-                                      : isRx ? 'bg-blue-500 border-blue-400 shadow-blue-500/20'
-                                      : 'bg-slate-600 border-slate-500';
+                      const dotColor  = isConsult ? 'bg-violet-600 border-violet-300 shadow-violet-500/20'
+                                      : isRx && isActiveRx ? 'bg-emerald-600 border-emerald-300 shadow-emerald-500/20'
+                                      : isRx ? 'bg-blue-600 border-blue-300 shadow-blue-500/20'
+                                      : 'bg-slate-400 border-slate-200';
 
-                      const cardBorder = isConsult ? 'border-violet-500/30 hover:border-violet-400/50'
-                                       : isRx && isActiveRx ? 'border-emerald-500/30 hover:border-emerald-400/50'
-                                       : isRx ? 'border-blue-500/20 hover:border-blue-400/40'
-                                       : 'border-slate-800';
+                      const cardBorder = isConsult ? 'border-violet-200 hover:border-violet-300'
+                                       : isRx && isActiveRx ? 'border-emerald-200 hover:border-emerald-300'
+                                       : isRx ? 'border-blue-200 hover:border-blue-300'
+                                       : 'border-slate-200';
 
                       const tagLabel  = isConsult ? '🩺 Consultation'
                                       : isRx ? `💊 Prescription${event.status ? ` · ${event.status}` : ''}`
                                       : '📄 Report';
 
-                      const tagClass  = isConsult ? 'bg-violet-500/15 text-violet-300 border-violet-500/30'
-                                      : isRx && isActiveRx ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                                      : isRx ? 'bg-blue-500/15 text-blue-300 border-blue-500/30'
-                                      : 'bg-slate-800 text-slate-400 border-slate-700';
+                      const tagClass  = isConsult ? 'bg-violet-50 text-violet-800 border-violet-200'
+                                      : isRx && isActiveRx ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                      : isRx ? 'bg-blue-50 text-blue-800 border-blue-200'
+                                      : 'bg-slate-100 text-slate-700 border-slate-200';
 
                       return (
                         <div key={idx} className="flex gap-4 sm:gap-6 items-start group">
                           {/* Timeline dot */}
-                          <div className={`relative z-10 w-10 h-10 rounded-full border-2 ${dotColor} flex items-center justify-center shrink-0 bg-slate-950 shadow-lg group-hover:scale-110 transition-transform`}>
+                          <div className={`relative z-10 w-10 h-10 rounded-full border-2 ${dotColor} flex items-center justify-center shrink-0 bg-white shadow-md group-hover:scale-110 transition-transform`}>
                             {isConsult
-                              ? <Stethoscope size={16} className="text-violet-300" />
+                              ? <Stethoscope size={16} className="text-white" />
                               : isRx
-                              ? <Pill size={16} className={isActiveRx ? 'text-emerald-300' : 'text-blue-300'} />
-                              : <FileText size={16} className="text-slate-300" />}
+                              ? <Pill size={16} className="text-white" />
+                              : <FileText size={16} className="text-white" />}
                           </div>
 
                           {/* Event Card */}
-                          <div className={`flex-1 bg-slate-900 rounded-2xl border p-4 sm:p-5 space-y-2.5 transition-all shadow-lg ${cardBorder}`}>
+                          <div className={`flex-1 bg-white rounded-2xl border p-4 sm:p-5 space-y-2.5 transition-all shadow-sm ${cardBorder}`}>
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${tagClass}`}>
                                   {tagLabel}
                                 </span>
-                                <h3 className="font-black text-white text-sm">{event.title}</h3>
+                                <h3 className="font-black text-slate-900 text-sm font-times">{event.title}</h3>
                               </div>
-                              <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1 shrink-0">
-                                <Calendar size={11} className="text-cyan-500" />
+                              <span className="text-[11px] text-slate-500 font-mono flex items-center gap-1 shrink-0">
+                                <Calendar size={11} className="text-blue-600" />
                                 {String(event.date || '').slice(0, 10)}
                               </span>
                             </div>
 
                             {event.detail && (
-                              <p className={`text-xs font-semibold flex items-center gap-1.5 ${isConsult ? 'text-violet-300' : 'text-cyan-300'}`}>
+                              <p className={`text-xs font-semibold flex items-center gap-1.5 ${isConsult ? 'text-violet-800' : 'text-blue-800'}`}>
                                 {isConsult
-                                  ? <Stethoscope size={12} className="text-violet-400 shrink-0" />
-                                  : <Pill size={12} className="text-blue-400 shrink-0" />}
-                                {event.detail}
+                                  ? <Stethoscope size={12} className="text-violet-600 shrink-0" />
+                                  : <Pill size={12} className="text-blue-600 shrink-0" />}
+                                <span className="font-times">{event.detail}</span>
                               </p>
                             )}
 
                             {event.hospital && (
-                              <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                              <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
                                 <Building2 size={11} /> {event.hospital}
                               </p>
                             )}
 
                             {event.doctor && (
-                              <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                                <Stethoscope size={11} /> Prescribed by <strong className="text-slate-200 ml-1">{event.doctor}</strong>
+                              <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                                <Stethoscope size={11} /> Prescribed by <strong className="text-slate-800 ml-1 font-times">{event.doctor}</strong>
                               </p>
                             )}
 
                             {event.sub && (
-                              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-[11px] text-slate-300 leading-relaxed">
+                              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-[11px] text-slate-700 leading-relaxed">
                                 {event.sub}
                               </div>
                             )}
@@ -1138,17 +1138,17 @@ export default function PatientDashboard() {
         {/* TAB: MY DOCTOR TEAM */}
         {activeTab === 'doctors' && (
           <div className="space-y-6">
-            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-2">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Users size={20} className="text-blue-400" /> My Multi-Doctor Care Team
+            <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-2">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 font-times">
+                <Users size={20} className="text-blue-600" /> My Multi-Doctor Care Team
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Authorized doctors managing your treatment, second opinions, and medical history
               </p>
             </div>
 
             {careTeam.length === 0 ? (
-              <div className="text-center py-12 bg-slate-900 rounded-3xl border border-slate-800 text-slate-400 text-xs">
+              <div className="text-center py-12 bg-white rounded-3xl border border-slate-200 text-slate-500 text-xs shadow-sm">
                 No doctors associated with your profile yet.
               </div>
             ) : (
@@ -1159,43 +1159,43 @@ export default function PatientDashboard() {
                   return (
                     <div
                       key={doc.doctor_id}
-                      className="bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl space-y-3 flex flex-col justify-between"
+                      className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between"
                     >
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                             isTreating
-                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                               : isConsulting
-                              ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
-                              : 'bg-slate-800 text-slate-400 border border-slate-700'
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                              : 'bg-slate-100 text-slate-600 border border-slate-200'
                           }`}>
                             {doc.relationship_type === 'treating' ? 'Treating Physician' : doc.relationship_type === 'consulting' ? 'Consulting Specialist' : 'Previous Doctor'}
                           </span>
 
-                          <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                          <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
                             <ShieldCheck size={12} /> Consent Active
                           </span>
                         </div>
 
                         <div className="pt-1">
-                          <h3 className="font-black text-white text-base">{doc.doctor_name}</h3>
-                          <p className="text-xs text-cyan-300 font-semibold">{doc.doctor_specialization}</p>
-                          <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
+                          <h3 className="font-black text-slate-900 text-base font-times">{doc.doctor_name}</h3>
+                          <p className="text-xs text-blue-700 font-semibold">{doc.doctor_specialization}</p>
+                          <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
                             <Building2 size={13} /> {doc.doctor_hospital}
                           </p>
                         </div>
 
                         {doc.notes && (
-                          <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] text-slate-300">
-                            <span className="text-slate-500 block text-[10px] uppercase font-bold">Clinical Scope:</span>
+                          <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-[11px] text-slate-700">
+                            <span className="text-slate-500 block text-[10px] uppercase font-bold font-times">Clinical Scope:</span>
                             {doc.notes}
                           </div>
                         )}
                       </div>
 
-                      <div className="pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
-                        <span>Access: <strong className="text-slate-200 capitalize">{doc.access_permission || 'Full'} Record</strong></span>
+                      <div className="pt-3 border-t border-slate-200 text-[11px] text-slate-500 flex items-center justify-between">
+                        <span>Access: <strong className="text-slate-800 capitalize">{doc.access_permission || 'Full'} Record</strong></span>
                         <span className="font-mono text-[10px]">Since {String(doc.associated_since).slice(0, 10)}</span>
                       </div>
                     </div>
@@ -1208,18 +1208,18 @@ export default function PatientDashboard() {
 
         {activeTab === 'report' && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+            <div className="flex justify-between items-center border-b border-slate-200 pb-3">
               <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <FileText size={18} className="text-cyan-400" /> Patient Clinical Discharge & Drug Safety Report
+                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 font-times">
+                  <FileText size={18} className="text-blue-600" /> Patient Clinical Discharge & Drug Safety Report
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   Certified pharmacological record from Apex Multispecialty Hospital
                 </p>
               </div>
               <button
                 onClick={() => window.print()}
-                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-2 shadow transition cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition cursor-pointer"
               >
                 <Printer size={15} /> Print Report
               </button>

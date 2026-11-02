@@ -22,8 +22,15 @@ try:
     from backend.knowledge_base import DRUG_DATABASE, ORGAN_MAP, get_drug_info
     from backend.ml_engine import ml_engine
     from backend.multilingual import generate_multilingual_recommendation
-    from backend.database import get_db_connection, init_db
-    from backend.auth_db import register_doctor, authenticate_doctor, get_doctor_by_id, get_all_doctors, update_doctor_profile
+    from backend.database import (
+        get_db_connection, init_db, normalize_contact, normalize_name,
+        validate_patient_login_credentials, create_patient_otp_challenge,
+        verify_patient_otp_challenge, check_doctor_patient_consent
+    )
+    from backend.auth_db import (
+        register_doctor, authenticate_doctor, get_doctor_by_id, get_all_doctors, update_doctor_profile,
+        update_doctor_last_login, log_auth_event, get_auth_logs
+    )
     from backend.train_model import train_and_evaluate, ARTIFACTS_PATH, DATASET_PATH
     from backend.external_api import (
         fetch_external_drug_research, expand_clinical_dataset_with_api,
@@ -34,8 +41,15 @@ except ImportError:
     from knowledge_base import DRUG_DATABASE, ORGAN_MAP, get_drug_info
     from ml_engine import ml_engine
     from multilingual import generate_multilingual_recommendation
-    from database import get_db_connection, init_db
-    from auth_db import register_doctor, authenticate_doctor, get_doctor_by_id, get_all_doctors, update_doctor_profile
+    from database import (
+        get_db_connection, init_db, normalize_contact, normalize_name,
+        validate_patient_login_credentials, create_patient_otp_challenge,
+        verify_patient_otp_challenge, check_doctor_patient_consent
+    )
+    from auth_db import (
+        register_doctor, authenticate_doctor, get_doctor_by_id, get_all_doctors, update_doctor_profile,
+        update_doctor_last_login, log_auth_event, get_auth_logs
+    )
     from train_model import train_and_evaluate, ARTIFACTS_PATH, DATASET_PATH
     from external_api import (
         fetch_external_drug_research, expand_clinical_dataset_with_api,
@@ -46,6 +60,42 @@ except ImportError:
 
 app = Flask(__name__)
 CORS(app) # Enable cross-origin resource sharing for Vite frontend
+
+import hmac
+import base64
+import time
+
+AUTH_SECRET = os.environ.get("DRUGAI_AUTH_SECRET", "drugai_clinical_secret_key_2026")
+
+def create_session_token(user_id, role="user", extra=None):
+    payload = {
+        "user_id": user_id,
+        "role": role,
+        "exp": int(time.time()) + 86400,
+        "nonce": secrets.token_hex(8)
+    }
+    if extra:
+        payload.update(extra)
+    raw = json.dumps(payload, separators=(',', ':')).encode('utf-8')
+    sig = hmac.new(AUTH_SECRET.encode('utf-8'), raw, hashlib.sha256).hexdigest()
+    return f"{base64.urlsafe_b64encode(raw).decode('utf-8')}.{sig}"
+
+def verify_session_token(token):
+    try:
+        parts = token.split('.')
+        if len(parts) != 2:
+            return None
+        raw = base64.urlsafe_b64decode(parts[0].encode('utf-8'))
+        sig = parts[1]
+        expected_sig = hmac.new(AUTH_SECRET.encode('utf-8'), raw, hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(sig, expected_sig):
+            return None
+        payload = json.loads(raw.decode('utf-8'))
+        if payload.get("exp", 0) < time.time():
+            return None
+        return payload
+    except Exception:
+        return None
 
 @app.errorhandler(400)
 def bad_request(e):
@@ -134,6 +184,446 @@ def auth_login_doctor():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# =========================================================================
+# PATIENT AUTHENTICATION & MULTI-FACTOR OTP SYSTEM
+# =========================================================================
+
+@app.route("/api/patient/auth/validate", methods=["POST"])
+def api_patient_auth_validate():
+    """
+    Step 1-5: Validates patient name and mobile number against the registered database record.
+    Returns:
+    - 404 if mobile number does not match registered patient records.
+    - 401 if patient name does not match registered records.
+    - 200 with patient summary if validated.
+    """
+    try:
+        data = request.get_json() or {}
+        name = str(data.get("name", "")).strip()
+        contact_number = str(data.get("contact_number", "")).strip()
+
+        if not name or not contact_number:
+            return jsonify({"error": "Full Name and registered mobile number are required."}), 400
+
+        is_valid, patient, err_msg = validate_patient_login_credentials(name, contact_number)
+        if not is_valid:
+            status_code = 404 if "Mobile number" in (err_msg or "") else 401
+            log_auth_event(
+                user_id=None,
+                user_role="patient",
+                method="name_mobile_validation",
+                status="FAILED",
+                failure_reason=err_msg or "Validation failed",
+                ip_address=request.remote_addr or "127.0.0.1"
+            )
+            return jsonify({"error": err_msg or "Validation denied."}), status_code
+
+        return jsonify({
+            "success": True,
+            "patient_id": patient["id"],
+            "name": patient["name"],
+            "contact_number": patient["contact_number"],
+            "message": "Patient identity verified against registered records."
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/patient/auth/send-otp", methods=["POST"])
+def api_patient_auth_send_otp():
+    """
+    Step 6: Generates secure OTP challenge with expiration (5 mins), 60s cooldown,
+    and PBKDF2 hash. Never auto-creates accounts.
+    """
+    try:
+        data = request.get_json() or {}
+        name = str(data.get("name", "")).strip()
+        contact_number = str(data.get("contact_number", "")).strip()
+
+        if not name or not contact_number:
+            return jsonify({"error": "Full Name and registered mobile number are required."}), 400
+
+        is_valid, patient, err_msg = validate_patient_login_credentials(name, contact_number)
+        if not is_valid:
+            status_code = 404 if "Mobile number" in (err_msg or "") else 401
+            log_auth_event(
+                user_id=None,
+                user_role="patient",
+                method="patient_otp_request",
+                status="FAILED",
+                failure_reason=err_msg,
+                ip_address=request.remote_addr or "127.0.0.1"
+            )
+            return jsonify({"error": err_msg}), status_code
+
+        # Create OTP challenge
+        otp_raw, expiry_str, cooldown_err = create_patient_otp_challenge(patient["id"], contact_number, dev_mode=True)
+        if cooldown_err:
+            return jsonify({"error": cooldown_err}), 429
+
+        log_auth_event(
+            user_id=patient["id"],
+            user_role="patient",
+            method="patient_otp_request",
+            status="SUCCESS",
+            failure_reason="",
+            ip_address=request.remote_addr or "127.0.0.1"
+        )
+
+        return jsonify({
+            "success": True,
+            "patient_id": patient["id"],
+            "patient_name": patient["name"],
+            "contact_number": patient["contact_number"],
+            "message": f"Verification code sent to registered mobile {patient['contact_number']}.",
+            "test_mode": True,
+            "test_otp": otp_raw,
+            "test_label": f"[DEMO/VIVA TEST OTP: {otp_raw}]",
+            "expires_at": expiry_str
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/patient/auth/verify-otp", methods=["POST"])
+def api_patient_auth_verify_otp():
+    """
+    Step 7-10: Verifies OTP against stored PBKDF2 hash.
+    On success: creates secure session token and returns complete patient clinical record.
+    On failure: denies access.
+    """
+    try:
+        data = request.get_json() or {}
+        patient_id = data.get("patient_id")
+        contact_number = str(data.get("contact_number", "")).strip()
+        entered_otp = str(data.get("otp", "")).strip()
+
+        if not contact_number or not entered_otp:
+            return jsonify({"error": "Registered mobile number and OTP code are required."}), 400
+
+        # If patient_id not provided, look it up by contact
+        if not patient_id:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            norm_c = normalize_contact(contact_number)
+            cursor.execute("SELECT id FROM patients WHERE contact_number = ? OR contact_number LIKE ?", (norm_c, f"%{norm_c}"))
+            row = cursor.fetchone()
+            conn.close()
+            if not row:
+                return jsonify({"error": "Mobile number does not match our registered patient records."}), 404
+            patient_id = row["id"]
+
+        is_valid, err_msg = verify_patient_otp_challenge(patient_id, contact_number, entered_otp)
+        if not is_valid:
+            log_auth_event(
+                user_id=patient_id,
+                user_role="patient",
+                method="patient_otp_verification",
+                status="FAILED",
+                failure_reason=err_msg,
+                ip_address=request.remote_addr or "127.0.0.1"
+            )
+            return jsonify({"error": err_msg}), 401
+
+        # OTP verified! Generate authenticated session token
+        session_token = create_session_token(
+            user_id=patient_id,
+            role="patient",
+            extra={"contact_number": contact_number}
+        )
+
+        log_auth_event(
+            user_id=patient_id,
+            user_role="patient",
+            method="patient_otp_verification",
+            status="SUCCESS",
+            failure_reason="",
+            ip_address=request.remote_addr or "127.0.0.1"
+        )
+
+        # Load complete patient clinical dataset
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM patients WHERE id = ?", (patient_id,))
+        patient = dict(cursor.fetchone())
+
+        # Prescriptions
+        cursor.execute("SELECT * FROM prescriptions WHERE patient_id = ? ORDER BY id DESC", (patient_id,))
+        prescriptions = []
+        for p in cursor.fetchall():
+            p_dict = dict(p)
+            for jf in ["target_organs", "multilingual_notes", "clinical_alerts", "xai_factors", "full_prediction_json"]:
+                if jf in p_dict and p_dict[jf]:
+                    try:
+                        p_dict[jf] = json.loads(p_dict[jf])
+                    except Exception:
+                        pass
+                else:
+                    p_dict[jf] = [] if jf in ["target_organs", "clinical_alerts", "xai_factors"] else {}
+            prescriptions.append(p_dict)
+
+        # Associated care team
+        cursor.execute("""
+            SELECT * FROM patient_doctor_associations
+            WHERE patient_id = ?
+            ORDER BY 
+                CASE relationship_type
+                    WHEN 'treating' THEN 1
+                    WHEN 'consulting' THEN 2
+                    ELSE 3
+                END,
+                last_interaction DESC
+        """, (patient_id,))
+        associated_doctors = [dict(r) for r in cursor.fetchall()]
+
+        # Consultations
+        cursor.execute("SELECT * FROM consultations WHERE patient_id = ? ORDER BY consultation_date DESC, id DESC", (patient_id,))
+        consultations = []
+        for c in cursor.fetchall():
+            c_dict = dict(c)
+            for jf in ["vital_signs", "medical_reports"]:
+                try:
+                    c_dict[jf] = json.loads(c_dict.get(jf) or ("{}" if jf == "vital_signs" else "[]"))
+                except Exception:
+                    pass
+            consultations.append(c_dict)
+
+        # Categorize ongoing medications
+        active_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "active"]
+        completed_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "completed"]
+        discontinued_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "discontinued"]
+        historical_meds = [p for p in prescriptions if str(p.get("status", "")).lower() == "historical"]
+
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "session_token": session_token,
+            "patient": patient,
+            "prescriptions": prescriptions,
+            "doctors": associated_doctors,
+            "consultations": consultations,
+            "medications": {
+                "active": active_meds,
+                "completed": completed_meds,
+                "discontinued": discontinued_meds,
+                "historical": historical_meds,
+                "total": len(prescriptions)
+            }
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# =========================================================================
+# DOCTOR BIOMETRIC AUTHENTICATION & FINGERPRINT HARDWARE VERIFICATION
+# =========================================================================
+
+@app.route("/api/doctor/auth/validate", methods=["POST"])
+def api_doctor_auth_validate():
+    """
+    Step 1-3: Validates doctor name and ID or registered email against users.db.
+    Checks doctor active status.
+    """
+    try:
+        data = request.get_json() or {}
+        name = str(data.get("name", "")).strip()
+        identifier = str(data.get("identifier", "") or data.get("email", "") or data.get("doctor_id", "")).strip()
+
+        if not name or not identifier:
+            return jsonify({"error": "Doctor Full Name and Doctor ID/Email are required."}), 400
+
+        conn = get_db_connection()
+        # Find doctor in users.db
+        from auth_db import get_auth_db_connection
+        auth_conn = get_auth_db_connection()
+        auth_cursor = auth_conn.cursor()
+
+        doctor = None
+        if identifier.isdigit():
+            auth_cursor.execute("SELECT * FROM doctors WHERE id = ?", (int(identifier),))
+            doctor = auth_cursor.fetchone()
+
+        if not doctor:
+            auth_cursor.execute("SELECT * FROM doctors WHERE LOWER(email) = ?", (identifier.lower(),))
+            doctor = auth_cursor.fetchone()
+
+        if not doctor:
+            # Check by license number or direct name search
+            auth_cursor.execute("SELECT * FROM doctors WHERE LOWER(license_number) = ?", (identifier.lower(),))
+            doctor = auth_cursor.fetchone()
+
+        auth_conn.close()
+
+        if not doctor:
+            log_auth_event(
+                user_id=None,
+                user_role="doctor",
+                method="doctor_credential_validation",
+                status="FAILED",
+                failure_reason=f"Doctor account '{identifier}' not found",
+                ip_address=request.remote_addr or "127.0.0.1"
+            )
+            return jsonify({"error": "Doctor account not found. Please verify Doctor ID or Registered Email."}), 404
+
+        doc_dict = dict(doctor)
+
+        # Check account status
+        if str(doc_dict.get("status", "active")).lower() == "inactive":
+            log_auth_event(
+                user_id=doc_dict["id"],
+                user_role="doctor",
+                method="doctor_credential_validation",
+                status="FAILED",
+                failure_reason="Doctor account is inactive",
+                ip_address=request.remote_addr or "127.0.0.1"
+            )
+            return jsonify({"error": "Your doctor account is inactive. Contact the administrator."}), 403
+
+        # Check doctor name
+        db_norm_name = normalize_name(doc_dict["name"])
+        input_norm_name = normalize_name(name)
+
+        if db_norm_name != input_norm_name and input_norm_name not in db_norm_name and db_norm_name not in input_norm_name:
+            log_auth_event(
+                user_id=doc_dict["id"],
+                user_role="doctor",
+                method="doctor_name_validation",
+                status="FAILED",
+                failure_reason="Doctor name verification failed",
+                ip_address=request.remote_addr or "127.0.0.1"
+            )
+            return jsonify({"error": "Doctor name verification failed. Access denied."}), 401
+
+        # Sanitize sensitive fields
+        doc_dict.pop("password_hash", None)
+        doc_dict.pop("salt", None)
+
+        return jsonify({
+            "success": True,
+            "doctor": doc_dict,
+            "message": "Doctor identity verified. Please proceed with password."
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/doctor/auth/verify-password", methods=["POST"])
+def api_doctor_auth_verify_password():
+    """
+    Verifies doctor password or PIN against users.db and issues authenticated session.
+    """
+    try:
+        data = request.get_json() or {}
+        doctor_id = data.get("doctor_id")
+        password = str(data.get("password", "")).strip()
+
+        if not doctor_id or not password:
+            return jsonify({"error": "Doctor ID and Password/PIN are required."}), 400
+
+        from auth_db import get_auth_db_connection, verify_password, update_doctor_last_login
+        auth_conn = get_auth_db_connection()
+        auth_cursor = auth_conn.cursor()
+        auth_cursor.execute("SELECT * FROM doctors WHERE id = ?", (int(doctor_id),))
+        row = auth_cursor.fetchone()
+        auth_conn.close()
+
+        if not row:
+            return jsonify({"error": "Doctor account not found."}), 404
+
+        doc = dict(row)
+        if not verify_password(password, doc["password_hash"], doc["salt"]):
+            log_auth_event(
+                user_id=doc["id"],
+                user_role="doctor",
+                method="password_verification",
+                status="FAILED",
+                failure_reason="Invalid doctor credentials",
+                ip_address=request.remote_addr or "127.0.0.1"
+            )
+            return jsonify({"error": "Invalid doctor credentials."}), 401
+
+        # SUCCESSFUL DOCTOR AUTHENTICATION
+        update_doctor_last_login(doc["id"])
+        
+        doc_clean = dict(doc)
+        doc_clean.pop("password_hash", None)
+        doc_clean.pop("salt", None)
+
+        session_token = create_session_token(
+            user_id=doc["id"],
+            role="doctor",
+            extra={"name": doc["name"]}
+        )
+
+        log_auth_event(
+            user_id=doc["id"],
+            user_role="doctor",
+            method="password_verification",
+            status="SUCCESS",
+            failure_reason="",
+            ip_address=request.remote_addr or "127.0.0.1"
+        )
+
+        return jsonify({
+            "success": True,
+            "password_verified": True,
+            "session_token": session_token,
+            "doctor": doc_clean,
+            "last_login": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "message": f"Doctor credentials verified successfully. Welcome, {doc['name']}."
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# =========================================================================
+# SECURITY SESSION & AUDIT LOGS ENDPOINTS
+# =========================================================================
+
+@app.route("/api/auth/session", methods=["GET"])
+def api_auth_session():
+    """Validates the client session token and returns identity payload."""
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if "Bearer " in auth_header else request.args.get("token", "")
+
+    if not token:
+        return jsonify({"authenticated": False, "error": "No session token provided."}), 401
+
+    payload = verify_session_token(token)
+    if not payload:
+        return jsonify({"authenticated": False, "error": "Session expired or invalid. Please re-authenticate."}), 401
+
+    return jsonify({
+        "authenticated": True,
+        "session": payload
+    })
+
+@app.route("/api/auth/logout", methods=["POST"])
+def api_auth_logout():
+    """Logs out user securely and records audit log."""
+    try:
+        data = request.get_json() or {}
+        uid = data.get("user_id")
+        role = data.get("role", "user")
+
+        log_auth_event(
+            user_id=uid,
+            user_role=role,
+            method="logout",
+            status="SUCCESS",
+            failure_reason="",
+            ip_address=request.remote_addr or "127.0.0.1"
+        )
+        return jsonify({"success": True, "message": "Logged out securely."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/auth/audit-logs", methods=["GET"])
+def api_auth_audit_logs():
+    """Returns security audit trail entries."""
+    try:
+        limit = int(request.args.get("limit", 100))
+        logs = get_auth_logs(limit=limit)
+        return jsonify(logs)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # ==========================================
 # DOCTOR PROFILE & DIRECTORY ENDPOINTS
 # ==========================================
@@ -180,7 +670,7 @@ def doctor_profile_endpoint(doctor_id=None):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # 1. Associated Patients
+        # 1. Associated Patients (Enforcing consent_status == 'granted' and permitted access)
         cursor.execute("""
             SELECT p.id, p.name, p.age, p.gender, p.contact_number, p.current_health_issue,
                    p.existing_diseases, p.allergies, p.blood_group,
@@ -188,7 +678,7 @@ def doctor_profile_endpoint(doctor_id=None):
                    a.associated_since, a.last_interaction
             FROM patient_doctor_associations a
             JOIN patients p ON a.patient_id = p.id
-            WHERE a.doctor_id = ?
+            WHERE a.doctor_id = ? AND a.consent_status = 'granted' AND a.access_permission IN ('full', 'view_only')
             ORDER BY a.last_interaction DESC
         """, (doctor_id,))
         associated_patients = [dict(r) for r in cursor.fetchall()]
@@ -414,7 +904,7 @@ def get_doctor_associated_patients(doctor_id):
             SELECT p.*, a.relationship_type, a.access_permission, a.consent_status, a.last_interaction, a.notes as association_notes
             FROM patient_doctor_associations a
             JOIN patients p ON a.patient_id = p.id
-            WHERE a.doctor_id = ?
+            WHERE a.doctor_id = ? AND a.consent_status = 'granted' AND a.access_permission IN ('full', 'view_only')
             ORDER BY a.last_interaction DESC
         """, (doctor_id,))
         patients = [dict(r) for r in cursor.fetchall()]
@@ -448,6 +938,17 @@ def get_centralized_medical_history(patient_id):
             conn.close()
             return jsonify({"error": f"Patient with ID {patient_id} not found."}), 404
         patient = dict(p_row)
+
+        # Enforce consent and access permission if requested by a specific doctor
+        req_doc_id = request.headers.get("X-Doctor-Id") or request.args.get("doctor_id")
+        if req_doc_id and str(req_doc_id).isdigit():
+            consent_info = check_doctor_patient_consent(int(req_doc_id), patient_id)
+            if not consent_info.get("has_access", True):
+                conn.close()
+                return jsonify({
+                    "error": "Access Denied: Patient consent is revoked or permission is not granted for this doctor account.",
+                    "consent_status": consent_info.get("consent_status", "pending")
+                }), 403
 
         # 2. Associated Doctors
         cursor.execute("""
@@ -1831,96 +2332,63 @@ def get_dashboard_stats():
 
 @app.route("/api/otp/send", methods=["POST"])
 def send_otp():
-    """Generates an OTP for patient mobile login. For convenience in demo, default OTP is 1234."""
-    try:
-        data = request.get_json() or {}
-        contact = str(data.get("contact_number", "")).strip()
+    """Legacy OTP endpoint - forwards to secure patient auth logic."""
+    data = request.get_json() or {}
+    contact = str(data.get("contact_number", "")).strip()
+    norm_c = normalize_contact(contact)
 
-        if not contact:
-            return jsonify({"error": "Contact number is required."}), 400
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM patients WHERE contact_number = ? OR contact_number LIKE ?", (norm_c, f"%{norm_c}"))
+    patient = cursor.fetchone()
+    conn.close()
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, name FROM patients WHERE contact_number = ?", (contact,))
-        patient = cursor.fetchone()
-        if not patient:
-            # Check if any prescriptions exist with this contact number
-            cursor.execute("SELECT patient_name, patient_id FROM prescriptions WHERE patient_contact = ? ORDER BY id DESC LIMIT 1", (contact,))
-            rx_match = cursor.fetchone()
-            if rx_match and rx_match["patient_name"]:
-                # Auto-pick previous info from database and link patient record
-                p_name = rx_match["patient_name"]
-                cursor.execute("""
-                INSERT INTO patients (
-                    name, age, gender, contact_number, medical_history,
-                    existing_diseases, allergies, current_health_issue, current_medications
-                ) VALUES (?, 28, 'Other', ?, 'Previous Clinic Prescriptions & Records', 'Documented in Database', 'None', 'Follow-up Medical Intake', 'Ongoing medications on file')
-                """, (p_name, contact))
-                conn.commit()
-                cursor.execute("SELECT id, name FROM patients WHERE contact_number = ?", (contact,))
-                patient = cursor.fetchone()
-            else:
-                conn.close()
-                return jsonify({"error": f"No patient record found associated with mobile number {contact}. Please register your profile or enter an existing patient phone number."}), 404
+    if not patient:
+        return jsonify({"error": "Mobile number does not match our registered patient records."}), 404
 
-        # Fixed convenient OTP for demonstration / viva evaluation: "1234"
-        otp = "1234"
-        expires_at = (datetime.now() + timedelta(minutes=15)).strftime("%Y-%m-%d %H:%M:%S")
+    otp_raw, expiry_str, err = create_patient_otp_challenge(patient["id"], norm_c, dev_mode=True)
+    if err:
+        return jsonify({"error": err}), 429
 
-        cursor.execute("""
-        INSERT OR REPLACE INTO otp_sessions (contact_number, otp, expires_at, is_verified)
-        VALUES (?, ?, ?, 0)
-        """, (contact, otp, expires_at))
-        conn.commit()
-        conn.close()
-
-        return jsonify({
-            "success": True,
-            "contact_number": contact,
-            "patient_name": patient["name"],
-            "message": f"Verification code sent to {contact}. (For demo: use OTP 1234)",
-            "demo_otp": "1234"
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    return jsonify({
+        "success": True,
+        "contact_number": patient["contact_number"],
+        "patient_name": patient["name"],
+        "message": f"Verification code sent to {patient['contact_number']}. (For demo: use OTP {otp_raw})",
+        "demo_otp": otp_raw
+    })
 
 @app.route("/api/otp/verify", methods=["POST"])
 def verify_otp():
-    """Validates patient OTP and returns patient record with active prescriptions & full visualization report."""
+    """Legacy OTP verification endpoint - forwards to secure verification."""
     try:
         data = request.get_json() or {}
         contact = str(data.get("contact_number", "")).strip()
+        norm_c = normalize_contact(contact)
         entered_otp = str(data.get("otp", "")).strip()
-
-        if not contact or not entered_otp:
-            return jsonify({"error": "Mobile number and OTP are required."}), 400
 
         conn = get_db_connection()
         cursor = conn.cursor()
-
-        cursor.execute("SELECT * FROM otp_sessions WHERE contact_number = ?", (contact,))
-        session = cursor.fetchone()
-
-        # Check OTP (accept "1234" or matching session)
-        if entered_otp != "1234" and (not session or session["otp"] != entered_otp):
-            conn.close()
-            return jsonify({"error": "Invalid verification code. Please try again or use 1234."}), 401
-
-        # Fetch patient profile
-        cursor.execute("SELECT * FROM patients WHERE contact_number = ?", (contact,))
+        cursor.execute("SELECT * FROM patients WHERE contact_number = ? OR contact_number LIKE ?", (norm_c, f"%{norm_c}"))
         patient_row = cursor.fetchone()
+        conn.close()
+
         if not patient_row:
-            conn.close()
-            return jsonify({"error": "Patient record not found."}), 404
+            return jsonify({"error": "Mobile number does not match our registered patient records."}), 404
 
         patient = dict(patient_row)
+        is_valid, err_msg = verify_patient_otp_challenge(patient["id"], norm_c, entered_otp)
+        if not is_valid:
+            return jsonify({"error": err_msg or "Invalid verification code."}), 401
 
-        # Fetch all prescriptions for this patient
+        session_token = create_session_token(patient["id"], "patient", {"contact_number": norm_c})
+
+        # Fetch patient prescriptions & history
+        conn = get_db_connection()
+        cursor = conn.cursor()
         cursor.execute("SELECT * FROM prescriptions WHERE patient_id = ? ORDER BY id DESC", (patient["id"],))
-        prescription_rows = cursor.fetchall()
-
         prescriptions = []
-        for p in prescription_rows:
+        for p in cursor.fetchall():
             p_dict = dict(p)
             for json_field in ["target_organs", "multilingual_notes", "clinical_alerts", "xai_factors", "full_prediction_json"]:
                 if json_field in p_dict and p_dict[json_field]:
@@ -1929,10 +2397,7 @@ def verify_otp():
                     except Exception:
                         pass
                 else:
-                    if json_field in ["target_organs", "clinical_alerts", "xai_factors"]:
-                        p_dict[json_field] = []
-                    elif json_field in ["multilingual_notes", "full_prediction_json"]:
-                        p_dict[json_field] = {}
+                    p_dict[json_field] = [] if json_field in ["target_organs", "clinical_alerts", "xai_factors"] else {}
 
             # If full_prediction_json is missing, reconstruct prediction data on the fly
             if not p_dict.get("full_prediction_json") or not p_dict["full_prediction_json"].get("effectiveness_pct"):

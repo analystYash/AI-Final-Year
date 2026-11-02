@@ -94,28 +94,28 @@ export default function MedicalReport({
 
         <div className="flex items-center gap-3">
           {/* Language Switcher */}
-          <div className="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs">
-            <Languages size={14} className="text-slate-400 ml-1 mr-1.5" />
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+            <Languages size={14} className="text-slate-500 ml-1 mr-1.5" />
             <button
               onClick={() => setSelectedLang('english')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                selectedLang === 'english' ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-300'
+              className={`px-2.5 py-1 rounded-lg font-medium transition cursor-pointer ${
+                selectedLang === 'english' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               English
             </button>
             <button
               onClick={() => setSelectedLang('hinglish')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                selectedLang === 'hinglish' ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-300'
+              className={`px-2.5 py-1 rounded-lg font-medium transition cursor-pointer ${
+                selectedLang === 'hinglish' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Hinglish
             </button>
             <button
               onClick={() => setSelectedLang('marathi')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                selectedLang === 'marathi' ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-300'
+              className={`px-2.5 py-1 rounded-lg font-medium transition cursor-pointer ${
+                selectedLang === 'marathi' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               मराठी
@@ -125,7 +125,7 @@ export default function MedicalReport({
           {/* Print / Download Button */}
           <button
             onClick={handlePrint}
-            className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-300 text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 transition active:scale-95"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-2 transition cursor-pointer"
           >
             <Printer size={15} /> Print / Save PDF
           </button>
@@ -137,95 +137,95 @@ export default function MedicalReport({
       {/* ========================================================================= */}
       <div
         id="printable-report"
-        className="bg-slate-900 print:bg-white text-slate-100 print:text-slate-900 border border-slate-800 print:border-none rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6 font-sans print:p-0 print:m-0"
+        className="bg-white text-slate-900 border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm space-y-6 font-sans print:p-0 print:m-0 print:border-none print:shadow-none"
       >
         {/* REPORT HEADER */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-slate-800 print:border-slate-800 pb-5 gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-slate-200 pb-5 gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-slate-950 font-black text-2xl shadow-lg print:border print:border-slate-300">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-2xl shadow-sm">
               +
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white print:text-slate-950">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-times">
                 APEX MULTISPECIALTY HOSPITAL
               </h1>
-              <p className="text-xs text-cyan-400 print:text-cyan-800 font-medium">
+              <p className="text-xs text-blue-700 font-medium">
                 Clinical Pharmacological AI & Personalized Decision Support Unit
               </p>
             </div>
           </div>
 
           <div className="text-left sm:text-right text-xs space-y-1">
-            <div className="font-mono text-slate-400 print:text-slate-600">
-              Report ID: <span className="text-white print:text-slate-950 font-bold">{generatedId}</span>
+            <div className="font-mono text-slate-500">
+              Report ID: <span className="text-slate-900 font-bold">{generatedId}</span>
             </div>
-            <div className="text-slate-400 print:text-slate-600">
-              Date: <span className="text-slate-200 print:text-slate-800 font-medium">{generatedDate}</span>
+            <div className="text-slate-500">
+              Date: <span className="text-slate-800 font-medium">{generatedDate}</span>
             </div>
-            <div className="inline-block px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 print:bg-cyan-100 print:text-cyan-900 text-[10px] font-bold uppercase tracking-wider border border-cyan-500/20 print:border-cyan-300">
+            <div className="inline-block px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 text-[10px] font-bold uppercase tracking-wider border border-blue-200">
               Official Medical Consultation
             </div>
           </div>
         </div>
 
         {/* PATIENT DEMOGRAPHICS & CLINICAL INTAKE */}
-        <div className="bg-slate-950/60 print:bg-slate-50 border border-slate-800/80 print:border-slate-300 rounded-2xl p-4 sm:p-5 text-xs">
-          <div className="font-bold text-cyan-400 print:text-cyan-900 uppercase tracking-wider mb-3 text-[11px] flex items-center gap-1.5">
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 text-xs">
+          <div className="font-bold text-blue-800 uppercase tracking-wider mb-3 text-[11px] flex items-center gap-1.5 font-times">
             <User size={14} /> Patient Clinical Profile
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <span className="text-slate-400 print:text-slate-600 block text-[10px]">Patient Name</span>
-              <span className="font-bold text-white print:text-slate-950 text-sm">{patient.name}</span>
+              <span className="text-slate-500 block text-[10px]">Patient Name</span>
+              <span className="font-bold text-slate-900 text-sm font-times">{patient.name}</span>
             </div>
             <div>
-              <span className="text-slate-400 print:text-slate-600 block text-[10px]">Age / Gender</span>
-              <span className="font-semibold text-slate-200 print:text-slate-800">{patient.age} Years • {patient.gender}</span>
+              <span className="text-slate-500 block text-[10px]">Age / Gender</span>
+              <span className="font-semibold text-slate-800">{patient.age} Years • {patient.gender}</span>
             </div>
             <div>
-              <span className="text-slate-400 print:text-slate-600 block text-[10px]">Contact Number</span>
-              <span className="font-semibold font-mono text-cyan-300 print:text-cyan-800">+91 {patient.contact_number}</span>
+              <span className="text-slate-500 block text-[10px]">Contact Number</span>
+              <span className="font-semibold font-mono text-blue-700">+91 {patient.contact_number}</span>
             </div>
             <div>
-              <span className="text-slate-400 print:text-slate-600 block text-[10px]">Pregnancy Status</span>
-              <span className="font-semibold text-slate-200 print:text-slate-800">
+              <span className="text-slate-500 block text-[10px]">Pregnancy Status</span>
+              <span className="font-semibold text-slate-800">
                 {patient.is_pregnant ? `Pregnant (${patient.pregnancy_trimester || '2nd'} Trimester)` : 'Non-Pregnant'}
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-slate-800/60 print:border-slate-200">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-slate-200">
             <div>
-              <span className="text-slate-400 print:text-slate-600 block text-[10px]">Diagnosed Conditions / Diseases:</span>
-              <span className="font-medium text-slate-200 print:text-slate-800">{patient.existing_diseases || 'None recorded'}</span>
+              <span className="text-slate-500 block text-[10px]">Diagnosed Conditions / Diseases:</span>
+              <span className="font-medium text-slate-800">{patient.existing_diseases || 'None recorded'}</span>
             </div>
             <div>
-              <span className="text-slate-400 print:text-slate-600 block text-[10px]">Known Drug Allergies:</span>
-              <span className="font-bold text-red-400 print:text-red-700">{patient.allergies || 'No Known Drug Allergies (NKDA)'}</span>
+              <span className="text-slate-500 block text-[10px]">Known Drug Allergies:</span>
+              <span className="font-bold text-red-700">{patient.allergies || 'No Known Drug Allergies (NKDA)'}</span>
             </div>
             <div>
-              <span className="text-slate-400 print:text-slate-600 block text-[10px]">Active Concurrent Medications:</span>
-              <span className="font-medium text-cyan-300 print:text-cyan-800">{patient.current_medications || 'None'}</span>
+              <span className="text-slate-500 block text-[10px]">Active Concurrent Medications:</span>
+              <span className="font-medium text-blue-700">{patient.current_medications || 'None'}</span>
             </div>
           </div>
         </div>
 
         {/* PRESCRIBED THERAPY & PHARMACOLOGICAL EVALUATION */}
-        <div className="bg-slate-950/60 print:bg-slate-50 border border-slate-800/80 print:border-slate-300 rounded-2xl p-4 sm:p-5 text-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-800 print:border-slate-200 pb-2">
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 text-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
             <div className="flex items-center gap-2">
-              <Pill size={15} className="text-emerald-400 print:text-emerald-700" />
-              <span className="font-bold text-white print:text-slate-900 uppercase tracking-wider text-[11px]">
+              <Pill size={15} className="text-emerald-700" />
+              <span className="font-bold text-slate-900 uppercase tracking-wider text-[11px] font-times">
                 Prescribed Drug & AI Personalized Prediction
               </span>
             </div>
             <span
               className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider"
               style={{
-                backgroundColor: `${riskColor}25`,
-                color: riskColor,
-                border: `1px solid ${riskColor}60`
+                backgroundColor: `${riskColor}20`,
+                color: riskColor === '#10b981' ? '#047857' : riskColor,
+                border: `1px solid ${riskColor}40`
               }}
             >
               Overall Risk: {overallRisk}
@@ -233,34 +233,34 @@ export default function MedicalReport({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-3 bg-slate-900 print:bg-white rounded-xl border border-slate-800 print:border-slate-200">
-              <span className="text-slate-400 print:text-slate-600 text-[10px] block">Prescribed Medicine</span>
-              <span className="text-base font-bold text-white print:text-slate-900 block">{drugName}</span>
-              <span className="text-[11px] text-cyan-400 print:text-cyan-700 font-mono">{dosage}</span>
+            <div className="p-3 bg-white rounded-xl border border-slate-200">
+              <span className="text-slate-500 text-[10px] block">Prescribed Medicine</span>
+              <span className="text-base font-bold text-slate-900 block font-times">{drugName}</span>
+              <span className="text-[11px] text-blue-700 font-mono">{dosage}</span>
             </div>
 
-            <div className="p-3 bg-slate-900 print:bg-white rounded-xl border border-slate-800 print:border-slate-200">
-              <span className="text-slate-400 print:text-slate-600 text-[10px] block">Therapeutic Class</span>
-              <span className="text-xs font-semibold text-slate-200 print:text-slate-800 block mt-1">
+            <div className="p-3 bg-white rounded-xl border border-slate-200">
+              <span className="text-slate-500 text-[10px] block">Therapeutic Class</span>
+              <span className="text-xs font-semibold text-slate-800 block mt-1">
                 {predData?.drug_class || 'Standard Formulation'}
               </span>
-              <span className="text-[10px] text-slate-400 print:text-slate-600">Category: {predData?.category || 'Pharmacotherapy'}</span>
+              <span className="text-[10px] text-slate-500">Category: {predData?.category || 'Pharmacotherapy'}</span>
             </div>
 
-            <div className="p-3 bg-slate-900 print:bg-white rounded-xl border border-slate-800 print:border-slate-200">
-              <span className="text-slate-400 print:text-slate-600 text-[10px] block">Target Organs</span>
+            <div className="p-3 bg-white rounded-xl border border-slate-200">
+              <span className="text-slate-500 text-[10px] block">Target Organs</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {targetOrgans.length > 0 ? (
                   targetOrgans.map((org, i) => (
                     <span
                       key={i}
-                      className="px-2 py-0.5 rounded text-[10px] font-semibold bg-cyan-500/20 text-cyan-300 print:bg-slate-200 print:text-slate-800 border border-cyan-500/30 print:border-slate-300"
+                      className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-800 border border-blue-200"
                     >
                       {org.name ? org.name.split(' ')[0] : org.key || org}
                     </span>
                   ))
                 ) : (
-                  <span className="text-slate-400 text-[10px]">Cardiovascular & Systemic</span>
+                  <span className="text-slate-500 text-[10px]">Cardiovascular & Systemic</span>
                 )}
               </div>
             </div>
@@ -268,34 +268,34 @@ export default function MedicalReport({
 
           {/* AI/ML METRIC GAUGES SCOREBOARD */}
           <div className="grid grid-cols-3 gap-3 pt-2">
-            <div className="p-3.5 bg-emerald-500/10 print:bg-emerald-50 border border-emerald-500/30 print:border-emerald-200 rounded-xl text-center">
-              <span className="text-[10px] uppercase font-bold text-emerald-400 print:text-emerald-800 block">
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+              <span className="text-[10px] uppercase font-bold text-emerald-800 block">
                 Predicted Effectiveness
               </span>
-              <span className="text-2xl font-black text-emerald-400 print:text-emerald-700 font-mono block">
+              <span className="text-2xl font-black text-emerald-700 font-mono block">
                 {effPct}%
               </span>
-              <span className="text-[10px] text-slate-400 print:text-slate-600">Receptor & Indication Match</span>
+              <span className="text-[10px] text-slate-500">Receptor & Indication Match</span>
             </div>
 
-            <div className="p-3.5 bg-amber-500/10 print:bg-amber-50 border border-amber-500/30 print:border-amber-200 rounded-xl text-center">
-              <span className="text-[10px] uppercase font-bold text-amber-400 print:text-amber-800 block">
+            <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-center">
+              <span className="text-[10px] uppercase font-bold text-amber-800 block">
                 Side-Effect Risk
               </span>
-              <span className="text-2xl font-black text-amber-400 print:text-amber-700 font-mono block">
+              <span className="text-2xl font-black text-amber-700 font-mono block">
                 {sidePct}%
               </span>
-              <span className="text-[10px] text-slate-400 print:text-slate-600">Clearance & Age Adjusted</span>
+              <span className="text-[10px] text-slate-500">Clearance & Age Adjusted</span>
             </div>
 
-            <div className="p-3.5 bg-indigo-500/10 print:bg-indigo-50 border border-indigo-500/30 print:border-indigo-200 rounded-xl text-center">
-              <span className="text-[10px] uppercase font-bold text-indigo-400 print:text-indigo-800 block">
+            <div className="p-3.5 bg-indigo-50 border border-indigo-200 rounded-xl text-center">
+              <span className="text-[10px] uppercase font-bold text-indigo-800 block">
                 DDI Interaction Hazard
               </span>
-              <span className="text-2xl font-black text-indigo-400 print:text-indigo-700 font-mono block">
+              <span className="text-2xl font-black text-indigo-700 font-mono block">
                 {ddiPct}%
               </span>
-              <span className="text-[10px] text-slate-400 print:text-slate-600">Polypharmacy Cross-Check</span>
+              <span className="text-[10px] text-slate-500">Polypharmacy Cross-Check</span>
             </div>
           </div>
         </div>
@@ -370,12 +370,12 @@ export default function MedicalReport({
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {externalResearch.reference_alternatives.map((alt, i) => (
-                    <div key={i} className="p-2.5 bg-slate-900 print:bg-white rounded-xl border border-slate-800 print:border-slate-200 text-[11px] space-y-1">
-                      <div className="flex items-center justify-between font-bold text-white print:text-slate-900">
+                    <div key={i} className="p-2.5 bg-white rounded-xl border border-slate-200 text-[11px] space-y-1">
+                      <div className="flex items-center justify-between font-bold text-slate-900 font-times">
                         <span>{alt.drug} ({alt.class})</span>
-                        <span className="text-cyan-400 print:text-cyan-800 font-mono">Relative Efficacy: {alt.relative_efficacy}</span>
+                        <span className="text-blue-700 font-mono">Relative Efficacy: {alt.relative_efficacy}</span>
                       </div>
-                      <p className="text-[10px] text-slate-400 print:text-slate-600">
+                      <p className="text-[10px] text-slate-600">
                         <strong>Clinical Note:</strong> {alt.recommendation}
                       </p>
                     </div>
@@ -388,11 +388,11 @@ export default function MedicalReport({
 
         {/* CLINICAL SAFETY ALERTS & CONTRAINDICATIONS */}
         {clinicalAlerts.length > 0 && (
-          <div className="p-4 rounded-2xl bg-red-500/10 print:bg-red-50 border border-red-500/30 print:border-red-300 space-y-2">
-            <span className="text-xs font-bold text-red-400 print:text-red-700 uppercase flex items-center gap-1.5">
+          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 space-y-2">
+            <span className="text-xs font-bold text-red-700 uppercase flex items-center gap-1.5 font-times">
               <AlertTriangle size={15} /> Safety Alerts & Pharmacological Contraindications
             </span>
-            <ul className="space-y-1.5 text-xs text-red-300 print:text-red-800 list-disc list-inside">
+            <ul className="space-y-1.5 text-xs text-red-800 list-disc list-inside">
               {clinicalAlerts.map((alert, i) => (
                 <li key={i}>{typeof alert === 'string' ? alert : alert.alert || JSON.stringify(alert)}</li>
               ))}
@@ -401,45 +401,45 @@ export default function MedicalReport({
         )}
 
         {/* MULTILINGUAL CLINICAL SECOND OPINION & PATIENT ADVICE */}
-        <div className="bg-slate-950/60 print:bg-slate-50 border border-slate-800/80 print:border-slate-300 rounded-2xl p-4 sm:p-5 text-xs space-y-2">
-          <div className="flex items-center justify-between border-b border-slate-800 print:border-slate-200 pb-2">
-            <span className="font-bold text-cyan-400 print:text-cyan-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 text-xs space-y-2">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+            <span className="font-bold text-blue-800 uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-times">
               <Sparkles size={14} /> AI Clinical Second-Opinion ({selectedLang.toUpperCase()})
             </span>
-            <span className="text-[10px] text-slate-400 print:text-slate-600">Multilingual Decision Support</span>
+            <span className="text-[10px] text-slate-500">Multilingual Decision Support</span>
           </div>
 
-          <div className="whitespace-pre-line text-slate-300 print:text-slate-800 leading-relaxed font-sans text-xs bg-slate-900/80 print:bg-white p-3.5 rounded-xl border border-slate-800 print:border-slate-200">
+          <div className="whitespace-pre-line text-slate-800 leading-relaxed font-sans text-xs bg-white p-3.5 rounded-xl border border-slate-200">
             {activeExplanation}
           </div>
         </div>
 
         {/* PHYSICIAN CLINICAL OBSERVATIONS & SIGNATURE */}
-        <div className="pt-4 border-t-2 border-slate-800 print:border-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+        <div className="pt-4 border-t-2 border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
           <div className="space-y-1.5 text-xs">
-            <span className="text-slate-400 print:text-slate-600 text-[10px] uppercase font-bold block">
+            <span className="text-slate-500 text-[10px] uppercase font-bold block font-times">
               Attending Physician Observations:
             </span>
-            <p className="text-slate-300 print:text-slate-800 italic bg-slate-950/40 print:bg-slate-50 p-3 rounded-xl border border-slate-800/60 print:border-slate-200">
+            <p className="text-slate-800 italic bg-slate-50 p-3 rounded-xl border border-slate-200">
               "{notes}"
             </p>
           </div>
 
           <div className="text-left sm:text-right space-y-2 text-xs">
-            <div className="border-b border-dashed border-slate-700 print:border-slate-400 w-48 ml-auto pb-1 text-center font-serif text-slate-300 print:text-slate-800 text-sm">
+            <div className="border-b border-dashed border-slate-300 w-48 ml-auto pb-1 text-center font-times text-slate-800 text-sm">
               Dr. Sharma, MD
             </div>
-            <span className="text-slate-400 print:text-slate-600 block text-[10px]">
+            <span className="text-slate-500 block text-[10px]">
               Authorized Medical Officer / Prescribing Specialist
             </span>
-            <span className="text-[10px] text-cyan-400 print:text-cyan-800 font-mono block">
+            <span className="text-[10px] text-blue-700 font-mono block">
               Digital Signature ID: {generatedId}-AUTH
             </span>
           </div>
         </div>
 
         {/* STATUTORY DISCLAIMER FOOTER */}
-        <div className="text-center pt-4 border-t border-slate-800/80 print:border-slate-200 text-[10px] text-slate-400 print:text-slate-600 leading-relaxed">
+        <div className="text-center pt-4 border-t border-slate-200 text-[10px] text-slate-500 leading-relaxed">
           <p>
             <strong>Academic Clinical Decision Support Notice:</strong> This pharmacological evaluation is generated by the AI-powered personalized drug effect prediction system utilizing external medical research data and machine learning ensembles. It is designed to assist clinical practitioners and does not supersede professional medical judgement.
           </p>
