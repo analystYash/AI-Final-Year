@@ -17,7 +17,9 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
   // View States
   const [viewMode, setViewMode] = useState('xray'); // 'xray' | 'surface' | 'wireframe'
   const [selectedOrgan, setSelectedOrgan] = useState(null); // Selected organ key for info
-  const [focusedOrgan, setFocusedOrgan] = useState(null); // null = full body, 'heart'|'brain'|... = deep organ scan
+  const [focusedOrgan, setFocusedOrgan] = useState(null);
+  const [hoveredOrgan, setHoveredOrgan] = useState(null);
+  const [mouseClientPos, setMouseClientPos] = useState({ x: 0, y: 0 }); // null = full body, 'heart'|'brain'|... = deep organ scan
   const [autoRotate, setAutoRotate] = useState(false);
   const [simPlaying, setSimPlaying] = useState(true);
   const [simStage, setSimStage] = useState(1); // 1: Ingestion, 2: Digestion, 3: Circulation, 4: Target Effect
@@ -93,11 +95,11 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
     return ['stomach'];
   }, [targetOrgans, drugName, DRUG_TARGET_MAP]);
 
-  // Comprehensive Anatomical Organ Definitions & Clinical Metadata
+    // Comprehensive Anatomical Organ Definitions & Clinical Metadata (Multilingual)
   const ORGAN_DEFINITIONS = useMemo(() => ({
     brain: {
-      name: lang === 'marathi' ? 'मेंदू (Brain)' : (lang === 'hinglish' ? 'Brain (Dimaag)' : 'Brain & Central Nervous System'),
-      shortName: lang === 'marathi' ? 'मेंदू' : (lang === 'hinglish' ? 'Dimaag' : 'Brain'),
+      name: lang === 'marathi' ? 'मेंदू आणि केंद्रीय मज्जासंस्था (Brain)' : lang === 'hinglish' ? 'Brain & Central Nervous System (Dimaag)' : lang === 'hindi' ? 'मस्तिष्क एवं केंद्रीय तंत्रिका तंत्र (Brain)' : 'Brain & Central Nervous System',
+      shortName: lang === 'marathi' ? 'मेंदू' : lang === 'hinglish' ? 'Dimaag' : lang === 'hindi' ? 'मस्तिष्क' : 'Brain',
       color: 0xa855f7,
       glowColor: 0xc084fc,
       position: [0, 1.25, 0.02],
@@ -108,16 +110,20 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
         ? 'न्यूरोलॉजिकल नियंत्रण, संवेदना, रक्तदाब नियमन आणि केंद्रीय मज्जासंस्था केंद्र.'
         : (lang === 'hinglish'
         ? 'Neuro-transmission, sochne aur sensory controls ka mukhya organ.'
+        : lang === 'hindi'
+        ? 'न्यूरोलॉजिकल नियंत्रण, संवेदी संकेत और केंद्रीय तंत्रिका तंत्र केंद्र।'
         : 'Controls neurotransmission, blood-brain barrier permeability, central autonomic regulation, and cognitive signaling.'),
       clinicalTarget: lang === 'marathi'
         ? 'रिसेप्टर बाइंडिंग, मेंदूतील रक्तप्रवाह व न्यूरोलॉजिकल सुरक्षितता'
         : (lang === 'hinglish'
         ? 'Receptor binding, sedation risk aur neuro-protection'
+        : lang === 'hindi'
+        ? 'रिसेप्टर बाइंडिंग, शामक प्रभाव और न्यूरोलॉजिकल सुरक्षा'
         : 'Receptor binding affinity, sedation risk, and neurological safety profiling.')
     },
     heart: {
-      name: lang === 'marathi' ? 'हृदय (Heart)' : (lang === 'hinglish' ? 'Heart (Dil)' : 'Cardiovascular System (Heart)'),
-      shortName: lang === 'marathi' ? 'हृदय' : (lang === 'hinglish' ? 'Dil' : 'Heart'),
+      name: lang === 'marathi' ? 'रक्ताभिसरण संस्था आणि हृदय (Heart)' : lang === 'hinglish' ? 'Cardiovascular System (Heart / Dil)' : lang === 'hindi' ? 'हृदय एवं रक्तसंचार प्रणाली (Heart)' : 'Cardiovascular System (Heart)',
+      shortName: lang === 'marathi' ? 'हृदय' : lang === 'hinglish' ? 'Dil' : lang === 'hindi' ? 'हृदय' : 'Heart',
       color: 0xff0055,
       glowColor: 0xf43f5e,
       position: [-0.06, 0.58, 0.11],
@@ -125,19 +131,23 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
       glbFile: '/models/heart.glb',
       animation: 'heartbeat',
       description: lang === 'marathi'
-        ? 'रक्ताभिसरण, हृदयाचे ठोके (हार्ट रेट) आणि धमन्यांमधील रक्तदाब नियमनाचे मुख्य केंद्र.'
+        ? 'रक्ताभिसरण, हृदयाचे ठोके आणि धमन्यांमधील रक्तदाब नियमनाचे मुख्य केंद्र.'
         : (lang === 'hinglish'
         ? 'Pure sharir me blood pump aur pressure control karne wala mukhya hissa.'
+        : lang === 'hindi'
+        ? 'रक्त संचार, हृदय गति और धमनियों में रक्तचाप का नियमन करता है।'
         : 'Pumps oxygenated blood systemically, maintains arterial pressure, cardiac output, and myocardial conduction.'),
       clinicalTarget: lang === 'marathi'
         ? 'हृदयाचे ठोके, रक्तदाब स्थिरता व कार्डिओव्हॅस्क्युलर ताण'
         : (lang === 'hinglish'
         ? 'Heart rate, BP stability aur arrhythmia risk'
+        : lang === 'hindi'
+        ? 'हृदय गति, रक्तचाप स्थिरता और अतालता जोखिम'
         : 'QT interval stability, stroke volume, myocardial perfusion, and hemodynamic balance.')
     },
     lungs: {
-      name: lang === 'marathi' ? 'फुफ्फुसे (Lungs)' : (lang === 'hinglish' ? 'Lungs (Fefde)' : 'Respiratory System (Lungs)'),
-      shortName: lang === 'marathi' ? 'फुफ्फुसे' : (lang === 'hinglish' ? 'Fefde' : 'Lungs'),
+      name: lang === 'marathi' ? 'श्वसन संस्था आणि फुफ्फुसे (Lungs)' : lang === 'hinglish' ? 'Respiratory System (Lungs / Fefde)' : lang === 'hindi' ? 'श्वसन तंत्र एवं फेफड़े (Lungs)' : 'Respiratory System (Lungs)',
+      shortName: lang === 'marathi' ? 'फुफ्फुसे' : lang === 'hinglish' ? 'Fefde' : lang === 'hindi' ? 'फेफड़े' : 'Lungs',
       color: 0x00f2fe,
       glowColor: 0x38bdf8,
       position: [0, 0.58, 0.04],
@@ -148,16 +158,20 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
         ? 'ऑक्सिजन देवाणघेवाण, श्वसन प्रक्रियेचे नियंत्रण आणि रक्त आम्ल-अल्कली संतुलन.'
         : (lang === 'hinglish'
         ? 'Oxygen exchange aur breathing process ko chalata hai.'
+        : lang === 'hindi'
+        ? 'ऑक्सीजन का आदान-प्रदान और श्वसन प्रक्रिया का संचालन करता है।'
         : 'Facilitates alveolar oxygen-CO2 exchange, pulmonary compliance, and systemic acid-base balance.'),
       clinicalTarget: lang === 'marathi'
-        ? 'श्वसन क्षमता, ऑक्सिजन पातळी व फुफ्फुसांचा प्रतिकार'
+        ? 'श्वसन क्षमता, ऑक्सिजन संपृक्तता व ब्रॉन्को-सुरक्षा'
         : (lang === 'hinglish'
-        ? 'Breathing rate, airway clear hone ki sthiti'
-        : 'Alveolar gas exchange, pulmonary vasculature resistance, and airway clearance.')
+        ? 'Oxygen saturation aur breathing safety'
+        : lang === 'hindi'
+        ? 'ऑक्सीजन संतृप्ति और ब्रोन्कियल सुरक्षा'
+        : 'Alveolar gas exchange, pulmonary compliance, and airway clearance.')
     },
     stomach: {
-      name: lang === 'marathi' ? 'जठर / पोट (Stomach)' : (lang === 'hinglish' ? 'Stomach (Pet)' : 'Gastrointestinal System (Stomach)'),
-      shortName: lang === 'marathi' ? 'जठर' : (lang === 'hinglish' ? 'Stomach' : 'Stomach'),
+      name: lang === 'marathi' ? 'जठर व पचन संस्था (Stomach)' : lang === 'hinglish' ? 'Gastrointestinal System (Stomach / Pet)' : lang === 'hindi' ? 'जठरांत्र एवं पाचन प्रणाली (Stomach)' : 'Gastrointestinal System (Stomach)',
+      shortName: lang === 'marathi' ? 'जठर' : lang === 'hinglish' ? 'Pet' : lang === 'hindi' ? 'पेट / अमाशय' : 'Stomach',
       color: 0xf59e0b,
       glowColor: 0xfcd34d,
       position: [0.10, 0.20, 0.09],
@@ -165,19 +179,23 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
       glbFile: '/models/stomach.glb',
       animation: 'digesting',
       description: lang === 'marathi'
-        ? 'औषध विघटन, आम्लता नियंत्रण (pH) आणि पचनसंस्थेचे मुख्य कार्य.'
+        ? 'औषध विघटन, जठराम्ल (ॲसिड) स्रवणे आणि प्राथमिक पोषण शोषण.'
         : (lang === 'hinglish'
-        ? 'Dawai ka dissolve hona, absorption aur acid balance yahan hota hai.'
+        ? 'Dawai ghulna, pet ka acid aur absorption shuru hona.'
+        : lang === 'hindi'
+        ? 'दवा का घुलना, पेट में एसिड स्राव और प्रारंभिक अवशोषण।'
         : 'Primary site of oral drug dissolution, gastric acid secretion (H+/K+ ATPase), and mucosal absorption.'),
       clinicalTarget: lang === 'marathi'
-        ? 'गॅस्ट्रिक आम्लता नियंत्रण व श्लिष्मल त्वचेचे रक्षण'
+        ? 'ॲसिड शमन, जठर अस्तर रक्षण व बायो-उपलब्धता'
         : (lang === 'hinglish'
-        ? 'Gastric acid level aur pet ki mucosal safety'
+        ? 'Acid control, pet ki parat bachana aur bioavailability'
+        : lang === 'hindi'
+        ? 'एसिड नियंत्रण, श्लेष्मा परत सुरक्षा और जैवउपलब्धता'
         : 'Acid suppression rate, mucosal layer preservation, and bioavailability.')
     },
     liver: {
-      name: lang === 'marathi' ? 'यकृत (Liver)' : (lang === 'hinglish' ? 'Liver (Jigar)' : 'Hepatic System (Liver)'),
-      shortName: lang === 'marathi' ? 'यकृत' : (lang === 'hinglish' ? 'Jigar' : 'Liver'),
+      name: lang === 'marathi' ? 'यकृत संस्था (Liver)' : lang === 'hinglish' ? 'Hepatic System (Liver / Jigar)' : lang === 'hindi' ? 'यकृत प्रणाली (Liver)' : 'Hepatic System (Liver)',
+      shortName: lang === 'marathi' ? 'यकृत' : lang === 'hinglish' ? 'Liver' : lang === 'hindi' ? 'यकृत' : 'Liver',
       color: 0xf97316,
       glowColor: 0xfb923c,
       position: [-0.14, 0.20, 0.08],
@@ -185,19 +203,23 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
       glbFile: '/models/liver.glb',
       animation: 'pulsing',
       description: lang === 'marathi'
-        ? 'औषधांचे चयापचय (CYP450 एन्झाईम्स - CYP2C19, CYP3A4) आणि शरीराचे विषहरण प्रक्रिया.'
+        ? 'औषधांचे चयापचय (Biotransformation), CYP450 एंझाइम प्रक्रिया व विषारी घटक निष्कासन.'
         : (lang === 'hinglish'
-        ? 'Dawaiyon ka metabolism (CYP450) aur detoxification karta hai.'
+        ? 'Dawaiyon ka metabolism, CYP450 enzymes aur body detox.'
+        : lang === 'hindi'
+        ? 'दवाओं का चयापचय (मेटाबॉलिज्म), CYP450 एंजाइम और विषहरण।'
         : 'Primary site of drug biotransformation, CYP450 hepatic clearance, biliary excretion, and detoxification.'),
       clinicalTarget: lang === 'marathi'
-        ? 'CYP450 चयापचय दर, एन्झाईम ताण व यकृत कार्य (LFT)'
+        ? 'CYP450 एंझाइम लोड, यकृत सुरक्षितता व क्लिअरन्स'
         : (lang === 'hinglish'
-        ? 'CYP450 metabolism speed aur liver enzyme load'
+        ? 'Liver load, enzyme saturation aur detox safety'
+        : lang === 'hindi'
+        ? 'यकृत सुरक्षा, एंजाइम संतृप्ति और निकासी'
         : 'CYP2C19 / CYP3A4 enzyme saturation, first-pass metabolism, and hepatic load.')
     },
     kidneys: {
-      name: lang === 'marathi' ? 'मूत्रपिंड (Kidneys)' : (lang === 'hinglish' ? 'Kidneys (Gurde)' : 'Renal System (Kidneys)'),
-      shortName: lang === 'marathi' ? 'मूत्रपिंड' : (lang === 'hinglish' ? 'Gurde' : 'Kidneys'),
+      name: lang === 'marathi' ? 'मूत्रपिंड संस्था (Kidneys)' : lang === 'hinglish' ? 'Renal System (Kidneys / Gurde)' : lang === 'hindi' ? 'गुर्दा प्रणाली (Kidneys)' : 'Renal System (Kidneys)',
+      shortName: lang === 'marathi' ? 'मूत्रपिंड' : lang === 'hinglish' ? 'Kidneys' : lang === 'hindi' ? 'गुर्दे' : 'Kidneys',
       color: 0x10b981,
       glowColor: 0x34d399,
       position: [0, -0.04, -0.06],
@@ -205,14 +227,18 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
       glbFile: '/models/kidney.glb',
       animation: 'filtering',
       description: lang === 'marathi'
-        ? 'औषधांचे शरीराबाहेर उत्सर्जन, द्रव संतुलन (Glomerular Filtration) आणि रक्तदाब नियंत्रण.'
+        ? 'ग्लोमेरुलर गाळण, औषध उत्सर्जन, पाणी-इलेक्ट्रोलाइट संतुलन व मूत्रपिंड क्लिअरन्स.'
         : (lang === 'hinglish'
-        ? 'Blood filtration, dawaiyon ka nikalna (clearance) aur water balance maintain karta hai.'
+        ? 'Blood filter karna, bache hue chemicals bahar nikalna aur water balance.'
+        : lang === 'hindi'
+        ? 'रक्त निस्पंदन, दवा उत्सर्जन, तरल संतुलन और गुर्दा निकासी।'
         : 'Glomerular filtration, metabolite elimination, fluid-electrolyte homeostasis, and renal clearance.'),
       clinicalTarget: lang === 'marathi'
-        ? 'जीएफआर (GFR) उत्सर्जन दर, द्रव संतुलन व रीनल सुरक्षितता'
+        ? 'GFR क्लिअरन्स, नेफ्रोटॉक्सिसिटी धोका व इलेक्ट्रोलाइट संतुलन'
         : (lang === 'hinglish'
-        ? 'GFR filtering speed aur urine clearance rate'
+        ? 'eGFR rate, kidney safety aur filtration safety'
+        : lang === 'hindi'
+        ? 'eGFR निकासी, नेफ्रोटॉक्सिसिटी सुरक्षा और संतुलन'
         : 'Estimated GFR clearance, tubular secretion kinetics, and nephrotoxicity safety.')
     }
   }), [lang]);
@@ -225,7 +251,7 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
         badgeBg: 'bg-rose-500/20 text-rose-400 border-rose-500/40',
         dot: 'bg-rose-500',
         pulseHex: 0xff0055,
-        label: lang === 'marathi' ? 'उच्च जोखीम' : (lang === 'hinglish' ? 'High Risk' : 'High Risk')
+        label: 'High Clinical Risk'
       };
     }
     if (r.includes('MOD') || r.includes('MED')) {
@@ -233,14 +259,14 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
         badgeBg: 'bg-amber-500/20 text-amber-400 border-amber-500/40',
         dot: 'bg-amber-500',
         pulseHex: 0xf59e0b,
-        label: lang === 'marathi' ? 'मध्यम जोखीम' : (lang === 'hinglish' ? 'Moderate Risk' : 'Moderate Risk')
+        label: 'Moderate Clinical Risk'
       };
     }
     return {
       badgeBg: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40',
       dot: 'bg-emerald-400',
       pulseHex: 0x10b981,
-      label: lang === 'marathi' ? 'कमी जोखीम' : (lang === 'hinglish' ? 'Safe / Low Risk' : 'Safe / Low Risk')
+      label: 'Low Risk / Well-Tolerated'
     };
   }, [riskLevel, lang]);
 
@@ -310,11 +336,21 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
       alpha: true,
       powerPreference: 'high-performance'
     });
+    const isDocDark = document.documentElement.getAttribute('data-doc-theme') === 'dark';
+    renderer.setClearColor(isDocDark ? 0x0A101C : 0x14213D, 1);
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.35;
     rendererRef.current = renderer;
+
+    const themeObserver = new MutationObserver(() => {
+      const dark = document.documentElement.getAttribute('data-doc-theme') === 'dark';
+      if (rendererRef.current) {
+        rendererRef.current.setClearColor(dark ? 0x0A101C : 0x14213D, 1);
+      }
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-doc-theme'] });
 
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
@@ -786,9 +822,33 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
+    let pointerDownPos = { x: 0, y: 0 };
+
+    // Helper: traverse up object hierarchy to match organ mesh
+    const getHitOrganKey = (hitObject) => {
+      let current = hitObject;
+      while (current) {
+        for (const [key, meshGroup] of Object.entries(organMeshes)) {
+          if (meshGroup === current) {
+            return key;
+          }
+        }
+        current = current.parent;
+      }
+      return null;
+    };
 
     const handlePointerDown = (event) => {
-      if (!container || focusedOrgan) return;
+      pointerDownPos = { x: event.clientX, y: event.clientY };
+    };
+
+    // Hover pointing: updates cursor, hover state, and tooltip coordinates
+    const handlePointerMove = (event) => {
+      if (!container || focusedOrgan) {
+        container.style.cursor = '';
+        setHoveredOrgan(null);
+        return;
+      }
       const rect = container.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -798,24 +858,52 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
       const intersects = raycaster.intersectObjects(organObjects, true);
 
       if (intersects.length > 0) {
-        // Find which organ was clicked
-        let hitObj = intersects[0].object;
-        for (const [key, meshGroup] of Object.entries(organMeshes)) {
-          if (meshGroup === hitObj || meshGroup.children.includes(hitObj)) {
-            setSelectedOrgan(key);
-            break;
-          }
+        const organKey = getHitOrganKey(intersects[0].object);
+        if (organKey) {
+          container.style.cursor = 'pointer';
+          setHoveredOrgan(organKey);
+          setMouseClientPos({ x: event.clientX - rect.left, y: event.clientY - rect.top });
+          return;
+        }
+      }
+      container.style.cursor = '';
+      setHoveredOrgan(null);
+    };
+
+    // Click pointing: trigger selection only on clean click, not on camera drag
+    const handlePointerUp = (event) => {
+      if (!container || focusedOrgan) return;
+      const dist = Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y);
+      if (dist > 6) return; // Ignore drag/rotation
+
+      const rect = container.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const organObjects = Object.values(organMeshes);
+      const intersects = raycaster.intersectObjects(organObjects, true);
+
+      if (intersects.length > 0) {
+        const organKey = getHitOrganKey(intersects[0].object);
+        if (organKey) {
+          setSelectedOrgan(prev => (prev === organKey ? null : organKey));
         }
       }
     };
 
     window.addEventListener('resize', handleResize);
     renderer.domElement.addEventListener('pointerdown', handlePointerDown);
+    renderer.domElement.addEventListener('pointermove', handlePointerMove);
+    renderer.domElement.addEventListener('pointerup', handlePointerUp);
 
     return () => {
+      themeObserver.disconnect();
       window.removeEventListener('resize', handleResize);
       if (renderer.domElement) {
         renderer.domElement.removeEventListener('pointerdown', handlePointerDown);
+        renderer.domElement.removeEventListener('pointermove', handlePointerMove);
+        renderer.domElement.removeEventListener('pointerup', handlePointerUp);
       }
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (controlsRef.current) controlsRef.current.dispose();
@@ -925,13 +1013,40 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="relative w-full h-full flex flex-col bg-[#14213D] rounded-2xl overflow-hidden border border-[#22355a] shadow-2xl">
       {/* 3D WEBGL VIEWPORT */}
       <div
         ref={mountRef}
         className="w-full flex-1 min-h-[280px] sm:min-h-[340px] cursor-grab active:cursor-grabbing relative"
         onDoubleClick={handleResetView}
       />
+
+      {/* INTERACTIVE ORGAN POINTING HOVER TOOLTIP */}
+      {hoveredOrgan && ORGAN_DEFINITIONS[hoveredOrgan] && !focusedOrgan && (
+        <div
+          className="absolute pointer-events-none z-30 px-3 py-1.5 rounded-xl bg-slate-900/95 border border-cyan-400 text-white shadow-2xl text-xs -translate-x-1/2 -translate-y-full mb-3 flex items-center gap-2 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
+          style={{ left: Math.max(80, Math.min(window.innerWidth - 80, mouseClientPos.x)), top: Math.max(30, mouseClientPos.y) }}
+        >
+          <span
+            className="w-2.5 h-2.5 rounded-full animate-ping shrink-0"
+            style={{ backgroundColor: `#${ORGAN_DEFINITIONS[hoveredOrgan].color.toString(16).padStart(6, '0')}` }}
+          />
+          <div className="flex flex-col">
+            <span className="font-bold text-cyan-300 leading-tight">
+              {ORGAN_DEFINITIONS[hoveredOrgan].name}
+            </span>
+            <span className="text-[9px] text-slate-300">
+              {lang === 'marathi'
+                ? 'तपासणीसाठी क्लिक करा (Click to inspect)'
+                : lang === 'hinglish'
+                ? 'Check karne ke liye click karein'
+                : lang === 'hindi'
+                ? 'निरीक्षण के लिए क्लिक करें'
+                : 'Click to inspect organ'}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* TOP FLOATING HUD: DRUG BADGE & CAMERA CONTROLS */}
       <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none z-10 gap-2">
@@ -991,7 +1106,7 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
               className="px-2 py-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold rounded-lg flex items-center gap-1 transition shadow mr-1"
             >
               <ArrowLeft size={13} />
-              <span>{lang === 'marathi' ? 'संपूर्ण शरीर' : (lang === 'hinglish' ? 'Pure Sharir' : 'Full Body')}</span>
+              <span>Full Body Anatomy</span>
             </button>
           )}
 
@@ -1032,7 +1147,7 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
           <div className="bg-slate-900/90 border border-cyan-500/40 px-4 py-2.5 rounded-2xl flex items-center gap-3 shadow-2xl animate-pulse">
             <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
             <span className="text-xs font-bold text-slate-200">
-              {lang === 'marathi' ? '3D मानवी रचना लोड होत आहे...' : (lang === 'hinglish' ? 'Real 3D Human Anatomy Load ho raha hai...' : 'Rendering Real 3D Human Anatomy...')}
+              Rendering 3D Human Anatomical Model...
             </span>
           </div>
         </div>
@@ -1045,7 +1160,13 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
           <div className="flex items-center gap-1.5 font-bold text-white">
             <Zap size={14} className="text-amber-400 animate-bounce" />
             <span className="text-[11px] sm:text-xs">
-              {lang === 'marathi' ? 'औषध प्रवास व शरीरावर परिणाम अनुकरण' : (lang === 'hinglish' ? 'Dawai Safar & Asar Simulation' : 'Pharmacokinetic Pathway Simulation')}
+              {lang === 'marathi'
+                ? 'औषध प्रवास व शरीरावर परिणाम अनुकरण'
+                : lang === 'hinglish'
+                ? 'Dawai Safar & Asar Simulation'
+                : lang === 'hindi'
+                ? 'दवा मार्ग एवं अवशोषण सिमुलेशन'
+                : 'Pharmacokinetic Pathway & Absorption Simulation'}
             </span>
           </div>
 
@@ -1074,41 +1195,57 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
           <button
             onClick={() => jumpToStage(1)}
-            className="p-1.5 rounded-lg text-left border transition bg-slate-900/80 border-slate-800 hover:border-cyan-500"
+            className="p-1.5 rounded-lg text-left border transition cursor-pointer bg-slate-900/80 border-slate-800 hover:border-cyan-500"
           >
-            <span className="text-[9px] text-cyan-400 block font-mono font-bold">1. {lang === 'marathi' ? 'सेवन' : (lang === 'hinglish' ? 'Ingestion' : 'Oral Intake')}</span>
-            <span className="text-[11px] text-slate-200 font-semibold truncate block">Esophagus Tube</span>
+            <span className="text-[9px] text-cyan-400 block font-mono font-bold">
+              {lang === 'marathi' ? '१. सेवन' : lang === 'hinglish' ? '1. Oral Intake' : lang === 'hindi' ? '1. मौखिक सेवन' : '1. Oral Ingestion'}
+            </span>
+            <span className="text-[11px] text-slate-200 font-semibold truncate block">
+              {lang === 'marathi' ? 'अन्ननलिका' : lang === 'hinglish' ? 'Esophagus Nali' : lang === 'hindi' ? 'ग्रासनली' : 'Esophagus Tube'}
+            </span>
           </button>
 
           <button
             onClick={() => jumpToStage(2)}
-            className="p-1.5 rounded-lg text-left border transition bg-slate-900/80 border-slate-800 hover:border-amber-500"
+            className="p-1.5 rounded-lg text-left border transition cursor-pointer bg-slate-900/80 border-slate-800 hover:border-amber-500"
           >
-            <span className="text-[9px] text-amber-400 block font-mono font-bold">2. {lang === 'marathi' ? 'पचन' : (lang === 'hinglish' ? 'Digestion' : 'Gastric')}</span>
-            <span className="text-[11px] text-slate-200 font-semibold truncate block">Stomach Breakdown</span>
+            <span className="text-[9px] text-amber-400 block font-mono font-bold">
+              {lang === 'marathi' ? '२. पचन' : lang === 'hinglish' ? '2. Gastric Dissolution' : lang === 'hindi' ? '2. अमाशय विघटन' : '2. Gastric Dissolution'}
+            </span>
+            <span className="text-[11px] text-slate-200 font-semibold truncate block">
+              {lang === 'marathi' ? 'जठरात विघटन' : lang === 'hinglish' ? 'Pet me breakdown' : lang === 'hindi' ? 'पेट में विघटन' : 'Stomach Breakdown'}
+            </span>
           </button>
 
           <button
             onClick={() => jumpToStage(3)}
-            className="p-1.5 rounded-lg text-left border transition bg-slate-900/80 border-slate-800 hover:border-rose-500"
+            className="p-1.5 rounded-lg text-left border transition cursor-pointer bg-slate-900/80 border-slate-800 hover:border-rose-500"
           >
-            <span className="text-[9px] text-rose-400 block font-mono font-bold">3. {lang === 'marathi' ? 'रक्ताभिसरण' : (lang === 'hinglish' ? 'Circulation' : 'Vascular')}</span>
-            <span className="text-[11px] text-slate-200 font-semibold truncate block">Heart & Liver Flow</span>
+            <span className="text-[9px] text-rose-400 block font-mono font-bold">
+              {lang === 'marathi' ? '३. रक्ताभिसरण' : lang === 'hinglish' ? '3. Vascular Circulation' : lang === 'hindi' ? '3. रक्तसंचार प्रवाह' : '3. Vascular Circulation'}
+            </span>
+            <span className="text-[11px] text-slate-200 font-semibold truncate block">
+              {lang === 'marathi' ? 'हृदय व यकृत प्रवाह' : lang === 'hinglish' ? 'Heart & Liver Flow' : lang === 'hindi' ? 'हृदय व यकृत प्रवाह' : 'Heart & Liver Flow'}
+            </span>
           </button>
 
           <button
             onClick={() => jumpToStage(4)}
-            className="p-1.5 rounded-lg text-left border transition bg-slate-900/80 border-slate-800 hover:border-emerald-500"
+            className="p-1.5 rounded-lg text-left border transition cursor-pointer bg-slate-900/80 border-slate-800 hover:border-emerald-500"
           >
-            <span className="text-[9px] text-emerald-400 block font-mono font-bold">4. {lang === 'marathi' ? 'लक्ष्य परिणाम' : (lang === 'hinglish' ? 'Target Asar' : 'Target')}</span>
-            <span className="text-[11px] text-slate-200 font-semibold truncate block">Cellular Binding</span>
+            <span className="text-[9px] text-emerald-400 block font-mono font-bold">
+              {lang === 'marathi' ? '४. लक्ष्य परिणाम' : lang === 'hinglish' ? '4. Target Binding' : lang === 'hindi' ? '4. लक्ष्य बंधन' : '4. Cellular Target Binding'}
+            </span>
+            <span className="text-[11px] text-slate-200 font-semibold truncate block">
+              {lang === 'marathi' ? 'पेशी रिसेप्टर' : lang === 'hinglish' ? 'Cellular Binding' : lang === 'hindi' ? 'कोशिका बंधन' : 'Cellular Binding'}
+            </span>
           </button>
         </div>
 
         {/* ROW 3: ORGAN SELECTORS WITH DEEP SCAN LAUNCHER */}
         <div className="flex flex-wrap items-center gap-1 pt-0.5">
           <span className="text-[10px] text-slate-400 uppercase font-bold mr-1">
-            {lang === 'marathi' ? 'अवयव:' : (lang === 'hinglish' ? 'Organs:' : 'Inspect:')}
+            {lang === 'marathi' ? 'अवयव निवडा:' : lang === 'hinglish' ? 'Organs:' : lang === 'hindi' ? 'अंग चुनें:' : 'Inspect Organs:'}
           </span>
           {Object.entries(ORGAN_DEFINITIONS).map(([key, def]) => {
             const isTarget = activeKeys.some(k => k.includes(key));
@@ -1159,8 +1296,8 @@ export default function HumanBody3D({ targetOrgans = [], drugName = '', riskLeve
                   <Scan size={11} />
                   <span>
                     {focusedOrgan === selectedOrgan
-                      ? (lang === 'marathi' ? 'बाहेर पडा' : 'Exit Deep Scan')
-                      : (lang === 'marathi' ? '🔬 3D अवयव तपासणी (Deep Scan)' : '🔬 3D Organ Deep Scan')}
+                      ? (lang === 'marathi' ? 'बाहेर पडा' : lang === 'hinglish' ? 'Exit Deep Scan' : lang === 'hindi' ? 'बाहर निकलें' : 'Exit Deep Scan')
+                      : (lang === 'marathi' ? '🔬 3D अवयव तपासणी (Deep Scan)' : lang === 'hinglish' ? '🔬 3D Organ Deep Scan' : lang === 'hindi' ? '🔬 3D अंग गहन जांच' : '🔬 3D Organ Deep Scan')}
                   </span>
                 </button>
 

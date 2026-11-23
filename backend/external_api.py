@@ -15,10 +15,55 @@ import urllib.request
 import urllib.parse
 from datetime import datetime
 
-# Configured NVIDIA NIM API Keys
+# Configured External API Keys
 TRANSLATION_API_KEY = os.environ.get("TRANSLATION_API_KEY", "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")
 MODEL_RESPONSE_API_KEY = os.environ.get("MODEL_RESPONSE_API_KEY", "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")
-MEDICAL_API_KEY = MODEL_RESPONSE_API_KEY
+MEDICAL_API_KEY = os.environ.get("MEDICAL_API_KEY", "5d5094cae00d74ee47d92601d5e4afd0")
+
+# Cache for OpenFDA API lookups
+_OPENFDA_CACHE = {}
+
+def fetch_openfda_medicine_details(drug_name):
+    """
+    Retrieves live drug label metadata from US FDA (OpenFDA) API.
+    Includes active ingredients, indications, boxed warnings, and contraindications.
+    Cached in-memory with 4-second timeout and robust fallback.
+    """
+    clean_name = re.sub(r'\s*\d+\s*(mg|mcg|ml|g)\b', '', str(drug_name or '').strip(), flags=re.I).strip().lower()
+    if not clean_name:
+        return None
+    if clean_name in _OPENFDA_CACHE:
+        return _OPENFDA_CACHE[clean_name]
+
+    query_str = urllib.parse.quote(f'openfda.generic_name:"{clean_name}" OR openfda.brand_name:"{clean_name}"')
+    url = f"https://api.fda.gov/drug/label.json?search={query_str}&limit=1"
+    
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "DrugAI-ClinicalDecisionSupport/2.0"})
+        with urllib.request.urlopen(req, timeout=4) as response:
+            data = json.loads(response.read().decode("utf-8"))
+            results = data.get("results", [])
+            if results:
+                item = results[0]
+                openfda = item.get("openfda", {})
+                res = {
+                    "source": "US Food & Drug Administration (openFDA Live API)",
+                    "generic_name": (openfda.get("generic_name") or [clean_name.capitalize()])[0],
+                    "brand_name": (openfda.get("brand_name") or [clean_name.capitalize()])[0],
+                    "substance_name": (openfda.get("substance_name") or [clean_name.capitalize()])[0],
+                    "route": (openfda.get("route") or ["Oral"])[0],
+                    "indications": (item.get("indications_and_usage") or ["Indicated for diagnosed clinical condition."])[0][:250] + "...",
+                    "contraindications": (item.get("contraindications") or ["Hypersensitivity to active drug substance or excipients."])[0][:250] + "...",
+                    "warnings": (item.get("warnings") or item.get("boxed_warning") or ["Consult attending physician for dose titration."])[0][:250] + "...",
+                    "retrieved_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+                _OPENFDA_CACHE[clean_name] = res
+                return res
+    except Exception as e:
+        # Graceful fallback without breaking pipeline
+        pass
+
+    return None
 
 # Clinical trial & guideline database mapped to major pharmacological classes
 CLINICAL_TRIAL_REFERENCES = {
@@ -447,13 +492,14 @@ CLINICAL_DIETARY_MAP = {
 
 # In-memory thread-safe cache for NVIDIA API calls to provide instant responses
 _NVIDIA_CACHE = {}
+_NVIDIA_UNAVAILABLE_MODELS = set()
 
-def query_nvidia_nim(api_key, messages, model="meta/llama-3.2-11b-vision-instruct", max_tokens=600, temperature=0.2, timeout=8):
+def query_nvidia_nim(api_key, messages, model="meta/llama-3.2-11b-vision-instruct", max_tokens=600, temperature=0.2, timeout=3):
     """
-    Executes a chat completion request to NVIDIA NIM API.
+    Executes a chat completion request to NVIDIA NIM API with fast circuit breaker.
     Caches results in-memory by hash of messages for instant subsequent queries.
     """
-    if not api_key:
+    if not api_key or model in _NVIDIA_UNAVAILABLE_MODELS:
         return None
         
     cache_key = f"{api_key[-8:]}_{model}_{json.dumps(messages, sort_keys=True)}"
@@ -483,7 +529,9 @@ def query_nvidia_nim(api_key, messages, model="meta/llama-3.2-11b-vision-instruc
                 _NVIDIA_CACHE[cache_key] = content
                 return content
     except Exception as e:
-        print(f"[NVIDIA NIM Notice] API call error or timeout: {e}")
+        # Trip circuit breaker for decommissioned models (e.g. 410 Gone) or network failures
+        _NVIDIA_UNAVAILABLE_MODELS.add(model)
+        # Fast silent fallback to built-in clinical intelligence
         return None
     return None
 

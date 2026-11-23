@@ -3,6 +3,8 @@
 Medical Knowledge Base & Pharmacological Database
 Provides structured drug data, organ targets, contraindications, and DDI matrix.
 """
+import re
+
 
 # Organ mapping with 3D coordinate offsets and glowing visual themes
 ORGAN_MAP = {
@@ -653,21 +655,143 @@ DDI_MATRIX = {
         "mechanism": "Ibuprofen competitively blocks the COX-1 active site, preventing irreversible aspirin acetylation.",
         "clinical_consequence": "Loss of cardioprotective antiplatelet effect and increased gastric mucosal ulceration.",
         "recommendation": "Take aspirin at least 30 minutes before ibuprofen or 8 hours after."
+    },
+    ("aspirin", "clopidogrel"): {
+        "severity": "MODERATE",
+        "risk_score": 0.58,
+        "mechanism": "Dual antiplatelet therapy inhibits both COX-1 thromboxane and ADP P2Y12 platelet aggregation.",
+        "clinical_consequence": "Synergistic antiplatelet efficacy with moderately increased bleeding risk.",
+        "recommendation": "Indicated post-PCI or ACS; monitor for petechiae, ecchymosis, and gastrointestinal bleeding."
+    },
+    ("clopidogrel", "pantoprazole"): {
+        "severity": "LOW",
+        "risk_score": 0.12,
+        "mechanism": "Pantoprazole exhibits minimal CYP2C19 inhibition compared to other PPIs.",
+        "clinical_consequence": "Cardioprotective antiplatelet effect is preserved; gastroprotection achieved.",
+        "recommendation": "Preferred PPI of choice when antiplatelet therapy is required."
+    },
+    ("ibuprofen", "warfarin"): {
+        "severity": "CRITICAL",
+        "risk_score": 0.89,
+        "mechanism": "NSAID causes gastric mucosal damage and platelet dysfunction, compounding systemic warfarin anticoagulation.",
+        "clinical_consequence": "Severe life-threatening gastrointestinal hemorrhage.",
+        "recommendation": "Strictly avoid concurrent use. Use paracetamol for analgesia."
+    },
+    ("omeprazole", "warfarin"): {
+        "severity": "MODERATE",
+        "risk_score": 0.52,
+        "mechanism": "Omeprazole inhibits CYP2C19, potentially delaying R-warfarin clearance.",
+        "clinical_consequence": "Prolonged prothrombin time / elevated INR.",
+        "recommendation": "Monitor INR within 3-5 days of initiation or switch to pantoprazole."
+    },
+    ("metformin", "lisinopril"): {
+        "severity": "LOW",
+        "risk_score": 0.15,
+        "mechanism": "Complementary metabolic and renoprotective profile in diabetic hypertension.",
+        "clinical_consequence": "Renoprotective synergy; initial transient increase in serum creatinine possible.",
+        "recommendation": "Standard guideline-recommended dual therapy in diabetic nephropathy."
+    },
+    ("amlodipine", "atorvastatin"): {
+        "severity": "LOW",
+        "risk_score": 0.20,
+        "mechanism": "Mild competitive CYP3A4 pathway overlap.",
+        "clinical_consequence": "Generally safe and commonly co-prescribed in cardiovascular risk reduction.",
+        "recommendation": "Monitor liver function periodically as per routine dyslipidemia protocol."
+    },
+    ("amoxicillin", "warfarin"): {
+        "severity": "MODERATE",
+        "risk_score": 0.60,
+        "mechanism": "Broad-spectrum aminopenicillin suppresses intestinal microflora producing vitamin K2.",
+        "clinical_consequence": "Unpredictable surge in INR and bleeding risk during antibiotic course.",
+        "recommendation": "Check INR at day 3 of antibiotic therapy and adjust warfarin dose as needed."
+    },
+    ("lisinopril", "metoprolol"): {
+        "severity": "LOW",
+        "risk_score": 0.22,
+        "mechanism": "Dual neurohormonal blockade (RAAS inhibition + sympathetic beta-blockade).",
+        "clinical_consequence": "Effective cardioprotection in heart failure and post-MI; observe for bradycardia or hypotension.",
+        "recommendation": "Standard guideline-directed medical therapy (GDMT); titrate slowly."
     }
 }
 
+def normalize_drug_name(name):
+    """Normalize drug name by stripping strength suffixes, extra whitespace, salt forms, etc."""
+    if not name:
+        return ""
+    clean = str(name).strip().lower()
+    # Strip common dosage strings like 40mg, 500mg, 10 mg, 5ml, 1g, etc.
+    clean = re.sub(r'\b\d+(\.\d+)?\s*(mg|mcg|g|ml|iu|meq|sr|er|xl|cr|ds|ip|bp|usp)\b', '', clean, flags=re.IGNORECASE)
+    # Strip parentheses and brackets e.g. (40mg)
+    clean = re.sub(r'[\(\)\[\]]', ' ', clean)
+    clean = re.sub(r'\s+', ' ', clean).strip()
+    return clean
+
 def get_drug_info(drug_name):
-    """Retrieve drug information safely with case insensitivity."""
+    """Retrieve drug information safely with case insensitivity and fuzzy normalization."""
     if not drug_name:
         return None
+    raw_clean = str(drug_name).strip().lower()
+    norm_clean = normalize_drug_name(drug_name)
+
+    # 1. Exact match
     for name, info in DRUG_DATABASE.items():
-        if name.lower() == drug_name.strip().lower():
+        if name.lower() == raw_clean:
             return {"name": name, **info}
+
+    # 2. Normalized match
+    for name, info in DRUG_DATABASE.items():
+        if normalize_drug_name(name) == norm_clean:
+            return {"name": name, **info}
+
+    # 3. Substring match
+    for name, info in DRUG_DATABASE.items():
+        n_low = name.lower()
+        if norm_clean and (norm_clean in n_low or n_low in norm_clean):
+            return {"name": name, **info}
+
     return None
 
 def check_interaction(drug1, drug2):
-    """Check pairwise drug interaction."""
+    """Check pairwise drug interaction with dosage normalization and alias matching."""
     if not drug1 or not drug2:
         return None
-    pair = tuple(sorted([drug1.strip().lower(), drug2.strip().lower()]))
-    return DDI_MATRIX.get(pair, None)
+
+    d1_raw = str(drug1).strip().lower()
+    d2_raw = str(drug2).strip().lower()
+    d1_norm = normalize_drug_name(drug1)
+    d2_norm = normalize_drug_name(drug2)
+
+    # Direct match with raw and normalized names
+    candidates1 = [d1_raw, d1_norm]
+    candidates2 = [d2_raw, d2_norm]
+
+    # Resolve database names if possible
+    info1 = get_drug_info(drug1)
+    if info1 and info1["name"].lower() not in candidates1:
+        candidates1.append(info1["name"].lower())
+    info2 = get_drug_info(drug2)
+    if info2 and info2["name"].lower() not in candidates2:
+        candidates2.append(info2["name"].lower())
+
+    for c1 in candidates1:
+        for c2 in candidates2:
+            if not c1 or not c2 or c1 == c2:
+                continue
+            pair = tuple(sorted([c1, c2]))
+            if pair in DDI_MATRIX:
+                res = DDI_MATRIX[pair].copy()
+                res["drug1"] = drug1
+                res["drug2"] = drug2
+                return res
+
+    # Substring check against DDI keys
+    for (k1, k2), details in DDI_MATRIX.items():
+        match1 = any(k1 in c or c in k1 for c in candidates1 if c)
+        match2 = any(k2 in c or c in k2 for c in candidates2 if c)
+        if match1 and match2:
+            res = details.copy()
+            res["drug1"] = drug1
+            res["drug2"] = drug2
+            return res
+
+    return None

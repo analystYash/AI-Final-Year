@@ -1,63 +1,525 @@
+@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Tinos:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 @layer base {
+  /* ========================================================
+     DOCTOR CONSOLE THEME MODES (SOFT LIGHT & DARK FOCUS MODE)
+     ======================================================== */
+  :root,
+  :root[data-doc-theme="light"] {
+    --doc-bg: #E8EEF8;
+    --doc-card: #FFFFFF;
+    --doc-sidebar: #14213D;
+    --doc-hover: #DDE5F4;
+    --doc-border: #C4CFE5;
+    --doc-text: #0E1726;
+    --doc-text-soft: #2D3A52;
+    --doc-btn-primary: #3B4CCA;
+    --doc-btn-primary-text: #FFFFFF;
+    --doc-btn-primary-hover: #303ea8;
+    --doc-mint: #0E836A;
+    --doc-mint-text: #FFFFFF;
+    --doc-amber: #B86B00;
+    --doc-amber-text: #FFFFFF;
+    --doc-red: #D9252A;
+    --doc-red-text: #FFFFFF;
+    --doc-violet: #6D28D9;
+  }
+
+  :root[data-doc-theme="dark"] {
+    --doc-bg: #0F1626;
+    --doc-card: #182238;
+    --doc-sidebar: #0A101C;
+    --doc-hover: #212D48;
+    --doc-border: #2A3652;
+    --doc-text: #E6EAF4;
+    --doc-text-soft: #9AA6C4;
+    --doc-btn-primary: #6C7BFF;
+    --doc-btn-primary-text: #0B1020;
+    --doc-btn-primary-hover: #828FFF;
+    --doc-mint: #3DDBB4;
+    --doc-mint-text: #06332A;
+    --doc-amber: #F5B759;
+    --doc-amber-text: #3D2600;
+    --doc-red: #FF6B6F;
+    --doc-red-text: #FFFFFF;
+    --doc-violet: #A78BFA;
+  }
+
+  /* ========================================================
+     PATIENT PORTAL THEME MODES (SOFT SAND & DARK CALM MODE)
+     ======================================================== */
+  :root,
+  :root[data-patient-theme="sand"],
+  :root[data-patient-theme="light"] {
+    --patient-bg: #F5EFE6;
+    --patient-card: #FFFFFF;
+    --patient-header: #2F5D50;
+    --patient-border: #D1C3AC;
+    --patient-text: #172420;
+    --patient-text-soft: #30443D;
+    --patient-sage: #38846C;
+    --patient-coral: #D96241;
+    --patient-sunlight: #F6D68A;
+    --patient-sunlight-text: #3D2600;
+    --patient-alert-red: #B8322B;
+    --patient-sage-tint: #DCEFE6;
+    --patient-lavender: #E9E4F7;
+  }
+
+  :root[data-patient-theme="dark"] {
+    --patient-bg: #1B2622;
+    --patient-card: #24332D;
+    --patient-header: #2F5D50;
+    --patient-border: #35473F;
+    --patient-text: #EAF1ED;
+    --patient-text-soft: #A9B9B1;
+    --patient-sage: #7CC4A9;
+    --patient-coral: #F4A085;
+    --patient-sunlight: #F2D285;
+    --patient-sunlight-text: #3D2600;
+    --patient-alert-red: #F08A82;
+    --patient-sage-tint: #1C332A;
+    --patient-lavender: #2B253D;
+  }
+
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, 'Arimo', 'Helvetica Neue', Helvetica, sans-serif;
+    font-family: Arial, Arimo, 'Noto Sans Devanagari', Helvetica, sans-serif;
+  }
+
+  html {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    font-family: Arial, 'Arimo', 'Helvetica Neue', Helvetica, sans-serif;
-    background-color: #ffffff;
-    color: #0f172a;
+    background-color: #F8FAFC;
+    color: #334155;
+    font-family: Arial, Arimo, 'Noto Sans Devanagari', Helvetica, sans-serif;
     overflow-x: hidden;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Headings & Brand Titles use Times New Roman */
-  h1, h2, h3, h4, h5, h6,
-  .font-times,
-  .font-heading,
-  .font-serif {
-    font-family: 'Times New Roman', 'Tinos', Times, Georgia, serif !important;
+  /* Headings & Formal Titles: Classic Times New Roman */
+  h1, h2, h3, h4, h5, h6, .font-times, .font-heading, .font-serif {
+    color: inherit;
+    font-family: 'Times New Roman', Tinos, 'Noto Serif Devanagari', Times, serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
   }
 
-  /* Regular UI and Body elements use Arial */
-  p, span, button, a, input, select, textarea, label, td, th, li, .font-arial {
-    font-family: Arial, 'Arimo', 'Helvetica Neue', Helvetica, sans-serif;
+  /* Body, Controls, Forms & Data Tables: Clean Crisp Arial */
+  p, span, label, input, button, select, textarea, td, th, .font-arial, .font-sans {
+    font-family: Arial, Arimo, 'Noto Sans Devanagari', Helvetica, sans-serif;
+  }
+
+  /* Explicit Combination Utilities */
+  .font-times {
+    font-family: 'Times New Roman', Tinos, 'Noto Serif Devanagari', Times, serif !important;
+  }
+
+  .font-arial {
+    font-family: Arial, Arimo, 'Noto Sans Devanagari', Helvetica, sans-serif !important;
+  }
+
+  /* Universal Interactive Pointer - Ensures pointing hand cursor on all interactive elements */
+  button,
+  [role="button"],
+  a,
+  select,
+  summary,
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  input[type="checkbox"],
+  input[type="radio"],
+  .cursor-pointer {
+    cursor: pointer !important;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  .cursor-not-allowed {
+    cursor: not-allowed !important;
   }
 }
 
-/* Custom Sleek Scrollbar for White Dashboard */
+/* Professional Healthcare Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #F1F5F9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #CBD5E1;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2563eb;
+  background: #7895AE;
 }
 
-/* Pulse & Fade Keyframes */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Subtle transitions for buttons and cards */
+.btn-primary {
+  background-color: #5B9A94;
+  color: #FFFFFF;
+  border-radius: 10px;
+  transition: all 0.15s ease-in-out;
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.btn-primary:hover {
+  background-color: #487B76;
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: #334155;
+  border: 1px solid #E8EDF2;
+  border-radius: 10px;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-secondary:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+/* Clean Card Styling */
+.card-healthcare {
+  background-color: #FFFFFF;
+  border: 1px solid #E8EDF2;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+}
+
+/* Risk Badges */
+.badge-low-risk {
+  background-color: #DDECE2;
+  color: #24593E;
+  border: 1px solid #C4DFC8;
+}
+
+.badge-mod-risk {
+  background-color: #F7EED5;
+  color: #785200;
+  border: 1px solid #EADBBA;
+}
+
+.badge-high-risk {
+  background-color: #F3DEDE;
+  color: #962A2A;
+  border: 1px solid #E4C5C5;
+}
+
+.badge-info {
+  background-color: #E3EDF5;
+  color: #2A517E;
+  border: 1px solid #C9DAE8;
+}
+
+/* ========================================================
+   DOCTOR CONSOLE DYNAMIC THEME SYSTEM (SOFT LIGHT & DARK FOCUS)
+   ======================================================== */
+[data-doc-theme] {
+  background-color: var(--doc-bg);
+  color: var(--doc-text);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+[data-doc-theme] .bg-\[\#F4F6FB\],
+[data-doc-theme] .bg-\[\#E4E9F2\] {
+  background-color: var(--doc-bg) !important;
+}
+
+[data-doc-theme] .bg-white {
+  background-color: var(--doc-card) !important;
+}
+
+[data-doc-theme] .bg-\[\#14213D\] {
+  background-color: var(--doc-sidebar) !important;
+}
+
+[data-doc-theme] .border-\[\#D5DBEA\],
+[data-doc-theme] .border-\[\#C9D1E2\] {
+  border-color: var(--doc-border) !important;
+}
+
+[data-doc-theme] .divide-\[\#D5DBEA\],
+[data-doc-theme] .divide-\[\#C9D1E2\] {
+  border-color: var(--doc-border) !important;
+}
+
+[data-doc-theme] h1,
+[data-doc-theme] h2,
+[data-doc-theme] h3,
+[data-doc-theme] h4,
+[data-doc-theme] h5,
+[data-doc-theme] h6,
+[data-doc-theme] .font-heading {
+  color: var(--doc-text) !important;
+}
+
+[data-doc-theme] .hover\:bg-white:hover,
+[data-doc-theme] .hover\:bg-\[\#F4F6FB\]:hover,
+[data-doc-theme] .hover\:bg-\[\#E3E8F5\]:hover,
+[data-doc-theme] .hover\:bg-\[\#E3EDF5\]:hover,
+[data-doc-theme] .hover\:bg-\[\#E3E8F5\]\/30:hover,
+[data-doc-theme] .hover\:bg-\[\#D5DDEC\]:hover {
+  background-color: var(--doc-hover) !important;
+}
+
+[data-doc-theme] .bg-\[\#E3E8F5\],
+[data-doc-theme] .bg-\[\#E3EDF5\],
+[data-doc-theme] .bg-\[\#D5DDEC\] {
+  background-color: var(--doc-hover) !important;
+}
+
+[data-doc-theme] .text-\[\#14213D\] {
+  color: var(--doc-text) !important;
+}
+
+[data-doc-theme] .text-\[\#5B6480\] {
+  color: var(--doc-text-soft) !important;
+}
+
+[data-doc-theme] .bg-\[\#3B4CCA\] {
+  background-color: var(--doc-btn-primary) !important;
+  color: var(--doc-btn-primary-text) !important;
+}
+
+[data-doc-theme] .text-\[\#3B4CCA\] {
+  color: var(--doc-btn-primary) !important;
+}
+
+[data-doc-theme] .hover\:bg-\[\#303ea8\]:hover {
+  background-color: var(--doc-btn-primary-hover) !important;
+}
+
+[data-doc-theme] .bg-\[\#2BC4A0\] {
+  background-color: var(--doc-mint) !important;
+  color: var(--doc-mint-text) !important;
+}
+
+[data-doc-theme] .text-\[\#2BC4A0\] {
+  color: var(--doc-mint) !important;
+}
+
+[data-doc-theme] .bg-\[\#F2A93B\] {
+  background-color: var(--doc-amber) !important;
+  color: var(--doc-amber-text) !important;
+}
+
+[data-doc-theme] .text-\[\#F2A93B\] {
+  color: var(--doc-amber) !important;
+}
+
+[data-doc-theme] .bg-\[\#E5484D\] {
+  background-color: var(--doc-red) !important;
+  color: var(--doc-red-text) !important;
+}
+
+[data-doc-theme] .text-\[\#E5484D\] {
+  color: var(--doc-red) !important;
+}
+
+[data-doc-theme] .text-\[\#8A5CF6\] {
+  color: var(--doc-violet) !important;
+}
+
+[data-doc-theme] .border-\[\#8A5CF6\]\/40,
+[data-doc-theme] .border-\[\#8A5CF6\]\/30 {
+  border-color: color-mix(in srgb, var(--doc-violet) 40%, transparent) !important;
+}
+
+[data-doc-theme] .bg-\[\#8A5CF6\]\/5,
+[data-doc-theme] .bg-\[\#8A5CF6\]\/10 {
+  background-color: color-mix(in srgb, var(--doc-violet) 10%, transparent) !important;
+}
+
+/* ========================================================
+   DOCTOR LIGHT MODE FORM CONTROLS & TEXT CONTRAST GUARDS
+   ======================================================== */
+:root[data-doc-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+:root:not([data-doc-theme="dark"]) input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+:root[data-doc-theme="light"] select,
+:root:not([data-doc-theme="dark"]) select,
+:root[data-doc-theme="light"] textarea,
+:root:not([data-doc-theme="dark"]) textarea {
+  background-color: #FFFFFF !important;
+  color: #0E1726 !important;
+  border-color: #CBD5E1 !important;
+}
+
+:root[data-doc-theme="light"] option,
+:root:not([data-doc-theme="dark"]) option {
+  background-color: #FFFFFF !important;
+  color: #0E1726 !important;
+}
+
+:root[data-doc-theme="light"] input::placeholder,
+:root:not([data-doc-theme="dark"]) input::placeholder,
+:root[data-doc-theme="light"] textarea::placeholder,
+:root:not([data-doc-theme="dark"]) textarea::placeholder {
+  color: #64748B !important;
+}
+
+/* Ensure strong contrast for secondary text in Doctor Light Mode */
+:root[data-doc-theme="light"] .text-\[\#5B6480\],
+:root[data-doc-theme="light"] .text-\[\#475569\] {
+  color: #2D3A52 !important;
+}
+
+:root[data-doc-theme="light"] .text-\[\#8A97B5\],
+:root[data-doc-theme="light"] .text-\[\#94A3B8\] {
+  color: #475569 !important;
+}
+
+/* Doctor Dark Mode Form Controls */
+:root[data-doc-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+:root[data-doc-theme="dark"] select,
+:root[data-doc-theme="dark"] textarea {
+  background-color: var(--doc-card) !important;
+  color: var(--doc-text) !important;
+  border-color: var(--doc-border) !important;
+}
+
+:root[data-doc-theme="dark"] option {
+  background-color: var(--doc-card) !important;
+  color: var(--doc-text) !important;
+}
+
+:root[data-doc-theme="dark"] input::placeholder,
+:root[data-doc-theme="dark"] textarea::placeholder {
+  color: var(--doc-text-soft) !important;
+}
+
+/* ========================================================
+   PATIENT PORTAL DYNAMIC THEME SYSTEM (SOFT SAND & DARK CALM)
+   ======================================================== */
+[data-patient-theme] {
+  background-color: var(--patient-bg);
+  color: var(--patient-text);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+[data-patient-theme] .bg-\[\#FBF6EF\],
+[data-patient-theme] .bg-\[\#F1E9DC\] {
+  background-color: var(--patient-bg) !important;
+}
+
+[data-patient-theme] .bg-white {
+  background-color: var(--patient-card) !important;
+}
+
+[data-patient-theme] .border-\[\#E6DCCB\],
+[data-patient-theme] .border-\[\#D9CCB6\] {
+  border-color: var(--patient-border) !important;
+}
+
+[data-patient-theme] .divide-\[\#E6DCCB\],
+[data-patient-theme] .divide-\[\#D9CCB6\] {
+  border-color: var(--patient-border) !important;
+}
+
+[data-patient-theme] h1,
+[data-patient-theme] h2,
+[data-patient-theme] h3,
+[data-patient-theme] h4,
+[data-patient-theme] h5,
+[data-patient-theme] h6,
+[data-patient-theme] .font-heading {
+  color: var(--patient-text) !important;
+}
+
+[data-patient-theme] .hover\:bg-white:hover,
+[data-patient-theme] .hover\:bg-\[\#FBF6EF\]:hover,
+[data-patient-theme] .hover\:bg-\[\#E6DCCB\]\/40:hover {
+  background-color: var(--patient-card) !important;
+}
+
+[data-patient-theme] .text-\[\#2B3A35\] {
+  color: var(--patient-text) !important;
+}
+
+[data-patient-theme] .text-\[\#5E6F68\] {
+  color: var(--patient-text-soft) !important;
+}
+
+[data-patient-theme] .text-\[\#5FA58C\] {
+  color: var(--patient-sage) !important;
+}
+
+[data-patient-theme] .bg-\[\#5FA58C\] {
+  background-color: var(--patient-sage) !important;
+}
+
+[data-patient-theme] .bg-\[\#F28B6D\] {
+  background-color: var(--patient-coral) !important;
+  color: #FFFFFF !important;
+}
+
+[data-patient-theme] .bg-\[\#F6D68A\] {
+  background-color: var(--patient-sunlight) !important;
+  color: var(--patient-sunlight-text) !important;
+}
+
+[data-patient-theme] .text-\[\#C9473F\] {
+  color: var(--patient-alert-red) !important;
+}
+
+[data-patient-theme] .bg-\[\#DCEFE6\] {
+  background-color: var(--patient-sage-tint) !important;
+}
+
+[data-patient-theme] .bg-\[\#E9E4F7\] {
+  background-color: var(--patient-lavender) !important;
+}
+
+/* Patient Sand (Light) Mode Form Controls */
+:root[data-patient-theme="sand"] input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+:root[data-patient-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+:root[data-patient-theme="sand"] select,
+:root[data-patient-theme="light"] select,
+:root[data-patient-theme="sand"] textarea,
+:root[data-patient-theme="light"] textarea {
+  background-color: #FFFFFF !important;
+  color: #172420 !important;
+  border-color: #D1C3AC !important;
+}
+
+:root[data-patient-theme="sand"] option,
+:root[data-patient-theme="light"] option {
+  background-color: #FFFFFF !important;
+  color: #172420 !important;
+}
+
+:root[data-patient-theme="sand"] input::placeholder,
+:root[data-patient-theme="light"] input::placeholder,
+:root[data-patient-theme="sand"] textarea::placeholder,
+:root[data-patient-theme="light"] textarea::placeholder {
+  color: #556B63 !important;
+}
+
+/* Patient Dark Mode Form Controls */
+:root[data-patient-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+:root[data-patient-theme="dark"] select,
+:root[data-patient-theme="dark"] textarea {
+  background-color: var(--patient-card) !important;
+  color: var(--patient-text) !important;
+  border-color: var(--patient-border) !important;
+}
+
+:root[data-patient-theme="dark"] input::placeholder,
+:root[data-patient-theme="dark"] textarea::placeholder {
+  color: var(--patient-text-soft) !important;
 }

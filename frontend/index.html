@@ -4,31 +4,107 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DrugAI — Personalized Drug Effect Prediction & 3D Visualization</title>
-    <!-- Fonts: Times New Roman & Arial -->
+    <title>MedInsight AI — Smarter Health. Better Tomorrow.</title>
+    <!-- Fonts: Times New Roman & Arial Combined with Devanagari Support -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&family=Arimo:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Tinos:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Tailwind CSS Script -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
+            colors: {
+              medinsight: {
+                blue: '#0284c7',
+                'blue-dark': '#0369a1',
+                'blue-deep': '#0f4c81',
+                'blue-vibrant': '#0066cc',
+                'blue-light': '#e0f2fe',
+                accent: '#2563eb'
+              },
+              healthcare: {
+                bg: '#F8FAFC',
+                card: '#FFFFFF',
+                teal: '#5B9A94',
+                'teal-dark': '#487B76',
+                'teal-light': '#EBF3F2',
+                slate: '#7895AE',
+                'slate-dark': '#5D778E',
+                'slate-light': '#EEF3F7',
+                heading: '#334155',
+                body: '#64748B',
+                border: '#E8EDF2',
+                low: '#DDECE2',
+                'low-text': '#24593E',
+                mod: '#F7EED5',
+                'mod-text': '#785200',
+                high: '#F3DEDE',
+                'high-text': '#962A2A',
+                info: '#E3EDF5',
+                'info-text': '#2A517E'
+              },
+              doc: {
+                bg: 'var(--doc-bg)',
+                card: 'var(--doc-card)',
+                sidebar: 'var(--doc-sidebar)',
+                hover: 'var(--doc-hover)',
+                border: 'var(--doc-border)',
+                text: 'var(--doc-text)',
+                'text-soft': 'var(--doc-text-soft)',
+                primary: 'var(--doc-btn-primary)',
+                'primary-text': 'var(--doc-btn-primary-text)',
+                'primary-hover': 'var(--doc-btn-primary-hover)',
+                mint: 'var(--doc-mint)',
+                'mint-text': 'var(--doc-mint-text)',
+                amber: 'var(--doc-amber)',
+                'amber-text': 'var(--doc-amber-text)',
+                red: 'var(--doc-red)',
+                'red-text': 'var(--doc-red-text)',
+                violet: 'var(--doc-violet)',
+                // Backward-compatibility keys
+                navy: 'var(--doc-sidebar)',
+                indigo: 'var(--doc-btn-primary)',
+                'indigo-hover': 'var(--doc-btn-primary-hover)',
+                chart: 'var(--doc-bg)',
+                mist: 'var(--doc-hover)'
+              },
+              patient: {
+                bg: 'var(--patient-bg)',
+                card: 'var(--patient-card)',
+                header: 'var(--patient-header)',
+                border: 'var(--patient-border)',
+                text: 'var(--patient-text)',
+                'text-soft': 'var(--patient-text-soft)',
+                sage: 'var(--patient-sage)',
+                coral: 'var(--patient-coral)',
+                sunlight: 'var(--patient-sunlight)',
+                'sunlight-text': 'var(--patient-sunlight-text)',
+                'alert-red': 'var(--patient-alert-red)',
+                'sage-tint': 'var(--patient-sage-tint)',
+                lavender: 'var(--patient-lavender)',
+                // Backward-compatibility keys
+                'deep-sage': 'var(--patient-header)',
+                'calm-sage': 'var(--patient-sage)',
+                'soft-coral': 'var(--patient-coral)',
+                'warm-sand': 'var(--patient-bg)'
+              }
+            },
             fontFamily: {
-              sans: ['Arial', 'Arimo', 'Helvetica', 'sans-serif'],
-              serif: ['"Times New Roman"', 'Tinos', 'Times', 'serif'],
-              heading: ['"Times New Roman"', 'Tinos', 'Times', 'serif'],
-              times: ['"Times New Roman"', 'Tinos', 'Times', 'serif'],
-              arial: ['Arial', 'Arimo', 'Helvetica', 'sans-serif'],
-              mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+              sans: ['Arial', 'Arimo', 'Noto Sans Devanagari', 'Helvetica', 'sans-serif'],
+              serif: ['"Times New Roman"', 'Tinos', 'Noto Serif Devanagari', 'Times', 'serif'],
+              heading: ['"Times New Roman"', 'Tinos', 'Noto Serif Devanagari', 'Times', 'serif'],
+              times: ['"Times New Roman"', 'Tinos', 'Noto Serif Devanagari', 'Times', 'serif'],
+              arial: ['Arial', 'Arimo', 'Noto Sans Devanagari', 'Helvetica', 'sans-serif'],
+              mono: ['JetBrains Mono', 'Consolas', 'monospace']
             }
           }
         }
       }
     </script>
   </head>
-  <body class="bg-white text-slate-900 antialiased selection:bg-blue-600 selection:text-white">
+  <body class="bg-[#F8FAFC] text-[#334155] antialiased selection:bg-[#5B9A94] selection:text-white font-sans">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

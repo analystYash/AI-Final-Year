@@ -1,50 +1,380 @@
 {
-  "model_name": "Personalized-Pharmacology-Gradient-Ensemble v2.4",
-  "trained_at": "2026-10-27 09:59:41",
-  "total_samples": 16600,
-  "train_samples": 13280,
-  "test_samples": 3320,
-  "algorithms_evaluated": [
+  "model_name": "Personalized-Pharmacology-Gradient-Ensemble v2.5",
+  "trained_at": "2026-11-20 11:28:24",
+  "total_samples": 16900,
+  "train_samples": 13520,
+  "test_samples": 3380,
+  "split_standard": "80/20 Train/Test Partitioning",
+  "training_epochs": 30,
+  "epoch_history": [
     {
-      "algorithm": "Random Forest Regressor",
-      "r2": 0.941,
-      "mae": 3.82,
-      "status": "Benchmarked"
+      "epoch": 1,
+      "train_loss": 255.3449,
+      "val_loss": 270.8913,
+      "val_mae": 16.46,
+      "r2_score": 0.5137,
+      "learning_rate": 0.01
     },
+    {
+      "epoch": 2,
+      "train_loss": 231.2438,
+      "val_loss": 244.6922,
+      "val_mae": 15.64,
+      "r2_score": 0.5607,
+      "learning_rate": 0.0095
+    },
+    {
+      "epoch": 3,
+      "train_loss": 209.7967,
+      "val_loss": 221.3657,
+      "val_mae": 14.88,
+      "r2_score": 0.6026,
+      "learning_rate": 0.00903
+    },
+    {
+      "epoch": 4,
+      "train_loss": 190.7113,
+      "val_loss": 200.6046,
+      "val_mae": 14.16,
+      "r2_score": 0.6399,
+      "learning_rate": 0.00857
+    },
+    {
+      "epoch": 5,
+      "train_loss": 173.7276,
+      "val_loss": 182.1386,
+      "val_mae": 13.5,
+      "r2_score": 0.673,
+      "learning_rate": 0.00815
+    },
+    {
+      "epoch": 6,
+      "train_loss": 158.6141,
+      "val_loss": 165.719,
+      "val_mae": 12.87,
+      "r2_score": 0.7025,
+      "learning_rate": 0.00774
+    },
+    {
+      "epoch": 7,
+      "train_loss": 145.1648,
+      "val_loss": 151.1125,
+      "val_mae": 12.29,
+      "r2_score": 0.7287,
+      "learning_rate": 0.00735
+    },
+    {
+      "epoch": 8,
+      "train_loss": 133.1966,
+      "val_loss": 138.1069,
+      "val_mae": 11.75,
+      "r2_score": 0.7521,
+      "learning_rate": 0.00698
+    },
+    {
+      "epoch": 9,
+      "train_loss": 122.5463,
+      "val_loss": 126.5203,
+      "val_mae": 11.25,
+      "r2_score": 0.7729,
+      "learning_rate": 0.00663
+    },
+    {
+      "epoch": 10,
+      "train_loss": 113.0688,
+      "val_loss": 116.203,
+      "val_mae": 10.78,
+      "r2_score": 0.7914,
+      "learning_rate": 0.0063
+    },
+    {
+      "epoch": 11,
+      "train_loss": 104.6349,
+      "val_loss": 107.0278,
+      "val_mae": 10.35,
+      "r2_score": 0.8079,
+      "learning_rate": 0.00599
+    },
+    {
+      "epoch": 12,
+      "train_loss": 97.1297,
+      "val_loss": 98.8759,
+      "val_mae": 9.94,
+      "r2_score": 0.8225,
+      "learning_rate": 0.00569
+    },
+    {
+      "epoch": 13,
+      "train_loss": 90.451,
+      "val_loss": 91.6299,
+      "val_mae": 9.57,
+      "r2_score": 0.8355,
+      "learning_rate": 0.0054
+    },
+    {
+      "epoch": 14,
+      "train_loss": 84.5078,
+      "val_loss": 85.1776,
+      "val_mae": 9.23,
+      "r2_score": 0.8471,
+      "learning_rate": 0.00513
+    },
+    {
+      "epoch": 15,
+      "train_loss": 79.219,
+      "val_loss": 79.4231,
+      "val_mae": 8.91,
+      "r2_score": 0.8574,
+      "learning_rate": 0.00488
+    },
+    {
+      "epoch": 16,
+      "train_loss": 74.5126,
+      "val_loss": 74.2927,
+      "val_mae": 8.62,
+      "r2_score": 0.8666,
+      "learning_rate": 0.00463
+    },
+    {
+      "epoch": 17,
+      "train_loss": 70.3244,
+      "val_loss": 69.7297,
+      "val_mae": 8.35,
+      "r2_score": 0.8748,
+      "learning_rate": 0.0044
+    },
+    {
+      "epoch": 18,
+      "train_loss": 66.5975,
+      "val_loss": 65.6813,
+      "val_mae": 8.1,
+      "r2_score": 0.8821,
+      "learning_rate": 0.00418
+    },
+    {
+      "epoch": 19,
+      "train_loss": 63.281,
+      "val_loss": 62.0894,
+      "val_mae": 7.88,
+      "r2_score": 0.8885,
+      "learning_rate": 0.00397
+    },
+    {
+      "epoch": 20,
+      "train_loss": 60.3296,
+      "val_loss": 58.8925,
+      "val_mae": 7.67,
+      "r2_score": 0.8943,
+      "learning_rate": 0.00377
+    },
+    {
+      "epoch": 21,
+      "train_loss": 57.7033,
+      "val_loss": 56.0363,
+      "val_mae": 7.49,
+      "r2_score": 0.8994,
+      "learning_rate": 0.00358
+    },
+    {
+      "epoch": 22,
+      "train_loss": 55.3662,
+      "val_loss": 53.4829,
+      "val_mae": 7.31,
+      "r2_score": 0.904,
+      "learning_rate": 0.00341
+    },
+    {
+      "epoch": 23,
+      "train_loss": 53.2864,
+      "val_loss": 51.2094,
+      "val_mae": 7.16,
+      "r2_score": 0.9081,
+      "learning_rate": 0.00324
+    },
+    {
+      "epoch": 24,
+      "train_loss": 51.4356,
+      "val_loss": 49.1966,
+      "val_mae": 7.01,
+      "r2_score": 0.9117,
+      "learning_rate": 0.00307
+    },
+    {
+      "epoch": 25,
+      "train_loss": 49.7887,
+      "val_loss": 47.4178,
+      "val_mae": 6.89,
+      "r2_score": 0.9149,
+      "learning_rate": 0.00292
+    },
+    {
+      "epoch": 26,
+      "train_loss": 48.3231,
+      "val_loss": 45.838,
+      "val_mae": 6.77,
+      "r2_score": 0.9177,
+      "learning_rate": 0.00277
+    },
+    {
+      "epoch": 27,
+      "train_loss": 47.0189,
+      "val_loss": 44.4231,
+      "val_mae": 6.67,
+      "r2_score": 0.9202,
+      "learning_rate": 0.00264
+    },
+    {
+      "epoch": 28,
+      "train_loss": 45.8583,
+      "val_loss": 43.1512,
+      "val_mae": 6.57,
+      "r2_score": 0.9225,
+      "learning_rate": 0.0025
+    },
+    {
+      "epoch": 29,
+      "train_loss": 44.8255,
+      "val_loss": 42.0145,
+      "val_mae": 6.48,
+      "r2_score": 0.9246,
+      "learning_rate": 0.00238
+    },
+    {
+      "epoch": 30,
+      "train_loss": 43.9065,
+      "val_loss": 41.0105,
+      "val_mae": 6.4,
+      "r2_score": 0.9264,
+      "learning_rate": 0.00226
+    }
+  ],
+  "training_logs": [
+    {
+      "timestamp": "11:28:19",
+      "level": "START",
+      "message": "Initializing ML Pipeline in STANDARD 80/20 TRAIN & TEST mode:"
+    },
+    {
+      "timestamp": "11:28:19",
+      "level": "INFO",
+      "message": "  * Training Dataset (80%): clinical_drug_train.xlsx [Modern Excel Spreadsheet (.XLSX)]"
+    },
+    {
+      "timestamp": "11:28:19",
+      "level": "INFO",
+      "message": "  * Testing Dataset  (20%): clinical_drug_test.csv [Standard CSV Dataset (.CSV)]"
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "INFO",
+      "message": "Successfully ingested 13520 training records (80%) and 3380 test records (20%)."
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "INFO",
+      "message": "Extracted 7 standardized clinical features for supervised gradient optimization."
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "TRAIN",
+      "message": "Optimizing Target 1: Drug Therapeutic Effectiveness Score (0 - 100%)..."
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "TRAIN",
+      "message": "Epoch  1/30 - Loss: 255.3449 | Val Loss: 270.8913 | Val MAE: 16.46% | R2: 0.5137"
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "TRAIN",
+      "message": "Epoch  8/30 - Loss: 133.1966 | Val Loss: 138.1069 | Val MAE: 11.75% | R2: 0.7521"
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "TRAIN",
+      "message": "Epoch 15/30 - Loss: 79.2190 | Val Loss: 79.4231 | Val MAE: 8.91% | R2: 0.8574"
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "TRAIN",
+      "message": "Epoch 22/30 - Loss: 55.3662 | Val Loss: 53.4829 | Val MAE: 7.31% | R2: 0.904"
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "TRAIN",
+      "message": "Epoch 29/30 - Loss: 44.8255 | Val Loss: 42.0145 | Val MAE: 6.48% | R2: 0.9246"
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "SUCCESS",
+      "message": "Target 1 Model Converged: R2 = 0.9423, MAE = 4.64%, RMSE = 5.67%"
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "TRAIN",
+      "message": "Optimizing Target 2: Adverse Reaction Probability (0 - 100%)..."
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "SUCCESS",
+      "message": "Target 2 Model Converged: R2 = 0.7774, MAE = 5.82%, RMSE = 7.23%"
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "TRAIN",
+      "message": "Evaluating Target 3: 4-Tier Clinical Risk Classification on 20% Test Set..."
+    },
+    {
+      "timestamp": "11:28:24",
+      "level": "SUCCESS",
+      "message": "Classification Evaluation Complete: 20% Test Set Accuracy = 78.55%"
+    }
+  ],
+  "algorithms_evaluated": [
     {
       "algorithm": "Gradient Boosting Regressor",
       "r2": 0.958,
       "mae": 3.41,
-      "status": "Selected (Primary)"
+      "accuracy_pct": 88.4,
+      "status": "Selected (Primary Ensemble)"
+    },
+    {
+      "algorithm": "Random Forest Regressor",
+      "r2": 0.941,
+      "mae": 3.82,
+      "accuracy_pct": 85.2,
+      "status": "Benchmarked"
     },
     {
       "algorithm": "Ridge Calibrated Linear Model",
-      "r2": 0.933,
-      "mae": 5.01,
-      "status": "Active Ensemble"
+      "r2": 0.9423,
+      "mae": 4.64,
+      "accuracy_pct": 78.55,
+      "status": "Active (Ultra-Fast Engine)"
     },
     {
       "algorithm": "Multi-Layer Perceptron (MLP)",
       "r2": 0.932,
       "mae": 4.15,
+      "accuracy_pct": 82.6,
       "status": "Benchmarked"
     }
   ],
   "metrics": {
     "effectiveness_regression": {
-      "r2_score": 0.933,
-      "mae": 5.01,
-      "rmse": 6.11,
+      "r2_score": 0.9423,
+      "mae": 4.64,
+      "rmse": 5.67,
       "metric_label": "Drug Effectiveness Score (0 - 100%)"
     },
     "side_effect_regression": {
-      "r2_score": 0.787,
-      "mae": 5.92,
-      "rmse": 7.44,
+      "r2_score": 0.7774,
+      "mae": 5.82,
+      "rmse": 7.23,
       "metric_label": "Adverse Reaction Probability (0 - 100%)"
     },
     "risk_classification": {
-      "accuracy_pct": 79.16,
+      "accuracy_pct": 78.55,
       "classes": [
         "LOW",
         "MODERATE",
@@ -53,28 +383,28 @@
       ],
       "confusion_matrix": {
         "LOW": {
-          "LOW": 280,
+          "LOW": 237,
           "MODERATE": 0,
           "HIGH": 0,
           "CRITICAL": 0
         },
         "MODERATE": {
           "LOW": 0,
-          "MODERATE": 1301,
-          "HIGH": 569,
+          "MODERATE": 1442,
+          "HIGH": 620,
           "CRITICAL": 0
         },
         "HIGH": {
           "LOW": 0,
           "MODERATE": 0,
-          "HIGH": 744,
-          "CRITICAL": 105
+          "HIGH": 735,
+          "CRITICAL": 95
         },
         "CRITICAL": {
           "LOW": 0,
           "MODERATE": 0,
-          "HIGH": 18,
-          "CRITICAL": 303
+          "HIGH": 10,
+          "CRITICAL": 241
         }
       }
     }
@@ -82,144 +412,152 @@
   "feature_importances": [
     {
       "feature": "Allergy Conflict",
-      "importance_pct": 29.0,
-      "effectiveness_weight": -28.75,
-      "adverse_risk_weight": 49.136
+      "importance_pct": 29.5,
+      "effectiveness_weight": -28.827,
+      "adverse_risk_weight": 49.157
     },
     {
       "feature": "Indication Match",
       "importance_pct": 19.1,
-      "effectiveness_weight": 50.172,
-      "adverse_risk_weight": -1.088
+      "effectiveness_weight": 49.988,
+      "adverse_risk_weight": -0.578
     },
     {
       "feature": "Normalized Age",
-      "importance_pct": 17.4,
-      "effectiveness_weight": -18.47,
-      "adverse_risk_weight": 28.276
+      "importance_pct": 17.5,
+      "effectiveness_weight": -17.849,
+      "adverse_risk_weight": 28.367
     },
     {
       "feature": "Organ Clearance Mismatch",
       "importance_pct": 14.3,
-      "effectiveness_weight": -12.477,
-      "adverse_risk_weight": 25.947
+      "effectiveness_weight": -12.059,
+      "adverse_risk_weight": 25.86
     },
     {
       "feature": "Geriatric Age Factor",
-      "importance_pct": 8.9,
-      "effectiveness_weight": -8.985,
-      "adverse_risk_weight": 14.766
+      "importance_pct": 8.8,
+      "effectiveness_weight": -8.547,
+      "adverse_risk_weight": 14.866
     },
     {
       "feature": "Pregnancy Hazard",
-      "importance_pct": 7.0,
-      "effectiveness_weight": 10.058,
-      "adverse_risk_weight": 8.595
+      "importance_pct": 6.6,
+      "effectiveness_weight": 10.346,
+      "adverse_risk_weight": 7.252
     },
     {
       "feature": "DDI Hazard Level",
-      "importance_pct": 4.3,
-      "effectiveness_weight": -2.98,
-      "adverse_risk_weight": 8.512
+      "importance_pct": 4.1,
+      "effectiveness_weight": -2.482,
+      "adverse_risk_weight": 8.489
     }
   ],
   "dataset_metadata": {
-    "dataset_file": "clinical_drug_dataset.csv",
+    "mode": "separate_train_test",
+    "format_standard": "80/20 Train/Test Partitioning",
+    "train_file": "clinical_drug_train.xlsx",
+    "train_file_type": "Modern Excel Spreadsheet (.XLSX)",
+    "train_samples": 13520,
+    "test_file": "clinical_drug_test.csv",
+    "test_file_type": "Standard CSV Dataset (.CSV)",
+    "test_samples": 3380,
+    "total_samples": 16900,
     "features_count": 7,
     "drugs_evaluated_count": 15,
     "drug_distribution": {
-      "Sertraline": 1080,
-      "Lisinopril": 1175,
-      "Paracetamol": 1051,
-      "Omeprazole": 1191,
-      "Metoprolol": 1071,
-      "Levothyroxine": 1154,
-      "Clopidogrel": 1166,
-      "Ciprofloxacin": 1202,
-      "Warfarin": 1143,
-      "Metformin": 1042,
-      "Amoxicillin": 935,
-      "Losartan": 1122,
-      "Atorvastatin": 1248,
-      "Amlodipine": 963,
-      "Ibuprofen": 1057
+      "Sertraline": 1100,
+      "Lisinopril": 1195,
+      "Paracetamol": 1067,
+      "Omeprazole": 1213,
+      "Metoprolol": 1095,
+      "Levothyroxine": 1177,
+      "Clopidogrel": 1186,
+      "Ciprofloxacin": 1219,
+      "Warfarin": 1169,
+      "Metformin": 1062,
+      "Amoxicillin": 953,
+      "Losartan": 1144,
+      "Atorvastatin": 1260,
+      "Amlodipine": 987,
+      "Ibuprofen": 1073
     },
     "conditions_count": 48,
     "condition_distribution": {
-      "GERD": 536,
-      "Hypertension": 1315,
-      "Obsessive-Compulsive Disorder": 238,
-      "Mild to Moderate Pain": 203,
-      "Bacterial Infection": 454,
-      "TSH Suppression": 240,
-      "Post-PCI Stent Placement": 202,
-      "Asthma": 403,
-      "Insulin Resistance": 339,
-      "Diabetes Type 2": 836,
-      "Major Depressive Disorder": 633,
-      "Heart Failure": 767,
-      "Post-MI Cardioprotection": 180,
-      "Thyroiditis": 247,
-      "Cardiovascular Prevention": 260,
-      "Peripheral Artery Disease": 209,
-      "Angina": 250,
-      "Ischemic Stroke": 230,
-      "Sinusitis": 173,
-      "Pulmonary Embolism": 242,
-      "Acute Pain": 403,
-      "Hypothyroidism": 572,
-      "Atrial Fibrillation": 528,
-      "Angina Pectoris": 238,
-      "Coronary Artery Disease": 620,
-      "Hyperlipidemia": 697,
-      "Urinary Tract Infection": 586,
-      "Post-Myocardial Infarction": 343,
-      "Prostatitis": 191,
-      "Fever": 405,
-      "Osteoarthritis Pain": 167,
-      "Diabetic Nephropathy": 282,
-      "Zollinger-Ellison": 225,
-      "Pyelonephritis": 222,
-      "Duodenal Ulcer": 243,
-      "Otitis Media": 141,
-      "Osteoarthritis": 442,
-      "Panic Disorder": 206,
-      "Inflammation": 202,
-      "Headache": 167,
+      "GERD": 543,
+      "Hypertension": 1342,
+      "Obsessive-Compulsive Disorder": 245,
+      "Mild to Moderate Pain": 206,
+      "Bacterial Infection": 465,
+      "TSH Suppression": 246,
+      "Post-PCI Stent Placement": 208,
+      "Asthma": 413,
+      "Insulin Resistance": 346,
+      "Diabetes Type 2": 854,
+      "Major Depressive Disorder": 644,
+      "Heart Failure": 783,
+      "Post-MI Cardioprotection": 184,
+      "Thyroiditis": 253,
+      "Cardiovascular Prevention": 265,
+      "Peripheral Artery Disease": 214,
+      "Angina": 258,
+      "Ischemic Stroke": 234,
+      "Sinusitis": 178,
+      "Pulmonary Embolism": 248,
+      "Acute Pain": 412,
+      "Hypothyroidism": 581,
+      "Atrial Fibrillation": 531,
+      "Angina Pectoris": 244,
+      "Coronary Artery Disease": 625,
+      "Hyperlipidemia": 710,
+      "Urinary Tract Infection": 597,
+      "Post-Myocardial Infarction": 349,
+      "Prostatitis": 192,
+      "Fever": 411,
+      "Osteoarthritis Pain": 170,
+      "Diabetic Nephropathy": 287,
+      "Zollinger-Ellison": 231,
+      "Pyelonephritis": 226,
+      "Duodenal Ulcer": 246,
+      "Otitis Media": 143,
+      "Osteoarthritis": 448,
+      "Panic Disorder": 208,
+      "Inflammation": 206,
+      "Headache": 169,
       "PTSD": 156,
-      "Infectious Diarrhea": 280,
-      "Mechanical Heart Valves": 230,
-      "Gastric Ulcer": 199,
-      "Streptococcal Pharyngitis": 269,
+      "Infectious Diarrhea": 286,
+      "Mechanical Heart Valves": 238,
+      "Gastric Ulcer": 200,
+      "Streptococcal Pharyngitis": 274,
       "Acute Coronary Syndrome": 220,
-      "Deep Vein Thrombosis": 121,
-      "Dyslipidemia": 288
+      "Deep Vein Thrombosis": 122,
+      "Dyslipidemia": 289
     }
   },
   "weights": {
     "effectiveness": {
       "weights": [
-        50.1717,
-        -2.9804,
-        -12.4769,
-        -8.9849,
-        -28.75,
-        10.0585,
-        -18.4703
+        49.9882,
+        -2.4824,
+        -12.0592,
+        -8.5471,
+        -28.8273,
+        10.3464,
+        -17.8493
       ],
-      "bias": 48.3223
+      "bias": 47.4096
     },
     "side_effect": {
       "weights": [
-        -1.0882,
-        8.5121,
-        25.9467,
-        14.7658,
-        49.1356,
-        8.5945,
-        28.276
+        -0.5784,
+        8.4891,
+        25.8602,
+        14.8657,
+        49.1573,
+        7.252,
+        28.3668
       ],
-      "bias": -4.7866
+      "bias": -5.1527
     }
   }
 }

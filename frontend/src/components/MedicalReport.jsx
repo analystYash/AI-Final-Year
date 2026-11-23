@@ -65,9 +65,9 @@ export default function MedicalReport({
 
   if (!patient) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center text-slate-400">
-        <FileText size={36} className="mx-auto text-slate-600 mb-2" />
-        <p>No patient or report information available to generate the report.</p>
+      <div className="bg-white border border-slate-200 rounded-3xl p-8 text-center text-slate-600 shadow-sm">
+        <FileText size={36} className="mx-auto text-slate-400 mb-2" />
+        <p className="font-medium text-slate-700">No patient or report information available to generate the report.</p>
       </div>
     );
   }
@@ -81,41 +81,41 @@ export default function MedicalReport({
   return (
     <div className="space-y-4">
       {/* Top Action Controls (hidden on print) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 p-4 rounded-2xl print:hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-[#E8EDF2] p-4 rounded-xl shadow-xs print:hidden">
         <div className="flex items-center gap-2">
-          <FileText size={18} className="text-cyan-400" />
-          <span className="text-sm font-bold text-white">
-            Clinical AI Safety & Medical Report
+          <FileText size={18} className="text-[#5B9A94]" />
+          <span className="text-sm font-bold text-[#334155]">
+            Clinical AI Safety &amp; Medical Report
           </span>
-          <span className="text-xs bg-slate-800 text-slate-300 font-mono px-2.5 py-0.5 rounded-lg border border-slate-700">
+          <span className="text-xs bg-[#F8FAFC] text-[#64748B] font-mono px-2.5 py-0.5 rounded-lg border border-[#E8EDF2]">
             {generatedId}
           </span>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Language Switcher */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-            <Languages size={14} className="text-slate-500 ml-1 mr-1.5" />
+          <div className="flex items-center bg-[#F8FAFC] p-1 rounded-lg border border-[#E8EDF2] text-xs">
+            <Languages size={14} className="text-[#64748B] ml-1 mr-1.5" />
             <button
               onClick={() => setSelectedLang('english')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition cursor-pointer ${
-                selectedLang === 'english' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
+                selectedLang === 'english' ? 'bg-[#5B9A94] text-white shadow-xs' : 'text-[#64748B] hover:text-[#334155]'
               }`}
             >
               English
             </button>
             <button
               onClick={() => setSelectedLang('hinglish')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition cursor-pointer ${
-                selectedLang === 'hinglish' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
+                selectedLang === 'hinglish' ? 'bg-[#5B9A94] text-white shadow-xs' : 'text-[#64748B] hover:text-[#334155]'
               }`}
             >
               Hinglish
             </button>
             <button
               onClick={() => setSelectedLang('marathi')}
-              className={`px-2.5 py-1 rounded-lg font-medium transition cursor-pointer ${
-                selectedLang === 'marathi' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
+                selectedLang === 'marathi' ? 'bg-[#5B9A94] text-white shadow-xs' : 'text-[#64748B] hover:text-[#334155]'
               }`}
             >
               मराठी
@@ -125,7 +125,7 @@ export default function MedicalReport({
           {/* Print / Download Button */}
           <button
             onClick={handlePrint}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-2 transition cursor-pointer"
+            className="px-4 py-2 bg-[#5B9A94] hover:bg-[#487B76] text-white font-semibold text-xs rounded-lg shadow-xs flex items-center gap-2 transition cursor-pointer"
           >
             <Printer size={15} /> Print / Save PDF
           </button>
@@ -146,7 +146,7 @@ export default function MedicalReport({
               +
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-times">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
                 APEX MULTISPECIALTY HOSPITAL
               </h1>
               <p className="text-xs text-blue-700 font-medium">
@@ -170,14 +170,14 @@ export default function MedicalReport({
 
         {/* PATIENT DEMOGRAPHICS & CLINICAL INTAKE */}
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 text-xs">
-          <div className="font-bold text-blue-800 uppercase tracking-wider mb-3 text-[11px] flex items-center gap-1.5 font-times">
+          <div className="font-bold text-blue-800 uppercase tracking-wider mb-3 text-[11px] flex items-center gap-1.5">
             <User size={14} /> Patient Clinical Profile
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
               <span className="text-slate-500 block text-[10px]">Patient Name</span>
-              <span className="font-bold text-slate-900 text-sm font-times">{patient.name}</span>
+              <span className="font-bold text-slate-900 text-sm">{patient.name}</span>
             </div>
             <div>
               <span className="text-slate-500 block text-[10px]">Age / Gender</span>
@@ -216,7 +216,7 @@ export default function MedicalReport({
           <div className="flex items-center justify-between border-b border-slate-200 pb-2">
             <div className="flex items-center gap-2">
               <Pill size={15} className="text-emerald-700" />
-              <span className="font-bold text-slate-900 uppercase tracking-wider text-[11px] font-times">
+              <span className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
                 Prescribed Drug & AI Personalized Prediction
               </span>
             </div>
@@ -235,7 +235,7 @@ export default function MedicalReport({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-3 bg-white rounded-xl border border-slate-200">
               <span className="text-slate-500 text-[10px] block">Prescribed Medicine</span>
-              <span className="text-base font-bold text-slate-900 block font-times">{drugName}</span>
+              <span className="text-base font-bold text-slate-900 block">{drugName}</span>
               <span className="text-[11px] text-blue-700 font-mono">{dosage}</span>
             </div>
 
@@ -256,7 +256,11 @@ export default function MedicalReport({
                       key={i}
                       className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-800 border border-blue-200"
                     >
-                      {org.name ? org.name.split(' ')[0] : org.key || org}
+                      {typeof org === 'string'
+                        ? org
+                        : org?.name
+                        ? org.name.split(' ')[0]
+                        : org?.key || org?.organ || 'Systemic'}
                     </span>
                   ))
                 ) : (
@@ -371,7 +375,7 @@ export default function MedicalReport({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {externalResearch.reference_alternatives.map((alt, i) => (
                     <div key={i} className="p-2.5 bg-white rounded-xl border border-slate-200 text-[11px] space-y-1">
-                      <div className="flex items-center justify-between font-bold text-slate-900 font-times">
+                      <div className="flex items-center justify-between font-bold text-slate-900">
                         <span>{alt.drug} ({alt.class})</span>
                         <span className="text-blue-700 font-mono">Relative Efficacy: {alt.relative_efficacy}</span>
                       </div>
@@ -389,7 +393,7 @@ export default function MedicalReport({
         {/* CLINICAL SAFETY ALERTS & CONTRAINDICATIONS */}
         {clinicalAlerts.length > 0 && (
           <div className="p-4 rounded-2xl bg-red-50 border border-red-200 space-y-2">
-            <span className="text-xs font-bold text-red-700 uppercase flex items-center gap-1.5 font-times">
+            <span className="text-xs font-bold text-red-700 uppercase flex items-center gap-1.5">
               <AlertTriangle size={15} /> Safety Alerts & Pharmacological Contraindications
             </span>
             <ul className="space-y-1.5 text-xs text-red-800 list-disc list-inside">
@@ -403,7 +407,7 @@ export default function MedicalReport({
         {/* MULTILINGUAL CLINICAL SECOND OPINION & PATIENT ADVICE */}
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 text-xs space-y-2">
           <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-            <span className="font-bold text-blue-800 uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-times">
+            <span className="font-bold text-blue-800 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
               <Sparkles size={14} /> AI Clinical Second-Opinion ({selectedLang.toUpperCase()})
             </span>
             <span className="text-[10px] text-slate-500">Multilingual Decision Support</span>
@@ -417,7 +421,7 @@ export default function MedicalReport({
         {/* PHYSICIAN CLINICAL OBSERVATIONS & SIGNATURE */}
         <div className="pt-4 border-t-2 border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
           <div className="space-y-1.5 text-xs">
-            <span className="text-slate-500 text-[10px] uppercase font-bold block font-times">
+            <span className="text-slate-500 text-[10px] uppercase font-bold block">
               Attending Physician Observations:
             </span>
             <p className="text-slate-800 italic bg-slate-50 p-3 rounded-xl border border-slate-200">
@@ -426,7 +430,7 @@ export default function MedicalReport({
           </div>
 
           <div className="text-left sm:text-right space-y-2 text-xs">
-            <div className="border-b border-dashed border-slate-300 w-48 ml-auto pb-1 text-center font-times text-slate-800 text-sm">
+            <div className="border-b border-dashed border-slate-300 w-48 ml-auto pb-1 text-center text-slate-800 text-sm">
               Dr. Sharma, MD
             </div>
             <span className="text-slate-500 block text-[10px]">

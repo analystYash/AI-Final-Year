@@ -1,0 +1,17 @@
+trial_id,age,gender,indication_match,organ_mismatch,ddi_hazard_level,allergy_conflict,geriatric_flag,is_pregnant,effectiveness_pct,side_effect_pct,overall_risk_level,clinical_outcome,drug_name,primary_condition
+CT-10001,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10003,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10004,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10005,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10006,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10007,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10008,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10009,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10010,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10011,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10012,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10013,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10014,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10015,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10016,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication
+CT-10017,45.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,85.0,10.0,LOW,Optimal Efficacy,Standard Drug,Primary Indication

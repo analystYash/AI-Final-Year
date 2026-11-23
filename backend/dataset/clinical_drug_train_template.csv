@@ -1,0 +1,4 @@
+trial_id,age,gender,primary_condition,comorbidity,allergy,concurrent_medication,is_pregnant,pregnancy_trimester,drug_name,drug_class,standard_dose_mg,clearance_pathway,indication_match,organ_mismatch,ddi_hazard_level,allergy_conflict,geriatric_flag,effectiveness_pct,side_effect_pct,overall_risk_level,clinical_outcome
+CT-TRAIN-001,45,Male,Hypertension,None,None,None,0,None,Amlodipine,Calcium Channel Blocker,5,Hepatic,1,0,0,0,0,88.5,12.0,LOW,Optimal Efficacy
+CT-TRAIN-002,68,Female,Acid Peptic Disease,Gastritis,Penicillin,Warfarin,0,None,Pantoprazole,Proton Pump Inhibitor,40,Hepatic,1,0,1,0,1,82.0,18.5,MODERATE,Optimal Efficacy
+CT-TRAIN-003,52,Male,Type 2 Diabetes,Dyslipidemia,None,Atorvastatin,0,None,Metformin,Biguanide,500,Renal,1,0,0,0,0,85.0,14.0,LOW,Optimal Glycemic Control

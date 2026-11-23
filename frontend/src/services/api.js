@@ -244,59 +244,65 @@ export async function getGeminiMedicineRecommendation({ patient, candidateDrugs,
 
     const candidateDrugsMapped = (data.candidate_drugs || []).map((cd, i) => ({
       drug_name: cd.drug_name,
-      drug_class: cd.drug_class || 'Targeted Pharmacotherapy',
-      effectiveness_pct: cd.effectiveness_pct || (88 - i * 4),
-      side_effect_pct: cd.side_effect_pct || (12 + i * 3),
-      ddi_pct: cd.ddi_pct || (8 + i * 2),
-      safety_score_pct: cd.safety_score_pct || (100 - (cd.side_effect_pct || 15)),
-      recovery_time: cd.recovery_time || `${3 + i} - ${5 + i} Days`,
-      monthly_cost_inr: cd.monthly_cost_inr || (90 + i * 35),
-      recommendation_badge: cd.recommendation_badge || (i === 0 ? 'Recommended' : 'Alternative'),
+      drug_class: cd.drug_class || cd.therapeutic_action || 'Targeted Pharmacotherapy',
+      active_ingredient: cd.active_ingredient || cd.drug_name,
+      generic_name: cd.generic_name || `${cd.drug_name} IP`,
+      therapeutic_action: cd.therapeutic_action || cd.drug_class || 'Clinical Pharmacotherapy',
+      formulation: cd.formulation || 'Oral Formulation',
+      effectiveness_pct: typeof cd.effectiveness_pct === 'number' ? cd.effectiveness_pct : null,
+      side_effect_pct: typeof cd.side_effect_pct === 'number' ? cd.side_effect_pct : null,
+      ddi_pct: typeof cd.ddi_pct === 'number' ? cd.ddi_pct : null,
+      suitability_score: typeof cd.suitability_score === 'number' ? cd.suitability_score : null,
+      suitability: cd.suitability || null,
+      safety_score_pct: typeof cd.suitability_score === 'number' ? cd.suitability_score : (typeof cd.side_effect_pct === 'number' ? 100 - cd.side_effect_pct : null),
+      recovery_time: cd.recovery_time || 'Recovery duration cannot be reliably estimated from the available information.',
+      recovery_source: cd.recovery_source || 'Clinical Pharmacology Consensus',
+      pricing: cd.pricing || { has_pricing: false, price_display: 'Price unavailable' },
+      monthly_cost_inr: cd.pricing?.generic?.mrp ? Math.round(cd.pricing.generic.unit_price * 30) : null,
+      recommendation_badge: cd.recommendation_badge || (i === 0 ? 'AI Recommended' : 'Alternative Option'),
+      eligibility: cd.eligibility || 'ELIGIBLE',
+      override_reason: cd.override_reason || null,
+      allergy_safe: cd.allergy_safe ?? true,
+      allergy_compatibility: cd.allergy_compatibility || 'Compatible',
+      allergy_alert: cd.allergy_alert || null,
+      ddi_summary: cd.ddi_summary || 'No critical interactions identified.',
       target_organs: cd.target_organs?.map(o => typeof o === 'string' ? o : (o.name || o.key)) || ['stomach']
     }));
 
     return {
-      conditionIdentified: issue,
-      recommendedDrug: data.recommended_drug || drugsList[0],
-      recommendationBadge: 'Recommended',
+      conditionIdentified: data.condition_evaluated || issue,
+      recommendedDrug: data.recommended_drug || null,
+      recommendationBadge: data.recommended_drug ? 'AI Recommended' : 'No Recommendation Supported',
       candidateDrugs: candidateDrugsMapped,
+      excludedCandidates: data.excluded_candidates || [],
+      personalizedDietaryPlan: data.personalized_dietary_plan || null,
       recommendationRationale: {
-        english: data.recommendation_rationale || `${data.recommended_drug || drugsList[0]} is optimal for ${patient?.name || 'the patient'} presenting with ${issue}, providing high clinical efficacy with low contraindication risk.`,
-        hinglish: `${patient?.name || 'Patient'} ke liye ${issue} me ${data.recommended_drug || drugsList[0]} sabse asardaar aur safe dawai payi gayi hai.`,
-        marathi: `${patient?.name || 'रुग्ण'} यांच्या ${issue} त्रासासाठी ${data.recommended_drug || drugsList[0]} सर्वाधिक सुरक्षित आणि परिणामकारक औषध आहे.`
+        english: data.recommendation_rationale || `${data.recommended_drug || 'Candidate'} evaluated based on validated patient data.`,
+        hinglish: `${patient?.name || 'Patient'} ke clinical data aur allergies ko check karke yeh analysis tayar ki gayi hai.`,
+        marathi: `${patient?.name || 'रुग्ण'} यांच्या वैद्यकीय नोंदी आणि ॲलर्जी तपासून हे विश्लेषण केले आहे.`
       },
       explanationForPatient: data.explanation_for_patient || {
-        english: `This medicine directly treats your ${issue}. It is chosen specifically for your age and checked against your allergies.`,
-        hinglish: `Yeh dawai aapki ${issue} ki takleef ko jald door karegi. Aapki age aur allergy check karke yeh prescribe ki gayi hai.`,
-        marathi: `हे औषध तुमच्या ${issue} या त्रासावर तातडीने आराम देते. तुमच्या वयानुसार आणि ॲलर्जी तपासून हे दिले आहे.`
+        english: `This clinical analysis directly corresponds to your ${issue}. It is chosen specifically for your age and verified against your allergies.`,
+        hinglish: `Yeh analysis aapki ${issue} ke aadhar par tayar ki gayi hai. Aapki age aur allergy check karke safe alternatives evaluate kiye gaye hain.`,
+        marathi: `हे विश्लेषण तुमच्या ${issue} या त्रासावर आधारित आहे. तुमच्या वयानुसार आणि ॲलर्जी तपासून सुरक्षित औषधे निवडली आहेत.`
       }
     };
   } catch (err) {
-    console.warn('Medicine recommendation API fallback:', err);
+    console.warn('Medicine recommendation API notice:', err);
     return {
       conditionIdentified: issue,
-      recommendedDrug: drugsList[0] || 'Pantoprazole 40mg',
-      candidateDrugs: drugsList.slice(0, 4).map((d, i) => ({
-        drug_name: d,
-        drug_class: 'Targeted Pharmacotherapy',
-        effectiveness_pct: 88 - i * 4,
-        side_effect_pct: 12 + i * 3,
-        ddi_pct: 8 + i * 2,
-        safety_score_pct: 87 - i * 3,
-        recovery_time: `${3 + i} - ${5 + i} Days`,
-        monthly_cost_inr: 90 + i * 35,
-        recommendation_badge: i === 0 ? 'Recommended' : i === 1 ? 'High Potency' : 'Alternative',
-        target_organs: ['stomach']
-      })),
+      recommendedDrug: null,
+      candidateDrugs: [],
+      error: err.message || 'Clinical recommendation service temporarily unavailable',
       recommendationRationale: {
-        english: `${drugsList[0]} is optimal for ${patient?.name || 'the patient'} presenting with ${issue}, providing high clinical efficacy with low contraindication risk.`,
-        hinglish: `${patient?.name || 'Patient'} ke liye ${issue} me ${drugsList[0]} sabse asardaar aur safe dawai payi gayi hai.`,
-        marathi: `${patient?.name || 'रुग्ण'} यांच्या ${issue} त्रासासाठी ${drugsList[0]} सर्वाधिक सुरक्षित आणि परिणामकारक औषध आहे.`
+        english: 'No sufficiently supported medicine recommendation is available. Further clinical evaluation is required.',
+        hinglish: 'Dawai recommendation uplabdh nahi hai. Doctor ki jaanch aavashyak hai.',
+        marathi: 'औषध शिफारस उपलब्ध नाही. पुढील वैद्यकीय तपासणी आवश्यक आहे.'
       },
       explanationForPatient: {
-        english: `This medicine directly relieves your ${issue}. It is chosen specifically for your age and checked against your allergies.`,
-        hinglish: `Yeh dawai aapki ${issue} ki takleef ko jald door karegi. Aapki age aur allergy check karke yeh prescribe ki gayi hai.`,
-        marathi: `हे औषध तुमच्या ${issue} या त्रासावर तातडीने आराम देते. तुमच्या वयानुसार आणि ॲलर्जी तपासून हे दिले आहे.`
+        english: 'Information is incomplete or clinical service is temporarily unreachable. Please consult your physician.',
+        hinglish: 'Jankari uplabdh nahi hai. Kripya doctor se sampark karein.',
+        marathi: 'माहिती उपलब्ध नाही. कृपया डॉक्टरांचा सल्ला घ्या.'
       }
     };
   }
@@ -471,19 +477,98 @@ export async function loginDoctor(credentials) {
   );
 }
 
+export async function loginPatient(credentials) {
+  return await safeFetch(
+    `${API_BASE}/auth/login-patient`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    },
+    'Patient login failed'
+  );
+}
+
 export async function getMlDatasetStats() {
   return await safeFetch(`${API_BASE}/ml/dataset-stats`, {}, 'Failed to fetch ML dataset statistics');
 }
 
-export async function retrainModel() {
+export async function retrainModel(options = {}) {
   return await safeFetch(
     `${API_BASE}/ml/retrain`,
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(options)
     },
     'Model retraining failed'
   );
+}
+
+export async function uploadMlDataset(file, role = 'combined') {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (role) {
+    formData.append('role', role);
+  }
+
+  const res = await fetch(`${API_BASE}/ml/upload-dataset`, {
+    method: 'POST',
+    body: formData
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `Dataset upload failed (HTTP ${res.status})`);
+  }
+  return await res.json();
+}
+
+export async function uploadTrainTestDatasets({ trainFile, testFile }) {
+  const formData = new FormData();
+  if (trainFile) formData.append('train_file', trainFile);
+  if (testFile) formData.append('test_file', testFile);
+
+  const res = await fetch(`${API_BASE}/ml/upload-train-test`, {
+    method: 'POST',
+    body: formData
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `Train/Test dataset upload failed (HTTP ${res.status})`);
+  }
+  return await res.json();
+}
+
+export function downloadTrainTemplate(format = 'excel') {
+  window.open(`${API_BASE}/ml/train-template?format=${format}`, '_blank');
+}
+
+export function downloadTestTemplate(format = 'csv') {
+  window.open(`${API_BASE}/ml/test-template?format=${format}`, '_blank');
+}
+
+export async function getDatasetPresets() {
+  return await safeFetch(`${API_BASE}/ml/presets`, {}, 'Failed to fetch dataset presets');
+}
+
+export async function getDatasetRecords(params = {}) {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, val]) => {
+    if (val !== undefined && val !== null && val !== '') {
+      query.append(key, val);
+    }
+  });
+  return await safeFetch(`${API_BASE}/ml/dataset/records?${query.toString()}`, {}, 'Failed to fetch dataset records');
+}
+
+export function downloadDatasetFile({ filename, role, format = 'xlsx' } = {}) {
+  const query = new URLSearchParams();
+  if (filename) query.append('filename', filename);
+  if (role) query.append('role', role);
+  if (format) query.append('format', format);
+  window.open(`${API_BASE}/ml/download-file?${query.toString()}`, '_blank');
 }
 
 export async function getDrugResearch(drugName) {
@@ -607,13 +692,26 @@ export async function getCentralizedMedicalHistory(patientId) {
   );
 }
 
-export async function recordConsultation(consultationData) {
+export async function recordConsultation(patientIdOrData, maybeData = null) {
+  let endpoint = `${API_BASE}/consultations`;
+  let payload = patientIdOrData;
+
+  if (maybeData && typeof maybeData === 'object') {
+    payload = { ...maybeData, patient_id: patientIdOrData };
+    endpoint = `${API_BASE}/patients/${patientIdOrData}/consultations`;
+  } else if (patientIdOrData && typeof patientIdOrData === 'object') {
+    if (patientIdOrData.patient_id) {
+      endpoint = `${API_BASE}/patients/${patientIdOrData.patient_id}/consultations`;
+    }
+    payload = patientIdOrData;
+  }
+
   return await safeFetch(
-    `${API_BASE}/consultations`,
+    endpoint,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(consultationData)
+      body: JSON.stringify(payload)
     },
     'Failed to record consultation'
   );
@@ -793,6 +891,105 @@ export async function logoutUser(userId = null, role = 'user') {
 export async function getAuthAuditLogs(limit = 50) {
   return await safeFetch(`${API_BASE}/auth/audit-logs?limit=${limit}`, {}, 'Failed to fetch audit logs');
 }
+
+/**
+ * -----------------------------------------------------------------------------
+ * MULTI-FACTOR AUTHENTICATION & CROSS-VERIFICATION API
+ * Google Authenticator (TOTP), Email Authenticator, Phone SMS OTP Pack
+ * -----------------------------------------------------------------------------
+ */
+
+/**
+ * Generates Google Authenticator provisioning URI, TOTP secret, and QR Code Data URL.
+ */
+export async function getGoogleAuthenticatorSetup({ identifier, user_type = 'doctor', display_name = '' }) {
+  const params = new URLSearchParams({
+    identifier: identifier || '',
+    user_type: user_type || 'doctor',
+    display_name: display_name || identifier || ''
+  });
+  return await safeFetch(
+    `${API_BASE}/auth/authenticator/google/setup?${params.toString()}`,
+    {},
+    'Failed to generate Google Authenticator setup'
+  );
+}
+
+/**
+ * Verifies 6-digit TOTP code generated in Google Authenticator app.
+ */
+export async function verifyGoogleAuthenticator({ identifier, token, user_type = 'doctor' }) {
+  return await safeFetch(
+    `${API_BASE}/auth/authenticator/google/verify`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, token, user_type })
+    },
+    'Google Authenticator verification failed'
+  );
+}
+
+/**
+ * Dispatches a 6-digit OTP challenge to registered email.
+ */
+export async function sendEmailAuthenticatorOtp({ email, user_type = 'doctor', name = '' }) {
+  return await safeFetch(
+    `${API_BASE}/auth/authenticator/email/send`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, user_type, name })
+    },
+    'Failed to send Email OTP'
+  );
+}
+
+/**
+ * Verifies the 6-digit Email OTP challenge.
+ */
+export async function verifyEmailAuthenticatorOtp({ email, otp, user_type = 'doctor' }) {
+  return await safeFetch(
+    `${API_BASE}/auth/authenticator/email/verify`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp, user_type })
+    },
+    'Email OTP verification failed'
+  );
+}
+
+/**
+ * Dispatches a 6-digit SMS OTP to registered mobile phone using the OTP pack.
+ */
+export async function sendPhoneSmsOtp({ phone, user_type = 'patient', name = '' }) {
+  return await safeFetch(
+    `${API_BASE}/auth/authenticator/phone/send`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, user_type, name })
+    },
+    'Failed to dispatch SMS OTP to phone'
+  );
+}
+
+/**
+ * Verifies the 6-digit SMS OTP for cross-verification.
+ */
+export async function verifyPhoneSmsOtp({ phone, otp, user_type = 'patient' }) {
+  return await safeFetch(
+    `${API_BASE}/auth/authenticator/phone/verify`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, otp, user_type })
+    },
+    'Phone SMS OTP cross-verification failed'
+  );
+}
+
 
 
 

@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Pages/Login';
 import DoctorDashboard from './Pages/DoctorDashboard';
 import PatientDashboard from './Pages/PatientDashboard';
+import TrainDatasetPage from './Pages/TrainDatasetPage';
+import TestDatasetPage from './Pages/TestDatasetPage';
 
 // Simple Error Boundary component to prevent blank screen crashes
 class ErrorBoundary extends React.Component {
@@ -54,6 +56,12 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/doctor" element={<DoctorDashboard />} />
             <Route path="/patient" element={<PatientDashboard />} />
+            <Route path="/train" element={<TrainDatasetPage />} />
+            <Route path="/train-dataset" element={<TrainDatasetPage />} />
+            <Route path="/dataset/train" element={<TrainDatasetPage />} />
+            <Route path="/test" element={<TestDatasetPage />} />
+            <Route path="/test-dataset" element={<TestDatasetPage />} />
+            <Route path="/dataset/test" element={<TestDatasetPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
